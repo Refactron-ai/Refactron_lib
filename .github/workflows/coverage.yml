@@ -1,0 +1,52 @@
+name: Coverage
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  coverage:
+    name: Generate Coverage Report
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install -r requirements-dev.txt
+        pip install coverage-badge
+
+    - name: Run tests with coverage
+      run: |
+        pytest --cov=refactron --cov-report=html --cov-report=term --cov-report=json
+
+    - name: Generate coverage badge
+      run: |
+        coverage-badge -o coverage.svg -f
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: htmlcov/
+
+    - name: Comment coverage on PR
+      if: github.event_name == 'pull_request'
+      uses: py-cov-action/python-coverage-comment-action@v3
+      with:
+        GITHUB_TOKEN: ${{ github.token }}
+        MINIMUM_GREEN: 80
+        MINIMUM_ORANGE: 70
+
