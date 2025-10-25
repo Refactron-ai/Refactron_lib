@@ -14,7 +14,17 @@ This directory contains configuration files for various GitHub bots and automati
   - Ignores major version updates
   - Adds appropriate labels
 
-### 2. **Stale Bot** (`stale.yml`)
+### 2. **Copilot Bot** (`workflows/copilot-bot.yml`) ⭐ NEW
+- **Purpose**: Intelligent auto-labeling and miscellaneous tasks
+- **Features**:
+  - Auto-labels issues based on content
+  - Auto-labels PRs based on changes
+  - Bot commands (/label, /assign, /close, etc.)
+  - Size detection for PRs
+  - Smart detection of issue types
+  - See [COPILOT_BOT.md](COPILOT_BOT.md) for full documentation
+
+### 3. **Stale Bot** (`stale.yml`)
 - **Purpose**: Manages inactive issues and PRs
 - **Features**:
   - Marks issues stale after 30 days
