@@ -115,18 +115,66 @@
         }
         
         .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            text-decoration: none;
+            width: 120px;
+            height: 40px;
+            background: var(--gray-100);
+            border: 2px dashed var(--gray-300);
+            border-radius: 0.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .logo:hover {
+            border-color: var(--primary);
+            background: var(--gray-50);
         }
         
         .logo::before {
-            content: '🤖';
-            font-size: 1.25rem;
+            content: 'LOGO';
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            letter-spacing: 0.05em;
+        }
+        
+        .logo::after {
+            content: 'Click to upload';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: var(--gray-400);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .logo:hover::after {
+            opacity: 1;
+        }
+        
+        /* Logo placeholder states */
+        .logo:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        
+        .logo:active {
+            transform: scale(0.98);
+        }
+        
+        /* Footer logo adjustments */
+        .footer-section .logo {
+            margin-bottom: 1rem;
+        }
+        
+        .footer-section .logo::after {
+            display: none;
         }
         
         .nav-links {
@@ -699,7 +747,7 @@
     <!-- Navigation -->
     <nav>
         <div class="nav-content">
-            <a href="#" class="logo">Refactron</a>
+            <a href="#" class="logo" title="Refactron Logo - Click to upload"></a>
             <ul class="nav-links">
                 <li><a href="#features">Features</a></li>
                 <li><a href="#demo">Demo</a></li>
@@ -963,7 +1011,7 @@ print(refactorings.show_diff())</code></pre>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <div class="logo" style="margin-bottom: 1rem;">Refactron</div>
+                    <div class="logo" style="margin-bottom: 1rem; width: 100px; height: 32px;" title="Refactron Logo"></div>
                     <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
                         The intelligent code refactoring transformer for Python developers.
                         Eliminate technical debt and modernize legacy code automatically.
