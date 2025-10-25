@@ -2,10 +2,16 @@
 """
 Run Refactron on real-world projects.
 
+NOTE: This script is designed for manual testing and local development.
+For CI integration tests, see .github/workflows/ci.yml
+
 Tests:
 1. Refactron itself (dogfooding)
 2. Example projects
 3. Test suite
+
+Usage:
+    python real_world_tests/run_tests.py
 """
 
 import sys
