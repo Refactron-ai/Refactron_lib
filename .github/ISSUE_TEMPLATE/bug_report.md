@@ -1,45 +1,51 @@
 ---
-name: Bug Report
-about: Report a bug to help us improve Refactron
+name: 🐛 Bug Report
+about: Create a report to help us improve Refactron
 title: '[BUG] '
-labels: bug
-assignees: ''
+labels: ['bug', 'needs-triage']
+assignees: 'omsherikar'
 ---
 
-## Bug Description
+## 🐛 Bug Description
 A clear and concise description of what the bug is.
 
-## To Reproduce
-Steps to reproduce the behavior:
-1. Run command '...'
-2. With file '...'
+## 🔄 Steps to Reproduce
+1. Go to '...'
+2. Run command '...'
 3. See error
 
-## Expected Behavior
+## ✅ Expected Behavior
 A clear and concise description of what you expected to happen.
 
-## Actual Behavior
-What actually happened.
+## ❌ Actual Behavior
+A clear and concise description of what actually happened.
 
-## Code Sample
+## 📸 Screenshots
+If applicable, add screenshots to help explain your problem.
+
+## 🖥️ Environment
+- **OS**: [e.g. Windows 10, macOS 12.0, Ubuntu 20.04]
+- **Python Version**: [e.g. 3.8.10, 3.9.7, 3.10.2]
+- **Refactron Version**: [e.g. 0.1.0b1]
+- **Installation Method**: [e.g. pip, conda, from source]
+
+## 📝 Code Sample
 ```python
-# Minimal code example that reproduces the issue
+# If applicable, add a minimal code sample that reproduces the issue
+# Please use code blocks with syntax highlighting
 ```
 
-## Error Message/Output
+## 🔍 Error Message
 ```
-Paste any error messages or unexpected output here
+# Paste the full error message here
 ```
 
-## Environment
-- **Refactron Version**: [e.g., 0.1.0b1]
-- **Python Version**: [e.g., 3.11.5]
-- **Operating System**: [e.g., Ubuntu 22.04, macOS 13.0, Windows 11]
-- **Installation Method**: [e.g., pip, source]
+## 📋 Additional Context
+Add any other context about the problem here.
 
-## Additional Context
-Add any other context about the problem here (configuration files, logs, etc.)
-
-## Possible Solution
-(Optional) If you have suggestions on how to fix the bug
-
+## ✅ Checklist
+- [ ] I have searched existing issues to avoid duplicates
+- [ ] I have provided a clear description of the problem
+- [ ] I have included steps to reproduce
+- [ ] I have added relevant environment information
+- [ ] I have included error messages if applicable

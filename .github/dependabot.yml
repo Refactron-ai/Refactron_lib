@@ -1,28 +1,63 @@
+# Dependabot configuration for automated dependency updates
 version: 2
 updates:
-  # Enable version updates for pip
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "python"
-    commit-message:
-      prefix: "⬆️"
-      include: "scope"
-
-  # Enable version updates for GitHub Actions
+  # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+      day: "monday"
+      time: "09:00"
+    commit-message:
+      prefix: "⬆️(deps)"
+      include: "scope"
+    reviewers:
+      - "omsherikar"
+    assignees:
+      - "omsherikar"
     labels:
       - "dependencies"
-      - "github-actions"
-    commit-message:
-      prefix: "⬆️"
-      include: "scope"
+      - "automated"
 
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    commit-message:
+      prefix: "⬆️(deps)"
+      include: "scope"
+    reviewers:
+      - "omsherikar"
+    assignees:
+      - "omsherikar"
+    labels:
+      - "dependencies"
+      - "python"
+      - "automated"
+    open-pull-requests-limit: 10
+    ignore:
+      # Ignore major version updates that might break compatibility
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Docker dependencies (if you add Docker support later)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    commit-message:
+      prefix: "⬆️(deps)"
+      include: "scope"
+    reviewers:
+      - "omsherikar"
+    assignees:
+      - "omsherikar"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "automated"

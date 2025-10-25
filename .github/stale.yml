@@ -1,0 +1,89 @@
+# Stale bot configuration for managing inactive issues and PRs
+# This helps keep the repository clean and focused
+
+# Issues configuration
+issues:
+  # Mark issues as stale after 30 days of inactivity
+  daysUntilStale: 30
+  # Close stale issues after 7 days if no activity
+  daysUntilClose: 7
+  # Labels to apply when marking as stale
+  staleLabel: "stale"
+  # Labels to apply when closing
+  closeLabel: "closed-by-stale-bot"
+  # Labels that exempt issues from being marked stale
+  exemptLabels:
+    - "pinned"
+    - "security"
+    - "bug"
+    - "enhancement"
+    - "good first issue"
+    - "help wanted"
+    - "documentation"
+  # Labels that exempt issues from being closed
+  exemptCloseLabels:
+    - "pinned"
+    - "security"
+    - "bug"
+  # Comment to add when marking as stale
+  markComment: |
+    This issue has been automatically marked as stale because it has not had recent activity.
+    
+    If you believe this issue is still relevant, please:
+    - Add a comment explaining why
+    - Remove the `stale` label
+    - Or simply comment to keep it active
+    
+    This helps us keep the repository focused on active issues. Thank you for your contribution! 🙏
+  # Comment to add when closing
+  closeComment: |
+    This issue has been automatically closed because it was marked as stale and had no recent activity.
+    
+    If you believe this issue should be reopened, please:
+    - Add a comment explaining why
+    - Remove the `closed-by-stale-bot` label
+    - Or create a new issue with updated information
+    
+    Thank you for your understanding! 🙏
+
+# Pull requests configuration
+pulls:
+  # Mark PRs as stale after 14 days of inactivity
+  daysUntilStale: 14
+  # Close stale PRs after 3 days if no activity
+  daysUntilClose: 3
+  # Labels to apply when marking as stale
+  staleLabel: "stale"
+  # Labels to apply when closing
+  closeLabel: "closed-by-stale-bot"
+  # Labels that exempt PRs from being marked stale
+  exemptLabels:
+    - "pinned"
+    - "security"
+    - "bug"
+    - "enhancement"
+    - "dependencies"
+  # Labels that exempt PRs from being closed
+  exemptCloseLabels:
+    - "pinned"
+    - "security"
+  # Comment to add when marking as stale
+  markComment: |
+    This pull request has been automatically marked as stale because it has not had recent activity.
+    
+    If you believe this PR is still relevant, please:
+    - Add a comment explaining why
+    - Remove the `stale` label
+    - Or simply comment to keep it active
+    
+    This helps us keep the repository focused on active contributions. Thank you! 🙏
+  # Comment to add when closing
+  closeComment: |
+    This pull request has been automatically closed because it was marked as stale and had no recent activity.
+    
+    If you believe this PR should be reopened, please:
+    - Add a comment explaining why
+    - Remove the `closed-by-stale-bot` label
+    - Or create a new PR with updated information
+    
+    Thank you for your understanding! 🙏
