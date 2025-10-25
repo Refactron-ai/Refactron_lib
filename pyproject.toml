@@ -81,3 +81,17 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --cov=refactron --cov-report=html --cov-report=term"
 
+[tool.coverage.run]
+relative_files = true
+source = ["refactron"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
