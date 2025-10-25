@@ -1,0 +1,74 @@
+# Stale Bot - Manages inactive issues and PRs
+name: Stale Bot
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Mark stale issues and PRs
+        uses: actions/stale@v9
+        with:
+          # Stale issue settings
+          days-before-stale: 30
+          days-before-close: 7
+          stale-issue-message: |
+            This issue has been automatically marked as stale because it has not had recent activity for 30 days.
+            
+            **If you believe this issue is still relevant, please:**
+            - Add a comment explaining why
+            - Remove the `stale` label
+            - Or simply comment to keep it active
+            
+            This helps us keep the repository focused on active issues. Thank you for your contribution! 🙏
+          close-issue-message: |
+            This issue has been automatically closed because it was marked as stale and had no recent activity for 7 days.
+            
+            **If you believe this issue should be reopened, please:**
+            - Add a comment explaining why
+            - Remove the `closed-by-stale-bot` label
+            - Or create a new issue with updated information
+            
+            Thank you for your understanding! 🙏
+          stale-issue-label: 'stale'
+          close-issue-label: 'closed-by-stale-bot'
+          exempt-issue-labels: 'pinned,security,bug,enhancement,good-first-issue,help-wanted,documentation'
+          
+          # Stale PR settings
+          days-before-pr-stale: 14
+          days-before-pr-close: 3
+          stale-pr-message: |
+            This pull request has been automatically marked as stale because it has not had recent activity for 14 days.
+            
+            **If you believe this PR is still relevant, please:**
+            - Add a comment explaining why
+            - Remove the `stale` label
+            - Or simply comment to keep it active
+            
+            This helps us keep the repository focused on active contributions. Thank you! 🙏
+          close-pr-message: |
+            This pull request has been automatically closed because it was marked as stale and had no recent activity for 3 days.
+            
+            **If you believe this PR should be reopened, please:**
+            - Add a comment explaining why
+            - Remove the `closed-by-stale-bot` label
+            - Or create a new PR with updated information
+            
+            Thank you for your understanding! 🙏
+          stale-pr-label: 'stale'
+          close-pr-label: 'closed-by-stale-bot'
+          exempt-pr-labels: 'pinned,security,bug,enhancement,dependencies'
+          
+          # General settings
+          operations-per-run: 100
+          remove-stale-when-updated: true
+          ascending: false
+          exempt-draft-pr: true

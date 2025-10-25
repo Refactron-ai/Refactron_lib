@@ -1,0 +1,196 @@
+# Auto-merge Bot - Automatically merges approved PRs
+name: Auto-merge Bot
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Auto-merge approved PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            
+            // Skip if not a PR event or no PR data
+            if (!pr) {
+              console.log('No PR found, skipping auto-merge');
+              return;
+            }
+            
+            const prNumber = pr.number;
+            const labels = pr.labels.map(label => label.name);
+            
+            console.log(`Checking PR #${prNumber} for auto-merge eligibility`);
+            console.log(`Labels: ${labels.join(', ')}`);
+            
+            // Check if PR has auto-merge label
+            const hasAutoMergeLabel = labels.some(label => 
+              label === 'auto-merge' || 
+              label === 'dependencies' || 
+              label === 'dependabot'
+            );
+            
+            // Check if PR has blocking labels
+            const hasBlockingLabel = labels.some(label => 
+              label === 'do-not-merge' || 
+              label === 'needs-review' || 
+              label === 'breaking-change' ||
+              label === 'work-in-progress' ||
+              label === 'wip'
+            );
+            
+            if (!hasAutoMergeLabel) {
+              console.log('PR does not have auto-merge label, skipping');
+              return;
+            }
+            
+            if (hasBlockingLabel) {
+              console.log('PR has blocking label, skipping auto-merge');
+              return;
+            }
+            
+            // Get PR details
+            const { data: prData } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: prNumber
+            });
+            
+            // Check if PR is mergeable
+            if (prData.mergeable_state !== 'clean') {
+              console.log(`PR is not mergeable (state: ${prData.mergeable_state}), skipping`);
+              return;
+            }
+            
+            // Check if PR is approved
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner,
+              repo,
+              pull_number: prNumber
+            });
+            
+            const approvedReviews = reviews.filter(review => review.state === 'APPROVED');
+            const hasApproval = approvedReviews.length > 0;
+            
+            if (!hasApproval && !labels.includes('dependencies')) {
+              console.log('PR is not approved and not a dependency update, skipping');
+              return;
+            }
+            
+            // Check if all checks have passed
+            const { data: checkRuns } = await github.rest.checks.listForRef({
+              owner,
+              repo,
+              ref: prData.head.sha
+            });
+            
+            const failedChecks = checkRuns.check_runs.filter(check => 
+              check.conclusion === 'failure' || 
+              check.conclusion === 'timed_out' ||
+              check.conclusion === 'cancelled'
+            );
+            
+            if (failedChecks.length > 0) {
+              console.log(`PR has ${failedChecks.length} failed checks, skipping`);
+              return;
+            }
+            
+            // All conditions met, enable auto-merge
+            try {
+              await github.rest.pulls.merge({
+                owner,
+                repo,
+                pull_number: prNumber,
+                merge_method: 'squash',
+                commit_title: `${prData.title} (#${prNumber})`,
+                commit_message: `Auto-merged by Auto-merge Bot\n\n${prData.body || ''}`
+              });
+              
+              // Add comment
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: `🤖 Auto-merging this PR because:
+                
+- All checks have passed ✅
+- PR has been approved ✅
+- No conflicts detected ✅
+- Auto-merge label present ✅
+
+Thank you for your contribution! 🚀`
+              });
+              
+              console.log(`Successfully auto-merged PR #${prNumber}`);
+            } catch (error) {
+              console.error(`Failed to auto-merge PR #${prNumber}:`, error.message);
+              
+              // Add comment about failure
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: `🚫 Auto-merge failed for this PR.
+
+**Reason**: ${error.message}
+
+Please check the PR and merge manually if appropriate.`
+              });
+            }
+
+  # Enable auto-merge for dependabot PRs
+  auto-merge-dependabot:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Enable auto-merge for Dependabot
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            
+            if (!pr) return;
+            
+            const prNumber = pr.number;
+            
+            console.log(`Enabling auto-merge for Dependabot PR #${prNumber}`);
+            
+            // Add auto-merge label
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: prNumber,
+              labels: ['auto-merge', 'dependencies']
+            });
+            
+            // Add comment
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body: `🤖 Auto-merge enabled for this Dependabot PR.
+
+This PR will be automatically merged when:
+- All checks pass ✅
+- No conflicts are present ✅
+
+If you want to prevent auto-merge, add the \`do-not-merge\` label.`
+            });
+            
+            console.log(`Auto-merge label added to PR #${prNumber}`);
