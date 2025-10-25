@@ -2,12 +2,13 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Any, Dict
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 class IssueLevel(Enum):
     """Severity level of code issues."""
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -16,6 +17,7 @@ class IssueLevel(Enum):
 
 class IssueCategory(Enum):
     """Categories of code issues."""
+
     COMPLEXITY = "complexity"
     CODE_SMELL = "code_smell"
     PERFORMANCE = "performance"
@@ -31,7 +33,7 @@ class IssueCategory(Enum):
 @dataclass
 class CodeIssue:
     """Represents a detected code issue."""
-    
+
     category: IssueCategory
     level: IssueLevel
     message: str
@@ -43,7 +45,7 @@ class CodeIssue:
     suggestion: Optional[str] = None
     rule_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def __str__(self) -> str:
         location = f"{self.file_path}:{self.line_number}:{self.column}"
         return f"[{self.level.value.upper()}] {location} - {self.message}"
@@ -52,7 +54,7 @@ class CodeIssue:
 @dataclass
 class FileMetrics:
     """Metrics for a single file."""
-    
+
     file_path: Path
     lines_of_code: int
     comment_lines: int
@@ -62,19 +64,19 @@ class FileMetrics:
     functions: int
     classes: int
     issues: List[CodeIssue] = field(default_factory=list)
-    
+
     @property
     def total_lines(self) -> int:
         return self.lines_of_code + self.comment_lines + self.blank_lines
-    
+
     @property
     def issue_count(self) -> int:
         return len(self.issues)
-    
+
     @property
     def critical_issues(self) -> List[CodeIssue]:
         return [i for i in self.issues if i.level == IssueLevel.CRITICAL]
-    
+
     @property
     def error_issues(self) -> List[CodeIssue]:
         return [i for i in self.issues if i.level == IssueLevel.ERROR]
@@ -83,7 +85,7 @@ class FileMetrics:
 @dataclass
 class RefactoringOperation:
     """Represents a refactoring operation to be applied."""
-    
+
     operation_type: str
     file_path: Path
     line_number: int
@@ -93,7 +95,6 @@ class RefactoringOperation:
     risk_score: float  # 0.0 (safe) to 1.0 (risky)
     reasoning: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def __str__(self) -> str:
         return f"{self.operation_type} at {self.file_path}:{self.line_number} (risk: {self.risk_score:.2f})"
-
