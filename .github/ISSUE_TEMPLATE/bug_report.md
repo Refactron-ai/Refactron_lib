@@ -3,7 +3,6 @@ name: 🐛 Bug Report
 about: Create a report to help us improve Refactron
 title: '[BUG] '
 labels: ['bug', 'needs-triage']
-assignees: 'omsherikar'
 ---
 
 ## 🐛 Bug Description
@@ -49,3 +48,6 @@ Add any other context about the problem here.
 - [ ] I have included steps to reproduce
 - [ ] I have added relevant environment information
 - [ ] I have included error messages if applicable
+
+## 📝 Assignment
+This issue will be automatically assigned to the maintainer for review. If you have specific expertise in this area and would like to help, please mention it in your issue description.

@@ -3,7 +3,6 @@ name: ❓ Question
 about: Ask a question about Refactron
 title: '[QUESTION] '
 labels: ['question', 'needs-triage']
-assignees: 'omsherikar'
 ---
 
 ## ❓ Question
@@ -30,3 +29,6 @@ Add any other context about your question here.
 - [ ] I have checked existing issues
 - [ ] I have provided clear context
 - [ ] I have explained what I've tried
+
+## 📝 Assignment
+This issue will be automatically assigned to the maintainer for review. If you have specific expertise in this area and would like to help, please mention it in your issue description.

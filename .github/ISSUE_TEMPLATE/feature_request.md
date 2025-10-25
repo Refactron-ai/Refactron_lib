@@ -3,7 +3,6 @@ name: ✨ Feature Request
 about: Suggest an idea for Refactron
 title: '[FEATURE] '
 labels: ['enhancement', 'needs-triage']
-assignees: 'omsherikar'
 ---
 
 ## 🚀 Feature Description
@@ -45,3 +44,6 @@ Add any other context or screenshots about the feature request here.
 - [ ] I have explained the motivation and use cases
 - [ ] I have considered the priority level
 - [ ] I have linked any related issues
+
+## 📝 Assignment
+This issue will be automatically assigned to the maintainer for review. If you're interested in implementing this feature, please mention it in your issue description.
