@@ -126,6 +126,10 @@
             text-decoration: none;
             transition: all 0.2s ease;
             position: relative;
+            background-image: url('images/logo.png'), url('images/logo.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
         
         .logo:hover {
@@ -139,6 +143,12 @@
             font-weight: 600;
             color: var(--gray-500);
             letter-spacing: 0.05em;
+        }
+        
+        /* Hide placeholder text when logo is present */
+        .logo:has(img)::before,
+        .logo[style*="background-image"]::before {
+            display: none;
         }
         
         .logo::after {
@@ -171,9 +181,21 @@
         /* Footer logo adjustments */
         .footer-section .logo {
             margin-bottom: 1rem;
+            background-image: url('images/logo-footer.png'), url('images/logo-footer.svg');
         }
         
         .footer-section .logo::after {
+            display: none;
+        }
+        
+        /* Logo loaded state */
+        .logo.logo-loaded {
+            background: transparent;
+            border: none;
+        }
+        
+        .logo.logo-loaded::before,
+        .logo.logo-loaded::after {
             display: none;
         }
         
@@ -1088,6 +1110,25 @@ print(refactorings.show_diff())</code></pre>
                 }
             });
         });
+        
+        // Logo detection and loading
+        function checkLogoLoaded() {
+            const logos = document.querySelectorAll('.logo');
+            logos.forEach(logo => {
+                // Check if logo image exists
+                const img = new Image();
+                img.onload = function() {
+                    logo.classList.add('logo-loaded');
+                };
+                img.onerror = function() {
+                    // Logo not found, keep placeholder
+                };
+                img.src = 'images/logo.png';
+            });
+        }
+        
+        // Check for logo when page loads
+        document.addEventListener('DOMContentLoaded', checkLogoLoaded);
     </script>
 </body>
 </html>
