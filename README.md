@@ -9,6 +9,11 @@ Refactron is a powerful Python library designed to eliminate technical debt, mod
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)]()
 [![Version](https://img.shields.io/badge/version-0.1.0--beta-blue)]()
 [![Status](https://img.shields.io/badge/status-beta-yellow)]()
+[![PyPI version](https://badge.fury.io/py/refactron.svg)](https://pypi.org/project/refactron/)
+[![Python Version](https://img.shields.io/pypi/pyversions/refactron.svg)](https://pypi.org/project/refactron/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub Stars](https://img.shields.io/github/stars/Refactron-ai/Refactron_lib?style=social)](https://github.com/Refactron-ai/Refactron_lib)
+[![Downloads](https://pepy.tech/badge/refactron)](https://pepy.tech/project/refactron)
 
 ## ✨ Features
 
@@ -179,6 +184,8 @@ We welcome contributions! Please see:
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute
 - [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
 - [Getting Started (Dev)](GETTING_STARTED_DEV.md) - Development setup
+
+
 
 ## 📄 License
 
