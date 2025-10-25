@@ -4,6 +4,7 @@
 
 Refactron is a powerful Python library designed to eliminate technical debt, modernize legacy code, and automate code refactoring with intelligence and safety.
 
+[![CI](https://github.com/Refactron-ai/Refactron_lib/workflows/CI/badge.svg)](https://github.com/Refactron-ai/Refactron_lib/actions)
 [![Tests](https://img.shields.io/badge/tests-98%20passed-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)]()
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)]()
@@ -186,6 +187,17 @@ We welcome contributions! Please see:
 - [Getting Started (Dev)](GETTING_STARTED_DEV.md) - Development setup
 
 
+
+## 🧪 CI/CD Status
+
+Refactron uses GitHub Actions for continuous integration and deployment:
+- ✅ Automated testing on Python 3.8, 3.9, 3.10, 3.11, 3.12
+- ✅ Code quality checks (Black, isort, flake8)
+- ✅ Security scanning with Bandit
+- ✅ Automated dependency updates via Dependabot
+- ✅ 90% test coverage maintained
+
+Check our [Actions page](https://github.com/Refactron-ai/Refactron_lib/actions) for live build status!
 
 ## 📄 License
 
