@@ -155,15 +155,20 @@ jobs:
         refactron --version
         refactron --help
 
-    - name: Test analyze command on examples
+    - name: Test analyze command
       run: |
-        refactron analyze examples/ || true
-        echo "✅ Analyze command executed"
+        refactron analyze examples/simple_clean_example.py
+        echo "✅ Analyze command executed successfully"
 
     - name: Test refactor command (preview mode)
       run: |
-        refactron refactor examples/bad_code_example.py --preview || true
-        echo "✅ Refactor command executed"
+        refactron refactor examples/simple_clean_example.py --preview
+        echo "✅ Refactor command executed successfully"
+    
+    - name: Test analyze on intentionally bad code (should find issues)
+      run: |
+        # This should find issues but we don't want to fail the build
+        refactron analyze examples/bad_code_example.py || echo "✅ Found issues as expected"
 
     - name: Test init command
       run: |
