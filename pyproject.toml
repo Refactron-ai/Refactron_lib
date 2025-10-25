@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "refactron"
+version = "0.1.0b1"
+description = "The Intelligent Code Refactoring Transformer - Analyze, refactor, and optimize Python code with AI-powered suggestions"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Om Sherikar", email = "omsherikar@example.com"}
+]
+keywords = ["refactoring", "code-quality", "static-analysis", "code-optimization", "technical-debt", "code-review", "security-analysis"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "libcst>=1.1.0",
+    "click>=8.0.0",
+    "pyyaml>=6.0",
+    "rich>=13.0.0",
+    "radon>=6.0.0",
+    "astroid>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+]
+
+[project.urls]
+# Homepage = "https://github.com/yourusername/refactron"
+# Documentation = "https://refactron.readthedocs.io"  
+# Repository = "https://github.com/yourusername/refactron"
+# "Bug Tracker" = "https://github.com/yourusername/refactron/issues"
+
+[project.scripts]
+refactron = "refactron.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["refactron*"]
+exclude = ["tests*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=refactron --cov-report=html --cov-report=term"
+
