@@ -1,0 +1,43 @@
+# GitHub Pages Configuration for Refactron
+
+# Site settings
+title: Refactron
+description: The Intelligent Code Refactoring Transformer for Python
+author: Om Sherikar
+email: omsherikar@example.com
+
+# Build settings
+theme: null
+markdown: kramdown
+
+# Exclude from processing
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+
+# Include files
+include:
+  - _headers
+
+# Base URL (leave empty for GitHub Pages)
+baseurl: ""
+url: "https://refactron-ai.github.io"
+
+# GitHub metadata
+github:
+  repository_url: "https://github.com/Refactron-ai/Refactron_lib"
+  repository_name: "Refactron_lib"
+
+# Social
+social:
+  - name: GitHub
+    url: "https://github.com/Refactron-ai/Refactron_lib"
+  - name: PyPI
+    url: "https://pypi.org/project/refactron/"
+
+# Analytics (optional - add your tracking ID)
+# google_analytics: UA-XXXXXXXXX-X
+

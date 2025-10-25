@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Refactron - The Intelligent Code Refactoring Transformer for Python. Eliminate technical debt and modernize legacy code automatically.">
+    <meta name="keywords" content="python, refactoring, code quality, static analysis, technical debt, code optimization">
+    <meta name="author" content="Om Sherikar">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Refactron - Intelligent Code Refactoring">
+    <meta property="og:description" content="Eliminate technical debt and modernize legacy code with AI-powered refactoring">
+    <meta property="og:image" content="https://refactron-ai.github.io/Refactron_lib/og-image.png">
+    
+    <title>Refactron - The Intelligent Code Refactoring Transformer</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(125deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: bgMove 20s linear infinite;
+        }
+        
+        @keyframes bgMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* Navigation */
+        nav {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo::before {
+            content: '🤖';
+            font-size: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .hero .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+        
+        .hero .description {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Buttons */
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.6s backwards;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Badges */
+        .badges {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .badges img {
+            height: 20px;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .feature-card ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        
+        .feature-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .feature-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        /* Code Demo Section */
+        .demo {
+            padding: 4rem 2rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .demo-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .code-block {
+            background: var(--dark-light);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            color: var(--text);
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .terminal-prompt {
+            color: var(--success);
+        }
+        
+        /* Stats Section */
+        .stats {
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 2rem auto;
+        }
+        
+        .stat-card {
+            padding: 2rem;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 4rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+    
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Refactron</div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#demo">Demo</a></li>
+            <li><a href="https://github.com/Refactron-ai/Refactron_lib">GitHub</a></li>
+            <li><a href="https://pypi.org/project/refactron/">PyPI</a></li>
+        </ul>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Refactron</h1>
+        <p class="subtitle">The Intelligent Code Refactoring Transformer</p>
+        <p class="description">
+            Eliminate technical debt, modernize legacy code, and automate refactoring with AI-powered intelligence. 
+            Built for Python developers who care about code quality.
+        </p>
+        
+        <div class="cta-buttons">
+            <a href="https://pypi.org/project/refactron/" class="btn btn-primary">
+                📦 Install from PyPI
+            </a>
+            <a href="https://github.com/Refactron-ai/Refactron_lib" class="btn btn-secondary">
+                ⭐ Star on GitHub
+            </a>
+        </div>
+        
+        <div class="badges">
+            <img src="https://github.com/Refactron-ai/Refactron_lib/workflows/CI/badge.svg" alt="CI Status">
+            <img src="https://img.shields.io/badge/coverage-90%25-brightgreen" alt="Coverage">
+            <img src="https://img.shields.io/badge/python-3.8%2B-blue" alt="Python">
+            <img src="https://badge.fury.io/py/refactron.svg" alt="PyPI version">
+            <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2 class="section-title">✨ Powerful Features</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Comprehensive Analysis</h3>
+                <p>Deep code inspection with multiple analyzers</p>
+                <ul>
+                    <li>Security vulnerability scanning</li>
+                    <li>Code smell detection</li>
+                    <li>Complexity metrics</li>
+                    <li>Type hint analysis</li>
+                    <li>Dead code detection</li>
+                    <li>Dependency analysis</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔧</div>
+                <h3>Intelligent Refactoring</h3>
+                <p>AI-powered code transformations</p>
+                <ul>
+                    <li>Extract magic numbers</li>
+                    <li>Reduce function parameters</li>
+                    <li>Simplify conditionals</li>
+                    <li>Auto-generate docstrings</li>
+                    <li>Extract methods</li>
+                    <li>Risk scoring included</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Rich Reporting</h3>
+                <p>Actionable insights and metrics</p>
+                <ul>
+                    <li>Multiple output formats</li>
+                    <li>Before/after previews</li>
+                    <li>Detailed suggestions</li>
+                    <li>CI/CD integration</li>
+                    <li>Technical debt tracking</li>
+                    <li>Beautiful terminal output</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <div class="demo-container">
+            <h2 class="section-title">🚀 Quick Start</h2>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>Installation</span>
+                    <span class="terminal-prompt">$</span>
+                </div>
+                <pre>pip install refactron</pre>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>Analyze Your Code</span>
+                    <span class="terminal-prompt">$</span>
+                </div>
+                <pre>refactron analyze your_project/</pre>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>Get Refactoring Suggestions</span>
+                    <span class="terminal-prompt">$</span>
+                </div>
+                <pre>refactron refactor your_file.py --preview</pre>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>Python API</span>
+                </div>
+                <pre>from refactron import Refactron
+from refactron.core.config import RefactronConfig
+
+# Initialize
+config = RefactronConfig.default()
+refactron = Refactron(config)
+
+# Analyze
+result = refactron.analyze("your_project/")
+print(result.summary())
+
+# Refactor
+refactorings = refactron.refactor("your_file.py", preview=True)
+print(refactorings.show_diff())</pre>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="stats">
+        <h2 class="section-title">📈 By the Numbers</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Advanced Analyzers</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Smart Refactorers</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">90%</div>
+                <div class="stat-label">Test Coverage</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Python Versions</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/Refactron-ai/Refactron_lib">GitHub</a>
+            <a href="https://pypi.org/project/refactron/">PyPI</a>
+            <a href="https://github.com/Refactron-ai/Refactron_lib/issues">Issues</a>
+            <a href="https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md">Contributing</a>
+            <a href="https://github.com/Refactron-ai/Refactron_lib/blob/main/LICENSE">License</a>
+        </div>
+        
+        <p style="color: var(--text-muted); margin-top: 2rem;">
+            Built with ❤️ by <a href="https://github.com/omsherikar" style="color: var(--primary); text-decoration: none;">Om Sherikar</a>
+        </p>
+        
+        <p style="color: var(--text-muted); margin-top: 1rem; font-size: 0.9rem;">
+            © 2025 Refactron. Released under the MIT License.
+        </p>
+    </footer>
+</body>
+</html>
+
