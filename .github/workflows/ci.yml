@@ -174,7 +174,7 @@ jobs:
       run: |
         cd /tmp
         refactron init
-        test -f refactron.yaml && echo "✅ Config file created"
+        test -f .refactron.yaml && echo "✅ Config file created"
 
     - name: Test Python API
       run: |
