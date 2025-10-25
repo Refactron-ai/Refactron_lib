@@ -203,13 +203,6 @@ Check our [Actions page](https://github.com/Refactron-ai/Refactron_lib/actions) 
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-Built with ❤️ using:
-- [LibCST](https://github.com/Instagram/LibCST) - Concrete syntax tree parser
-- [Radon](https://github.com/rubik/radon) - Complexity metrics
-- [Astroid](https://github.com/PyCQA/astroid) - AST analysis
-- [Rich](https://github.com/Textualize/rich) - Beautiful terminal output
 
 ---
 
