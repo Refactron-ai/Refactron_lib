@@ -391,8 +391,12 @@ def autofix(
         risk_emoji = "🟢" if fixer.risk_score == 0.0 else "🟡" if fixer.risk_score < 0.5 else "🔴"
         console.print(f"{risk_emoji} {fixer_name} (risk: {fixer.risk_score:.1f})")
 
-    console.print("\n[dim]💡 Tip: Auto-fix requires analyzed issues. Integration with analyzers coming soon![/dim]")
-    console.print("[dim]📖 For now, use 'refactron analyze' to find issues, then 'refactron refactor' to fix them.[/dim]")
+    console.print(
+        "\n[dim]💡 Tip: Auto-fix requires analyzed issues. Integration with analyzers coming soon![/dim]"
+    )
+    console.print(
+        "[dim]📖 For now, use 'refactron analyze' to find issues, then 'refactron refactor' to fix them.[/dim]"
+    )
 
 
 @main.command()

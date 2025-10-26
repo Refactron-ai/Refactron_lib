@@ -14,7 +14,7 @@ from refactron.core.models import CodeIssue, IssueLevel, IssueCategory
 
 class TestRemoveUnusedImportsFixer:
     """Tests for RemoveUnusedImportsFixer."""
-    
+
     def test_removes_unused_import(self):
         """Test that unused imports are removed."""
         fixer = RemoveUnusedImportsFixer()
@@ -30,16 +30,16 @@ print('hello')
             message="Unused imports",
             file_path=Path("test.py"),
             line_number=1,
-            rule_id="remove_unused_imports"
+            rule_id="remove_unused_imports",
         )
-        
+
         result = fixer.preview(issue, code)
         assert result.success is True
         assert "import os" not in result.fixed
         assert "import sys" not in result.fixed
         assert "import json" not in result.fixed
         assert "print('hello')" in result.fixed
-    
+
     def test_keeps_used_imports(self):
         """Test that used imports are kept."""
         fixer = RemoveUnusedImportsFixer()
@@ -55,14 +55,14 @@ path = os.getcwd()
             message="Check imports",
             file_path=Path("test.py"),
             line_number=1,
-            rule_id="remove_unused_imports"
+            rule_id="remove_unused_imports",
         )
-        
+
         result = fixer.preview(issue, code)
         assert result.success is True
         assert "import os" in result.fixed
         assert "import sys" in result.fixed
-    
+
     def test_handles_from_imports(self):
         """Test handling of from imports."""
         fixer = RemoveUnusedImportsFixer()
@@ -78,15 +78,15 @@ p = Path('.')
             message="Unused imports",
             file_path=Path("test.py"),
             line_number=1,
-            rule_id="remove_unused_imports"
+            rule_id="remove_unused_imports",
         )
-        
+
         result = fixer.preview(issue, code)
         assert result.success is True
         assert "from pathlib import Path" in result.fixed
         assert "from typing import List" not in result.fixed
         assert "from os import getcwd" not in result.fixed
-    
+
     def test_low_risk_score(self):
         """Test that fixer has low risk score."""
         fixer = RemoveUnusedImportsFixer()
@@ -95,7 +95,7 @@ p = Path('.')
 
 class TestExtractMagicNumbersFixer:
     """Tests for ExtractMagicNumbersFixer."""
-    
+
     def test_extracts_magic_number(self):
         """Test magic number extraction."""
         fixer = ExtractMagicNumbersFixer()
@@ -109,13 +109,13 @@ class TestExtractMagicNumbersFixer:
             file_path=Path("test.py"),
             line_number=2,
             rule_id="extract_magic_numbers",
-            metadata={'value': 42}
+            metadata={"value": 42},
         )
-        
+
         result = fixer.preview(issue, code)
         assert result.success is True
-        assert "CONSTANT_42" in result.fixed or "42" not in result.fixed.split('\n')[-1]
-    
+        assert "CONSTANT_42" in result.fixed or "42" not in result.fixed.split("\n")[-1]
+
     def test_risk_score(self):
         """Test that fixer has appropriate risk score."""
         fixer = ExtractMagicNumbersFixer()
@@ -124,7 +124,7 @@ class TestExtractMagicNumbersFixer:
 
 class TestAddDocstringsFixer:
     """Tests for AddDocstringsFixer."""
-    
+
     def test_adds_docstring(self):
         """Test docstring addition."""
         fixer = AddDocstringsFixer()
@@ -137,13 +137,13 @@ class TestAddDocstringsFixer:
             message="Missing docstring",
             file_path=Path("test.py"),
             line_number=1,
-            rule_id="add_docstrings"
+            rule_id="add_docstrings",
         )
-        
+
         result = fixer.preview(issue, code)
         assert result.success is True
         assert '"""' in result.fixed
-    
+
     def test_risk_score(self):
         """Test that fixer has low risk score."""
         fixer = AddDocstringsFixer()
@@ -152,7 +152,7 @@ class TestAddDocstringsFixer:
 
 class TestRemoveDeadCodeFixer:
     """Tests for RemoveDeadCodeFixer."""
-    
+
     def test_removes_dead_code(self):
         """Test dead code removal."""
         fixer = RemoveDeadCodeFixer()
@@ -166,13 +166,13 @@ class TestRemoveDeadCodeFixer:
             message="Unreachable code",
             file_path=Path("test.py"),
             line_number=3,
-            rule_id="remove_dead_code"
+            rule_id="remove_dead_code",
         )
-        
+
         result = fixer.preview(issue, code)
         assert result.success is True
         assert "print('unreachable')" not in result.fixed
-    
+
     def test_risk_score(self):
         """Test that fixer has low risk score."""
         fixer = RemoveDeadCodeFixer()
@@ -181,7 +181,7 @@ class TestRemoveDeadCodeFixer:
 
 class TestFixTypeHintsFixer:
     """Tests for FixTypeHintsFixer."""
-    
+
     def test_not_yet_implemented(self):
         """Test that type hint fixer is placeholder."""
         fixer = FixTypeHintsFixer()
@@ -194,13 +194,13 @@ class TestFixTypeHintsFixer:
             message="Missing type hints",
             file_path=Path("test.py"),
             line_number=1,
-            rule_id="fix_type_hints"
+            rule_id="fix_type_hints",
         )
-        
+
         result = fixer.preview(issue, code)
         assert result.success is False
         assert "not yet implemented" in result.reason.lower()
-    
+
     def test_higher_risk_score(self):
         """Test that type hint fixer has higher risk score."""
         fixer = FixTypeHintsFixer()
@@ -209,7 +209,7 @@ class TestFixTypeHintsFixer:
 
 class TestFixerIntegration:
     """Integration tests for all fixers."""
-    
+
     def test_all_fixers_have_names(self):
         """Test that all fixers have valid names."""
         fixers = [
@@ -219,12 +219,12 @@ class TestFixerIntegration:
             RemoveDeadCodeFixer(),
             FixTypeHintsFixer(),
         ]
-        
+
         for fixer in fixers:
             assert fixer.name
             assert isinstance(fixer.name, str)
             assert len(fixer.name) > 0
-    
+
     def test_all_fixers_have_risk_scores(self):
         """Test that all fixers have valid risk scores."""
         fixers = [
@@ -234,7 +234,6 @@ class TestFixerIntegration:
             RemoveDeadCodeFixer(),
             FixTypeHintsFixer(),
         ]
-        
+
         for fixer in fixers:
             assert 0.0 <= fixer.risk_score <= 1.0
-

@@ -15,12 +15,11 @@ from refactron.autofix.fixers import (
 )
 
 __all__ = [
-    'AutoFixEngine',
-    'FixResult',
-    'RemoveUnusedImportsFixer',
-    'ExtractMagicNumbersFixer',
-    'AddDocstringsFixer',
-    'RemoveDeadCodeFixer',
-    'FixTypeHintsFixer',
+    "AutoFixEngine",
+    "FixResult",
+    "RemoveUnusedImportsFixer",
+    "ExtractMagicNumbersFixer",
+    "AddDocstringsFixer",
+    "RemoveDeadCodeFixer",
+    "FixTypeHintsFixer",
 ]
-
