@@ -48,7 +48,7 @@ pip install -r requirements-dev.txt
 # Check CLI is available
 refactron --version
 
-# Should output: refactron, version 0.1.0
+# Should output: refactron, version 1.0.0
 ```
 
 ## Run the Demo
