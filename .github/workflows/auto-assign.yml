@@ -41,11 +41,7 @@ jobs:
                   owner,
                   repo,
                   issue_number: issueNumber,
-                  body: `❌ **Assignment Failed**
-                  
-This issue is already assigned to: **@${assignedTo}**
-
-Only one person can be assigned to an issue at a time. If you'd like to collaborate, please comment on the issue instead! 💬`
+                  body: `❌ **Assignment Failed**\n\nThis issue is already assigned to: **@${assignedTo}**\n\nOnly one person can be assigned to an issue at a time. If you'd like to collaborate, please comment on the issue instead! 💬`
                 });
                 
                 console.log(`Issue #${issueNumber} already assigned to ${assignedTo}`);
@@ -62,20 +58,7 @@ Only one person can be assigned to an issue at a time. If you'd like to collabor
                   owner,
                   repo,
                   issue_number: issueNumber,
-                  body: `✅ **Successfully Assigned!**
-                  
-This issue has been assigned to **@${commenter}**.
-
-Thank you for volunteering to work on this issue! 🚀
-
-**Next steps:**
-- Fork the repository
-- Create a branch for your changes
-- Make your changes
-- Submit a pull request
-- Reference this issue in your PR
-
-Good luck! 💪`
+                  body: `✅ **Successfully Assigned!**\n\nThis issue has been assigned to **@${commenter}**.\n\nThank you for volunteering to work on this issue! 🚀\n\n**Next steps:**\n- Fork the repository\n- Create a branch for your changes\n- Make your changes\n- Submit a pull request\n- Reference this issue in your PR\n\nGood luck! 💪`
                 });
                 
                 console.log(`Successfully assigned issue #${issueNumber} to ${commenter}`);
@@ -117,11 +100,7 @@ Good luck! 💪`
                   owner,
                   repo,
                   issue_number: issueNumber,
-                  body: `✅ **Assignment Removed**
-                  
-**@${commenter}** has unassigned themselves from this issue.
-
-The issue is now available for others to claim! 🎯`
+                  body: `✅ **Assignment Removed**\n\n**@${commenter}** has unassigned themselves from this issue.\n\nThe issue is now available for others to claim! 🎯`
                 });
                 
                 console.log(`Removed assignment for ${commenter} from issue #${issueNumber}`);
@@ -131,11 +110,7 @@ The issue is now available for others to claim! 🎯`
                   owner,
                   repo,
                   issue_number: issueNumber,
-                  body: `❌ **Cannot Unassign**
-                  
-You are not currently assigned to this issue, so there's nothing to unassign.
-
-Current assignees: ${currentAssignees.length > 0 ? `@${currentAssignees.join(', ')}` : 'None'}`
+                  body: `❌ **Cannot Unassign**\n\nYou are not currently assigned to this issue, so there's nothing to unassign.\n\nCurrent assignees: ${currentAssignees.length > 0 ? `@${currentAssignees.join(', ')}` : 'None'}`
                 });
                 
                 console.log(`${commenter} tried to unassign but wasn't assigned to issue #${issueNumber}`);
@@ -163,26 +138,7 @@ Current assignees: ${currentAssignees.length > 0 ? `@${currentAssignees.join(', 
                 owner,
                 repo,
                 issue_number: issueNumber,
-                body: `🤖 **Auto-assign Bot Commands**
-
-Here are the available commands:
-
-**Assignment Commands:**
-- \`/assign\` - Assign this issue to yourself
-- \`/unassign\` - Remove your assignment from this issue
-
-**Help Commands:**
-- \`/help\` - Show this help message
-- \`/commands\` - Show this help message
-
-**How it works:**
-- Only one person can be assigned to an issue at a time
-- Use \`/assign\` to claim an issue you want to work on
-- Use \`/unassign\` if you can no longer work on the issue
-- If someone else is already assigned, you'll get a message
-
-**Example:**
-Just comment \`/assign\` on any issue to claim it! 🚀`
+                body: `🤖 **Auto-assign Bot Commands**\n\nHere are the available commands:\n\n**Assignment Commands:**\n- \`/assign\` - Assign this issue to yourself\n- \`/unassign\` - Remove your assignment from this issue\n\n**Help Commands:**\n- \`/help\` - Show this help message\n- \`/commands\` - Show this help message\n\n**How it works:**\n- Only one person can be assigned to an issue at a time\n- Use \`/assign\` to claim an issue you want to work on\n- Use \`/unassign\` if you can no longer work on the issue\n- If someone else is already assigned, you'll get a message\n\n**Example:**\nJust comment \`/assign\` on any issue to claim it! 🚀`
               });
               
               console.log(`Showed help message for issue #${issueNumber}`);
