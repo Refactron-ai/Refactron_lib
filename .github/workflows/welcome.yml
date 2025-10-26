@@ -31,59 +31,20 @@ jobs:
             const issue = context.payload.issue;
             const user = issue.user.login;
             
-            // Check if this is the first issue from this user
-            const { data: userIssues } = await github.rest.issues.listForRepo({
-              owner,
-              repo,
-              creator: user,
-              state: 'all'
-            });
+            // Simple welcome message without first-issue check
+            const comment = `👋 Welcome to Refactron, @${user}! Thanks for opening this issue.
             
-            const isFirstIssue = userIssues.length === 1;
+            **Quick Links:**
+            - 📖 [Documentation](https://github.com/Refactron-ai/Refactron_lib/blob/main/README.md)
+            - 🤝 [Contributing Guide](https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md)
+            - 📋 [Code of Conduct](https://github.com/Refactron-ai/Refactron_lib/blob/main/CODE_OF_CONDUCT.md)
             
-            let comment = '';
+            **To help us help you:**
+            - Make sure you've searched existing issues
+            - Provide a clear description
+            - Include steps to reproduce (if applicable)
             
-            if (isFirstIssue) {
-              // First-time contributor
-              comment = `🎊 Welcome to the Refactron community, @${user}! We're excited to have you here.
-              
-              **Getting Started:**
-              - 📖 [Read the README](https://github.com/Refactron-ai/Refactron_lib/blob/main/README.md)
-              - 🚀 [Quick Start Guide](https://github.com/Refactron-ai/Refactron_lib/blob/main/GETTING_STARTED_DEV.md)
-              - 🤝 [Contributing Guidelines](https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md)
-              - 📋 [Code of Conduct](https://github.com/Refactron-ai/Refactron_lib/blob/main/CODE_OF_CONDUCT.md)
-              
-              **Ways to Contribute:**
-              - 🐛 Report bugs
-              - ✨ Suggest features
-              - 📝 Improve documentation
-              - 🔧 Fix issues
-              - 🧪 Add tests
-              
-              **Need Help?**
-              - 💬 Open a discussion
-              - 🐛 Create an issue
-              - 📧 Contact maintainers
-              
-              Thank you for being part of our community! 🙏`;
-            } else {
-              // Returning contributor
-              comment = `👋 Thanks for opening this issue, @${user}!
-              
-              To help us help you better, please make sure you've:
-              - [ ] Searched existing issues to avoid duplicates
-              - [ ] Provided a clear description of the problem
-              - [ ] Included steps to reproduce (if applicable)
-              - [ ] Added relevant labels (if you have permission)
-              
-              **Quick Links:**
-              - 📖 [Documentation](https://github.com/Refactron-ai/Refactron_lib/blob/main/README.md)
-              - 🐛 [Bug Report Template](https://github.com/Refactron-ai/Refactron_lib/issues/new?template=bug_report.md)
-              - ✨ [Feature Request Template](https://github.com/Refactron-ai/Refactron_lib/issues/new?template=feature_request.md)
-              - 🤝 [Contributing Guide](https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md)
-              
-              We'll review your issue and get back to you soon! 🚀`;
-            }
+            We'll review your issue and get back to you soon! 🚀`;
             
             await github.rest.issues.createComment({
               owner,
@@ -92,7 +53,7 @@ jobs:
               body: comment
             });
             
-            console.log(`Welcomed ${user} for issue ${owner}/${repo}#${number}`);
+            console.log(`Welcomed ${user} for issue #${number}`);
 
   welcome-new-pr:
     if: github.event_name == 'pull_request'
@@ -110,54 +71,21 @@ jobs:
             const pr = context.payload.pull_request;
             const user = pr.user.login;
             
-            // Check if this is the first PR from this user
-            const { data: userPRs } = await github.rest.pulls.list({
-              owner,
-              repo,
-              creator: user,
-              state: 'all'
-            });
+            // Simple welcome message without first-PR check
+            const comment = `🎉 Thanks for contributing to Refactron, @${user}! We appreciate your effort.
             
-            const isFirstPR = userPRs.length === 1;
+            **Pre-merge checklist:**
+            - [ ] Read our [Contributing Guide](https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md)
+            - [ ] Added tests for your changes
+            - [ ] Updated documentation if needed
+            - [ ] Ensured all tests pass
+            - [ ] Followed our code style guidelines
             
-            let comment = '';
+            **Quick Links:**
+            - 📖 [Documentation](https://github.com/Refactron-ai/Refactron_lib/blob/main/README.md)
+            - 🤝 [Contributing Guide](https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md)
             
-            if (isFirstPR) {
-              // First-time contributor
-              comment = `🌟 Congratulations on your first contribution to Refactron, @${user}! 
-              
-              This is a special moment - you're now part of our community of developers working to eliminate technical debt and improve code quality.
-              
-              **What happens next:**
-              - We'll review your contribution
-              - Provide feedback if needed
-              - Merge your changes if everything looks good
-              - You'll be credited as a contributor! 🎉
-              
-              **Keep contributing:**
-              - Look for issues labeled "good first issue"
-              - Check out our [Contributing Guide](https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md)
-              - Join our community discussions
-              
-              Thank you for making Refactron better! 🚀`;
-            } else {
-              // Returning contributor
-              comment = `🎉 Thanks for contributing to Refactron, @${user}! We appreciate your effort.
-              
-              Before we review your PR, please make sure you've:
-              - [ ] Read our [Contributing Guide](https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md)
-              - [ ] Added tests for your changes
-              - [ ] Updated documentation if needed
-              - [ ] Ensured all tests pass
-              - [ ] Followed our code style guidelines
-              
-              **Quick Links:**
-              - 📖 [Documentation](https://github.com/Refactron-ai/Refactron_lib/blob/main/README.md)
-              - 🧪 [Running Tests](https://github.com/Refactron-ai/Refactron_lib/blob/main/GETTING_STARTED_DEV.md#running-tests)
-              - 📝 [Code Style](https://github.com/Refactron-ai/Refactron_lib/blob/main/CONTRIBUTING.md#code-style)
-              
-              We'll review your PR and provide feedback soon! 🚀`;
-            }
+            We'll review your PR and provide feedback soon! 🚀`;
             
             await github.rest.issues.createComment({
               owner,
@@ -166,7 +94,7 @@ jobs:
               body: comment
             });
             
-            console.log(`Welcomed ${user} for PR ${owner}/${repo}#${number}`);
+            console.log(`Welcomed ${user} for PR #${number}`);
 
   welcome-new-member:
     if: github.event_name == 'repository'
