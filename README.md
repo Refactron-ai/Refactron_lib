@@ -145,8 +145,8 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 > **✅ Stable Release**: Refactron v1.0.0 is production-ready and stable. We welcome feedback and contributions!
 
 **Current Metrics:**
-- ✅ **98 tests passing** (100% success rate)
-- ✅ **90% code coverage**
+- ✅ **135 tests passing** (100% success rate)
+- ✅ **81% code coverage**
 - ✅ **0 critical issues** in production code
 - ✅ Real-world validated on 5,800+ lines
 
