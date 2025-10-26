@@ -8,8 +8,8 @@ Refactron is a powerful Python library designed to eliminate technical debt, mod
 [![Tests](https://img.shields.io/badge/tests-98%20passed-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)]()
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)]()
-[![Version](https://img.shields.io/badge/version-0.1.0--beta-blue)]()
-[![Status](https://img.shields.io/badge/status-beta-yellow)]()
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)]()
+[![Status](https://img.shields.io/badge/status-stable-brightgreen)]()
 [![PyPI version](https://badge.fury.io/py/refactron.svg)](https://pypi.org/project/refactron/)
 [![Python Version](https://img.shields.io/pypi/pyversions/refactron.svg)](https://pypi.org/project/refactron/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -142,7 +142,7 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 
 ## 🛠️ Development Status
 
-> **⚠️ Beta Release**: Refactron v0.1.0-beta is production-ready but still evolving. We welcome feedback and contributions!
+> **✅ Stable Release**: Refactron v1.0.0 is production-ready and stable. We welcome feedback and contributions!
 
 **Current Metrics:**
 - ✅ **98 tests passing** (100% success rate)
