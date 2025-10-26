@@ -1,0 +1,189 @@
+# Auto-assign Bot - Command-based assignment system
+name: Auto-assign Bot
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  handle-assign-command:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process /assign command
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const comment = context.payload.comment;
+            const issue = context.payload.issue;
+            const commenter = comment.user.login;
+            const commentBody = comment.body.toLowerCase().trim();
+            
+            console.log(`Processing comment from ${commenter}: "${comment.body}"`);
+            
+            // Check if comment contains /assign command
+            if (commentBody === '/assign') {
+              const issueNumber = issue.number;
+              const currentAssignees = issue.assignees.map(a => a.login);
+              
+              console.log(`Current assignees: ${currentAssignees.join(', ')}`);
+              
+              // Check if issue is already assigned
+              if (currentAssignees.length > 0) {
+                // Issue is already assigned
+                const assignedTo = currentAssignees.join(', ');
+                
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                  body: `❌ **Assignment Failed**
+                  
+This issue is already assigned to: **@${assignedTo}**
+
+Only one person can be assigned to an issue at a time. If you'd like to collaborate, please comment on the issue instead! 💬`
+                });
+                
+                console.log(`Issue #${issueNumber} already assigned to ${assignedTo}`);
+              } else {
+                // Issue is not assigned, assign to commenter
+                await github.rest.issues.addAssignees({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                  assignees: [commenter]
+                });
+                
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                  body: `✅ **Successfully Assigned!**
+                  
+This issue has been assigned to **@${commenter}**.
+
+Thank you for volunteering to work on this issue! 🚀
+
+**Next steps:**
+- Fork the repository
+- Create a branch for your changes
+- Make your changes
+- Submit a pull request
+- Reference this issue in your PR
+
+Good luck! 💪`
+                });
+                
+                console.log(`Successfully assigned issue #${issueNumber} to ${commenter}`);
+              }
+            } else {
+              console.log(`Comment does not contain /assign command`);
+            }
+
+  # Handle /unassign command
+  handle-unassign-command:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process /unassign command
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const comment = context.payload.comment;
+            const issue = context.payload.issue;
+            const commenter = comment.user.login;
+            const commentBody = comment.body.toLowerCase().trim();
+            
+            // Check if comment contains /unassign command
+            if (commentBody === '/unassign') {
+              const issueNumber = issue.number;
+              const currentAssignees = issue.assignees.map(a => a.login);
+              
+              // Check if commenter is assigned to this issue
+              if (currentAssignees.includes(commenter)) {
+                // Remove assignment
+                await github.rest.issues.removeAssignees({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                  assignees: [commenter]
+                });
+                
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                  body: `✅ **Assignment Removed**
+                  
+**@${commenter}** has unassigned themselves from this issue.
+
+The issue is now available for others to claim! 🎯`
+                });
+                
+                console.log(`Removed assignment for ${commenter} from issue #${issueNumber}`);
+              } else {
+                // Commenter is not assigned
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                  body: `❌ **Cannot Unassign**
+                  
+You are not currently assigned to this issue, so there's nothing to unassign.
+
+Current assignees: ${currentAssignees.length > 0 ? `@${currentAssignees.join(', ')}` : 'None'}`
+                });
+                
+                console.log(`${commenter} tried to unassign but wasn't assigned to issue #${issueNumber}`);
+              }
+            }
+
+  # Handle /help command
+  handle-help-command:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process /help command
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const comment = context.payload.comment;
+            const issue = context.payload.issue;
+            const commentBody = comment.body.toLowerCase().trim();
+            
+            // Check if comment contains /help command
+            if (commentBody === '/help' || commentBody === '/commands') {
+              const issueNumber = issue.number;
+              
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                body: `🤖 **Auto-assign Bot Commands**
+
+Here are the available commands:
+
+**Assignment Commands:**
+- \`/assign\` - Assign this issue to yourself
+- \`/unassign\` - Remove your assignment from this issue
+
+**Help Commands:**
+- \`/help\` - Show this help message
+- \`/commands\` - Show this help message
+
+**How it works:**
+- Only one person can be assigned to an issue at a time
+- Use \`/assign\` to claim an issue you want to work on
+- Use \`/unassign\` if you can no longer work on the issue
+- If someone else is already assigned, you'll get a message
+
+**Example:**
+Just comment \`/assign\` on any issue to claim it! 🚀`
+              });
+              
+              console.log(`Showed help message for issue #${issueNumber}`);
+            }
