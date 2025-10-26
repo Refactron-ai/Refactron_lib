@@ -36,6 +36,15 @@ class AutoFixEngine:
             AddDocstringsFixer,
             RemoveDeadCodeFixer,
             FixTypeHintsFixer,
+            SortImportsFixer,
+            RemoveTrailingWhitespaceFixer,
+            NormalizeQuotesFixer,
+            SimplifyBooleanFixer,
+            ConvertToFStringFixer,
+            RemoveUnusedVariablesFixer,
+            FixIndentationFixer,
+            AddMissingCommasFixer,
+            RemovePrintStatementsFixer,
         )
         
         fixers = {}
@@ -45,6 +54,15 @@ class AutoFixEngine:
             AddDocstringsFixer,
             RemoveDeadCodeFixer,
             FixTypeHintsFixer,
+            SortImportsFixer,
+            RemoveTrailingWhitespaceFixer,
+            NormalizeQuotesFixer,
+            SimplifyBooleanFixer,
+            ConvertToFStringFixer,
+            RemoveUnusedVariablesFixer,
+            FixIndentationFixer,
+            AddMissingCommasFixer,
+            RemovePrintStatementsFixer,
         ]:
             fixer = fixer_class()
             fixers[fixer.name] = fixer
