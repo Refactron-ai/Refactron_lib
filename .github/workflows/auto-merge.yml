@@ -23,6 +23,7 @@ jobs:
       - name: Auto-merge approved PRs
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.BOT_TOKEN }}
           script: |
             const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
@@ -165,6 +166,7 @@ Please check the PR and merge manually if appropriate.`
       - name: Enable auto-merge for Dependabot
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.BOT_TOKEN }}
           script: |
             const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;

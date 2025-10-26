@@ -23,6 +23,7 @@ jobs:
       - name: Auto-assign based on labels
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.BOT_TOKEN }}
           script: |
             const { owner, repo, number } = context.issue;
             const issue = context.payload.issue || context.payload.pull_request;
@@ -81,6 +82,7 @@ jobs:
       - name: Auto-assign PR based on changed files
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.BOT_TOKEN }}
           script: |
             const { owner, repo, number } = context.issue;
             const pr = context.payload.pull_request;

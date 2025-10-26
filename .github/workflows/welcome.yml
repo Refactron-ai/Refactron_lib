@@ -25,6 +25,7 @@ jobs:
       - name: Welcome new issue
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.BOT_TOKEN }}
           script: |
             const { owner, repo, number } = context.issue;
             const issue = context.payload.issue;
@@ -103,6 +104,7 @@ jobs:
       - name: Welcome new PR
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.BOT_TOKEN }}
           script: |
             const { owner, repo, number } = context.issue;
             const pr = context.payload.pull_request;
@@ -176,6 +178,7 @@ jobs:
       - name: Welcome new member
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.BOT_TOKEN }}
           script: |
             const { owner, repo } = context.repo;
             const member = context.payload.member.login;
