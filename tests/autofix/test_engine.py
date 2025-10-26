@@ -1,10 +1,12 @@
 """Tests for auto-fix engine."""
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 from refactron.autofix.engine import AutoFixEngine, BaseFixer
 from refactron.autofix.models import FixResult, FixRiskLevel
-from refactron.core.models import CodeIssue, IssueLevel, IssueCategory
+from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
 
 
 class TestAutoFixEngine:

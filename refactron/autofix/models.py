@@ -3,8 +3,8 @@ Models for auto-fix system.
 """
 
 from dataclasses import dataclass
-from typing import Optional, List
 from enum import Enum
+from typing import List, Optional
 
 
 class FixRiskLevel(Enum):

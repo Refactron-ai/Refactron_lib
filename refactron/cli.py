@@ -9,9 +9,9 @@ from rich.console import Console
 from rich.table import Table
 
 from refactron import Refactron
-from refactron.core.config import RefactronConfig
 from refactron.autofix.engine import AutoFixEngine
 from refactron.autofix.models import FixRiskLevel
+from refactron.core.config import RefactronConfig
 
 console = Console()
 

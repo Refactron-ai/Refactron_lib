@@ -7,11 +7,11 @@ All fixers use AST analysis and pattern matching for fast, reliable transformati
 
 from refactron.autofix.engine import AutoFixEngine, FixResult
 from refactron.autofix.fixers import (
-    RemoveUnusedImportsFixer,
-    ExtractMagicNumbersFixer,
     AddDocstringsFixer,
-    RemoveDeadCodeFixer,
+    ExtractMagicNumbersFixer,
     FixTypeHintsFixer,
+    RemoveDeadCodeFixer,
+    RemoveUnusedImportsFixer,
 )
 
 __all__ = [

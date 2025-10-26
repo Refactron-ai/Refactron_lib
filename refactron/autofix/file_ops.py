@@ -2,12 +2,12 @@
 File operations for auto-fix system with backup and rollback support.
 """
 
+import json
 import shutil
 import tempfile
-from pathlib import Path
-from typing import Optional, Dict
 from datetime import datetime
-import json
+from pathlib import Path
+from typing import Dict, Optional
 
 
 class FileOperations:

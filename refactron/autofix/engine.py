@@ -6,6 +6,7 @@ automatic fixes without requiring expensive AI APIs.
 """
 
 from typing import Dict, Optional
+
 from refactron.autofix.models import FixResult, FixRiskLevel
 from refactron.core.models import CodeIssue
 
@@ -31,20 +32,20 @@ class AutoFixEngine:
     def _register_fixers(self) -> Dict[str, "BaseFixer"]:
         """Register all available fixers."""
         from refactron.autofix.fixers import (
-            RemoveUnusedImportsFixer,
-            ExtractMagicNumbersFixer,
             AddDocstringsFixer,
-            RemoveDeadCodeFixer,
-            FixTypeHintsFixer,
-            SortImportsFixer,
-            RemoveTrailingWhitespaceFixer,
-            NormalizeQuotesFixer,
-            SimplifyBooleanFixer,
-            ConvertToFStringFixer,
-            RemoveUnusedVariablesFixer,
-            FixIndentationFixer,
             AddMissingCommasFixer,
+            ConvertToFStringFixer,
+            ExtractMagicNumbersFixer,
+            FixIndentationFixer,
+            FixTypeHintsFixer,
+            NormalizeQuotesFixer,
+            RemoveDeadCodeFixer,
             RemovePrintStatementsFixer,
+            RemoveTrailingWhitespaceFixer,
+            RemoveUnusedImportsFixer,
+            RemoveUnusedVariablesFixer,
+            SimplifyBooleanFixer,
+            SortImportsFixer,
         )
 
         fixers = {}

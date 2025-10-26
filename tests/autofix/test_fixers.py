@@ -1,15 +1,17 @@
 """Tests for concrete fixer implementations."""
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 from refactron.autofix.fixers import (
-    RemoveUnusedImportsFixer,
-    ExtractMagicNumbersFixer,
     AddDocstringsFixer,
-    RemoveDeadCodeFixer,
+    ExtractMagicNumbersFixer,
     FixTypeHintsFixer,
+    RemoveDeadCodeFixer,
+    RemoveUnusedImportsFixer,
 )
-from refactron.core.models import CodeIssue, IssueLevel, IssueCategory
+from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
 
 
 class TestRemoveUnusedImportsFixer:
