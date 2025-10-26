@@ -30,9 +30,26 @@ class AutoFixEngine:
     
     def _register_fixers(self) -> Dict[str, 'BaseFixer']:
         """Register all available fixers."""
-        # Will be populated by individual fixer implementations
-        # TODO: Import fixers dynamically
-        return {}
+        from refactron.autofix.fixers import (
+            RemoveUnusedImportsFixer,
+            ExtractMagicNumbersFixer,
+            AddDocstringsFixer,
+            RemoveDeadCodeFixer,
+            FixTypeHintsFixer,
+        )
+        
+        fixers = {}
+        for fixer_class in [
+            RemoveUnusedImportsFixer,
+            ExtractMagicNumbersFixer,
+            AddDocstringsFixer,
+            RemoveDeadCodeFixer,
+            FixTypeHintsFixer,
+        ]:
+            fixer = fixer_class()
+            fixers[fixer.name] = fixer
+        
+        return fixers
     
     def can_fix(self, issue: CodeIssue) -> bool:
         """
@@ -44,7 +61,7 @@ class AutoFixEngine:
         Returns:
             True if a fixer is available, False otherwise
         """
-        return issue.type in self.fixers
+        return issue.rule_id in self.fixers if issue.rule_id else False
     
     def fix(self, issue: CodeIssue, code: str, preview: bool = True) -> FixResult:
         """
@@ -61,10 +78,10 @@ class AutoFixEngine:
         if not self.can_fix(issue):
             return FixResult(
                 success=False,
-                reason=f"No fixer available for issue type: {issue.type}"
+                reason=f"No fixer available for issue: {issue.rule_id or 'unknown'}"
             )
         
-        fixer = self.fixers[issue.type]
+        fixer = self.fixers[issue.rule_id]
         
         # Check risk level
         if fixer.risk_score > self.safety_level.value:
@@ -78,7 +95,7 @@ class AutoFixEngine:
             return fixer.preview(issue, code)
         return fixer.apply(issue, code)
     
-    def fix_all(self, issues: list, code: str, preview: bool = True) -> Dict[str, FixResult]:
+    def fix_all(self, issues: list, code: str, preview: bool = True) -> Dict[int, FixResult]:
         """
         Apply fixes to multiple issues.
         
@@ -88,15 +105,15 @@ class AutoFixEngine:
             preview: If True, only preview changes
             
         Returns:
-            Dictionary mapping issue ID to fix result
+            Dictionary mapping issue index to fix result
         """
         results = {}
         
-        for issue in issues:
+        for idx, issue in enumerate(issues):
             if self.can_fix(issue):
-                results[issue.id] = self.fix(issue, code, preview)
+                results[idx] = self.fix(issue, code, preview)
             else:
-                results[issue.id] = FixResult(
+                results[idx] = FixResult(
                     success=False,
                     reason="No fixer available"
                 )

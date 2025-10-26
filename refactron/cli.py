@@ -10,6 +10,8 @@ from rich.table import Table
 
 from refactron import Refactron
 from refactron.core.config import RefactronConfig
+from refactron.autofix.engine import AutoFixEngine
+from refactron.autofix.models import FixRiskLevel
 
 console = Console()
 
@@ -327,6 +329,70 @@ def report(target: str, format: str, output: Optional[str]) -> None:
     except Exception as e:
         console.print(f"[red]❌ Report generation failed: {e}[/red]")
         raise SystemExit(1)
+
+
+@main.command()
+@click.argument("target", type=click.Path(exists=True))
+@click.option(
+    "--preview/--apply",
+    default=True,
+    help="Preview fixes or apply them",
+)
+@click.option(
+    "--safety-level",
+    "-s",
+    type=click.Choice(["safe", "low", "moderate", "high"], case_sensitive=False),
+    default="safe",
+    help="Maximum risk level for automatic fixes",
+)
+def autofix(
+    target: str,
+    preview: bool,
+    safety_level: str,
+) -> None:
+    """
+    Automatically fix code issues (Phase 3 feature).
+
+    TARGET: Path to file or directory to fix
+
+    Examples:
+      refactron autofix myfile.py --preview
+      refactron autofix myproject/ --apply --safety-level moderate
+    """
+    console.print("\n🔧 [bold blue]Refactron Auto-fix[/bold blue]\n")
+
+    # Setup
+    target_path = _validate_path(target)
+    _print_file_count(target_path)
+
+    # Map safety level
+    safety_map = {
+        "safe": FixRiskLevel.SAFE,
+        "low": FixRiskLevel.LOW,
+        "moderate": FixRiskLevel.MODERATE,
+        "high": FixRiskLevel.HIGH,
+    }
+    safety = safety_map[safety_level.lower()]
+
+    # Initialize auto-fix engine
+    engine = AutoFixEngine(safety_level=safety)
+
+    if preview:
+        console.print("[yellow]📋 Preview mode: No changes will be applied[/yellow]\n")
+    else:
+        console.print("[green]✅ Apply mode: Changes will be written to files[/green]\n")
+
+    console.print(f"[dim]🛡️  Safety level: {safety_level}[/dim]")
+    console.print(f"[dim]🔧 Available fixers: {len(engine.fixers)}[/dim]\n")
+
+    # Display available fixers
+    console.print("[bold]Available Auto-fixes:[/bold]\n")
+    for fixer_name, fixer in engine.fixers.items():
+        risk_emoji = "🟢" if fixer.risk_score == 0.0 else "🟡" if fixer.risk_score < 0.5 else "🔴"
+        console.print(f"{risk_emoji} {fixer_name} (risk: {fixer.risk_score:.1f})")
+
+    console.print("\n[dim]💡 Tip: Auto-fix requires analyzed issues. Integration with analyzers coming soon![/dim]")
+    console.print("[dim]📖 For now, use 'refactron analyze' to find issues, then 'refactron refactor' to fix them.[/dim]")
 
 
 @main.command()
