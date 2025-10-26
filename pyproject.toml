@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "refactron"
 version = "1.0.0"
-description = "The Intelligent Code Refactoring Transformer - Analyze, refactor, and optimize Python code with AI-powered suggestions"
+description = "AI-powered Python code refactoring tool - Eliminate technical debt, improve code quality, and automate transformations with intelligent analysis"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
@@ -47,10 +47,10 @@ dev = [
 ]
 
 [project.urls]
-# Homepage = "https://github.com/yourusername/refactron"
-# Documentation = "https://refactron.readthedocs.io"  
-# Repository = "https://github.com/yourusername/refactron"
-# "Bug Tracker" = "https://github.com/yourusername/refactron/issues"
+Homepage = "https://refactron.us.kg"
+Documentation = "https://refactron-ai.github.io/Refactron_lib/"  
+Repository = "https://github.com/Refactron-ai/Refactron_lib"
+"Bug Tracker" = "https://github.com/Refactron-ai/Refactron_lib/issues"
 
 [project.scripts]
 refactron = "refactron.cli:main"
