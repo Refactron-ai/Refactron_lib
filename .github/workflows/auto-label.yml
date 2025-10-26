@@ -1,0 +1,232 @@
+# Auto-label Bot - Intelligent issue and PR labeling
+name: Auto-label Bot
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  label-issues:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-label issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const issue = context.payload.issue;
+            const title = (issue.title || '').toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const labels = [];
+            
+            console.log(`Analyzing issue #${number}: "${issue.title}"`);
+            
+            // Bug detection
+            if (title.includes('[bug]') || title.includes('bug:') || 
+                title.includes('error') || title.includes('fix') ||
+                title.includes('crash') || body.includes('bug') || 
+                body.includes('error') || body.includes('exception')) {
+              labels.push('bug');
+            }
+            
+            // Feature request
+            if (title.includes('[feature]') || title.includes('feature:') ||
+                title.includes('enhancement') || title.includes('add') ||
+                title.includes('improve') || body.includes('feature request') || 
+                body.includes('enhancement') || body.includes('would be nice')) {
+              labels.push('enhancement');
+            }
+            
+            // Question
+            if (title.includes('[question]') || title.includes('question:') ||
+                title.includes('how to') || title.includes('help') ||
+                body.includes('how do i') || body.includes('question')) {
+              labels.push('question');
+            }
+            
+            // Documentation
+            if (title.includes('doc') || title.includes('readme') ||
+                body.includes('documentation') || body.includes('docs')) {
+              labels.push('documentation');
+            }
+            
+            // Security
+            if (title.includes('security') || title.includes('vulnerability') ||
+                body.includes('security') || body.includes('vulnerability') ||
+                body.includes('cve')) {
+              labels.push('security');
+            }
+            
+            // Performance
+            if (title.includes('performance') || title.includes('slow') ||
+                body.includes('performance') || body.includes('optimization')) {
+              labels.push('performance');
+            }
+            
+            // Good first issue
+            if (title.includes('simple') || title.includes('easy') ||
+                body.includes('good first issue') || body.includes('beginner')) {
+              labels.push('good-first-issue');
+            }
+            
+            // Help wanted
+            if (body.includes('help wanted') || body.includes('community')) {
+              labels.push('help-wanted');
+            }
+            
+            // Testing
+            if (title.includes('test') || body.includes('testing') ||
+                body.includes('test case')) {
+              labels.push('testing');
+            }
+            
+            // Refactoring
+            if (title.includes('refactor') || body.includes('refactoring')) {
+              labels.push('refactoring');
+            }
+            
+            // Priority
+            if (title.includes('urgent') || body.includes('urgent') ||
+                body.includes('critical')) {
+              labels.push('priority: high');
+            } else if (title.includes('important') || body.includes('important')) {
+              labels.push('priority: medium');
+            }
+            
+            // Add labels if any detected
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: number,
+                labels: labels
+              });
+              
+              console.log(`Added ${labels.length} labels: ${labels.join(', ')}`);
+            } else {
+              console.log('No labels detected');
+            }
+
+  label-pull-requests:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Auto-label PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const pr = context.payload.pull_request;
+            const title = (pr.title || '').toLowerCase();
+            const body = (pr.body || '').toLowerCase();
+            const labels = [];
+            
+            console.log(`Analyzing PR #${number}: "${pr.title}"`);
+            
+            // Get changed files
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner,
+              repo,
+              pull_number: number
+            });
+            
+            const changedFiles = files.map(f => f.filename);
+            console.log(`Changed files: ${changedFiles.join(', ')}`);
+            
+            // Bug fix
+            if (title.includes('fix') || title.includes('bug') ||
+                body.includes('fixes #') || body.includes('closes #') ||
+                title.includes('resolve')) {
+              labels.push('bug');
+            }
+            
+            // Feature
+            if (title.includes('add') || title.includes('feature') ||
+                title.includes('implement') || body.includes('new feature')) {
+              labels.push('enhancement');
+            }
+            
+            // Documentation
+            if (changedFiles.some(f => f.endsWith('.md')) ||
+                title.includes('doc') || body.includes('documentation')) {
+              labels.push('documentation');
+            }
+            
+            // Testing
+            if (changedFiles.some(f => f.includes('test')) ||
+                title.includes('test') || body.includes('testing')) {
+              labels.push('testing');
+            }
+            
+            // Refactoring
+            if (title.includes('refactor') || title.includes('cleanup') ||
+                body.includes('refactoring')) {
+              labels.push('refactoring');
+            }
+            
+            // Performance
+            if (title.includes('performance') || title.includes('optimize') ||
+                body.includes('performance')) {
+              labels.push('performance');
+            }
+            
+            // Security
+            if (title.includes('security') || body.includes('security')) {
+              labels.push('security');
+            }
+            
+            // Dependencies
+            if (changedFiles.some(f => f.includes('requirements') || 
+                f.includes('pyproject.toml')) ||
+                title.includes('dep') || title.includes('update')) {
+              labels.push('dependencies');
+            }
+            
+            // CI/CD
+            if (changedFiles.some(f => f.includes('.github/workflows')) ||
+                title.includes('ci') || title.includes('workflow')) {
+              labels.push('ci-cd');
+            }
+            
+            // Size-based labels
+            const additions = files.reduce((sum, f) => sum + f.additions, 0);
+            const deletions = files.reduce((sum, f) => sum + f.deletions, 0);
+            const totalChanges = additions + deletions;
+            
+            if (totalChanges < 50) {
+              labels.push('size: small');
+            } else if (totalChanges < 200) {
+              labels.push('size: medium');
+            } else if (totalChanges < 500) {
+              labels.push('size: large');
+            } else {
+              labels.push('size: x-large');
+            }
+            
+            // Add labels
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: number,
+                labels: labels
+              });
+              
+              console.log(`Added ${labels.length} labels: ${labels.join(', ')}`);
+              console.log(`PR size: ${totalChanges} changes (${additions} additions, ${deletions} deletions)`);
+            } else {
+              console.log('No labels detected');
+            }
