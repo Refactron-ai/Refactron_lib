@@ -8,7 +8,7 @@ from refactron.core.analysis_result import AnalysisResult
 from refactron.core.refactor_result import RefactorResult
 from refactron.core.refactron import Refactron
 
-__version__ = "0.1.0b1"
+__version__ = "1.0.0"
 __author__ = "Om Sherikar"
 
 __all__ = [

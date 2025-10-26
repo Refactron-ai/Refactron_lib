@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "refactron"
-version = "0.1.0b1"
+version = "1.0.0"
 description = "The Intelligent Code Refactoring Transformer - Analyze, refactor, and optimize Python code with AI-powered suggestions"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["refactoring", "code-quality", "static-analysis", "code-optimization", "technical-debt", "code-review", "security-analysis"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Libraries :: Python Modules",
