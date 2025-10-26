@@ -9,6 +9,11 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
 jobs:
   auto-label-issues:
     if: github.event_name == 'issues'
