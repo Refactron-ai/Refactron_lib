@@ -31,6 +31,7 @@ See [GETTING_STARTED_DEV.md](GETTING_STARTED_DEV.md) for detailed setup instruct
 ## 💻 Development Setup
 
 ### Prerequisites
+
 - Python 3.8 or higher
 - pip or poetry
 - Git
@@ -40,7 +41,7 @@ See [GETTING_STARTED_DEV.md](GETTING_STARTED_DEV.md) for detailed setup instruct
 ```bash
 # Clone your fork
 git clone https://github.com/YOUR_USERNAME/refactron.git
-cd refactron
+cd Refactron_lib
 
 # Create virtual environment
 python3 -m venv venv
@@ -61,6 +62,7 @@ pytest tests/
 ### Types of Contributions
 
 We welcome:
+
 - 🐛 **Bug fixes**
 - ✨ **New features**
 - 📝 **Documentation improvements**
@@ -72,21 +74,25 @@ We welcome:
 ### Areas We Need Help
 
 1. **New Analyzers**
+
    - Security patterns
    - Performance anti-patterns
    - Python best practices
 
 2. **New Refactorers**
+
    - Auto-fix capabilities
    - More code transformations
    - Smart suggestions
 
 3. **IDE Integration**
+
    - VS Code extension
    - PyCharm plugin
    - Vim/Emacs support
 
 4. **Documentation**
+
    - Tutorials
    - Examples
    - API documentation
@@ -157,6 +163,7 @@ pytest tests/test_analyzers.py::test_complexity_analyzer
 - Include **error scenarios**
 
 Example:
+
 ```python
 def test_analyzer_detects_long_function():
     """Test that ComplexityAnalyzer detects long functions."""
@@ -164,10 +171,10 @@ def test_analyzer_detects_long_function():
     def very_long_function():
         # ... 100+ lines of code
     """
-    
+
     analyzer = ComplexityAnalyzer(config)
     issues = analyzer.analyze(Path("test.py"), code)
-    
+
     assert len(issues) > 0
     assert any("long" in issue.message.lower() for issue in issues)
 ```
@@ -203,6 +210,7 @@ Fixes #123
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -212,6 +220,7 @@ Fixes #123
 - `chore`: Maintenance
 
 **Examples:**
+
 ```
 feat(analyzer): add SQL injection detection
 fix(cli): handle empty files gracefully
@@ -223,18 +232,22 @@ test(refactorer): add edge cases for magic numbers
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 How was this tested?
 
 ## Checklist
+
 - [ ] Tests pass locally
 - [ ] Code follows style guidelines
 - [ ] Documentation updated
@@ -267,6 +280,7 @@ Clear description of the issue
 
 **To Reproduce**
 Steps to reproduce:
+
 1. Run command '...'
 2. Analyze file '...'
 3. See error
@@ -278,6 +292,7 @@ What should happen
 What actually happens
 
 **Environment:**
+
 - OS: [e.g., Ubuntu 22.04]
 - Python version: [e.g., 3.10.5]
 - Refactron version: [e.g., 0.1.0]
@@ -339,30 +354,30 @@ from refactron.core.models import CodeIssue, IssueLevel, IssueCategory
 
 class MyAnalyzer(BaseAnalyzer):
     """Analyzer for detecting X pattern."""
-    
+
     @property
     def name(self) -> str:
         return "my_analyzer"
-    
+
     def analyze(self, file_path: Path, code: str) -> list[CodeIssue]:
         """
         Analyze code for X pattern.
-        
+
         Args:
             file_path: Path to the file being analyzed
             code: Source code to analyze
-            
+
         Returns:
             List of issues found
         """
         issues = []
-        
+
         try:
             tree = ast.parse(code)
             # Your analysis logic here
         except SyntaxError:
             return issues
-        
+
         return issues
 ```
 
@@ -373,11 +388,11 @@ def test_my_analyzer():
     """Test MyAnalyzer detects X pattern."""
     config = RefactronConfig()
     analyzer = MyAnalyzer(config)
-    
+
     code = """
     # Code that should trigger the analyzer
     """
-    
+
     issues = analyzer.analyze(Path("test.py"), code)
     assert len(issues) > 0
 ```
@@ -395,30 +410,30 @@ from refactron.core.models import RefactoringOperation
 
 class MyRefactorer(BaseRefactorer):
     """Refactorer for applying X transformation."""
-    
+
     @property
     def operation_type(self) -> str:
         return "my_refactoring"
-    
+
     def refactor(self, file_path: Path, code: str) -> list[RefactoringOperation]:
         """
         Suggest X refactoring.
-        
+
         Args:
             file_path: Path to the file
             code: Source code
-            
+
         Returns:
             List of refactoring operations
         """
         operations = []
-        
+
         try:
             tree = ast.parse(code)
             # Your refactoring logic here
         except SyntaxError:
             return operations
-        
+
         return operations
 ```
 
@@ -442,6 +457,7 @@ Please note we have a [Code of Conduct](CODE_OF_CONDUCT.md). Please follow it in
 ## 🙏 Recognition
 
 Contributors will be:
+
 - Listed in release notes
 - Mentioned in CHANGELOG.md
 - Credited in documentation (for significant contributions)
@@ -455,4 +471,3 @@ By contributing, you agree that your contributions will be licensed under the MI
 ---
 
 **Thank you for contributing to Refactron! Together we can make Python code better for everyone.** 🚀
-
