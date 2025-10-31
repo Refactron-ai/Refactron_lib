@@ -138,10 +138,21 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 
 ## 📚 Documentation
 
+### 🚀 Getting Started
+- [Quick Reference](docs/QUICK_REFERENCE.md) - Command cheatsheet and common patterns
+- [Tutorial](docs/TUTORIAL.md) - Step-by-step guide with examples
+- [Quick Start (Contributors)](CONTRIBUTING_QUICKSTART.md) - Start contributing in 5 minutes
+
+### 📖 Core Documentation
 - [Getting Started (Dev)](GETTING_STARTED_DEV.md) - Development setup
-- [Architecture](ARCHITECTURE.md) - Technical design
+- [Architecture](ARCHITECTURE.md) - Technical design and internals
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [Security Policy](SECURITY.md) - Vulnerability reporting
+
+### 📊 Project Information
 - [Case Study](CASE_STUDY.md) - Real-world testing results
-- [Project Status](PROJECT_STATUS.md) - Complete feature matrix
+- [Changelog](CHANGELOG.md) - Version history
+- [Benchmarks](benchmarks/README.md) - Performance metrics
 
 ## 🛠️ Development Status
 
