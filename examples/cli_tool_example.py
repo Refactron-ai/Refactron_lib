@@ -22,23 +22,24 @@ MAX_RETRIES = 5
 
 
 # Issue: No docstrings, too many parameters
-def process_file(input_path, output_path, format_type, compression, 
-                encoding, backup, overwrite, verbose, dry_run):
-    
+def process_file(
+    input_path, output_path, format_type, compression, encoding, backup, overwrite, verbose, dry_run
+):
+
     # Issue: Deep nesting
     if os.path.exists(input_path):
         if os.path.isfile(input_path):
             if os.access(input_path, os.R_OK):
-                with open(input_path, 'r') as f:
+                with open(input_path, "r") as f:
                     data = f.read()
-                    
+
                     if data:
                         if len(data) > 0:
-                            if format_type == 'json':
+                            if format_type == "json":
                                 if not dry_run:
                                     processed = data.upper()
                                     if overwrite:
-                                        with open(output_path, 'w') as out:
+                                        with open(output_path, "w") as out:
                                             out.write(processed)
                                     return processed
     return None
@@ -47,7 +48,7 @@ def process_file(input_path, output_path, format_type, compression,
 # Issue: Magic numbers
 def calculate_size(file_path):
     size = os.path.getsize(file_path)
-    
+
     if size > 1048576:  # 1MB in bytes
         return f"{size / 1048576:.2f} MB"
     elif size > 1024:  # 1KB in bytes
@@ -70,8 +71,8 @@ def run_command(user_input):
 # Issue: No type hints
 def validate_config(config):
     if config:
-        if 'api_key' in config:
-            if len(config['api_key']) > 10:
+        if "api_key" in config:
+            if len(config["api_key"]) > 10:
                 return True
     return False
 
@@ -93,26 +94,26 @@ def setup_logging():
 # Issue: Redundant condition
 def check_status(status):
     if True:
-        if status == 'active':
+        if status == "active":
             return True
     return False
 
 
 # Issue: Complex main function that needs refactoring
 def main():
-    parser = argparse.ArgumentParser(description='Process files')
-    parser.add_argument('input', help='Input file')
-    parser.add_argument('output', help='Output file')
-    parser.add_argument('--format', default='text')
-    parser.add_argument('--compress', action='store_true')
-    parser.add_argument('--encoding', default='utf-8')
-    parser.add_argument('--backup', action='store_true')
-    parser.add_argument('--overwrite', action='store_true')
-    parser.add_argument('--verbose', action='store_true')
-    parser.add_argument('--dry-run', action='store_true')
-    
+    parser = argparse.ArgumentParser(description="Process files")
+    parser.add_argument("input", help="Input file")
+    parser.add_argument("output", help="Output file")
+    parser.add_argument("--format", default="text")
+    parser.add_argument("--compress", action="store_true")
+    parser.add_argument("--encoding", default="utf-8")
+    parser.add_argument("--backup", action="store_true")
+    parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument("--verbose", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
+
     args = parser.parse_args()
-    
+
     # Issue: Too many parameters
     result = process_file(
         args.input,
@@ -123,28 +124,29 @@ def main():
         args.backup,
         args.overwrite,
         args.verbose,
-        args.dry_run
+        args.dry_run,
     )
-    
+
     # Issue: Magic number
     if result and len(result) > 10000:
         print("Large output")
-    
+
     # Issue: Hardcoded timeout
     import time
+
     time.sleep(5)
-    
+
     # Issue: Using system() with user input
     if args.verbose:
         os.system(f"echo Processing {args.input}")  # Shell injection!
-    
+
     return 0
 
 
 # Issue: No docstring
 def cleanup_temp_files(directory):
     for file in os.listdir(directory):
-        if file.endswith('.tmp'):
+        if file.endswith(".tmp"):
             os.remove(os.path.join(directory, file))
 
 
@@ -152,15 +154,14 @@ def cleanup_temp_files(directory):
 def process_data(data):
     if data is None:
         return None
-    
+
     return data.strip()
-    
+
     # Dead code below
     processed = data.lower()
     validated = processed.strip()
     return validated
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
-

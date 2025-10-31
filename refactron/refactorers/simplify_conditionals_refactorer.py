@@ -15,7 +15,9 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
     def operation_type(self) -> str:
         return "simplify_conditionals"
 
-    def refactor(self, file_path: Path, source_code: str) -> List[RefactoringOperation]:
+    def refactor(
+        self, file_path: Path, source_code: str
+    ) -> List[RefactoringOperation]:
         """
         Find deeply nested conditionals and suggest simplifications.
 
@@ -37,7 +39,9 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
                     depth = self._get_max_nesting_depth(node)
 
                     if depth > 3:  # Deeply nested
-                        operation = self._create_simplification(file_path, node, lines, depth)
+                        operation = self._create_simplification(
+                            file_path, node, lines, depth
+                        )
                         if operation:
                             operations.append(operation)
 
@@ -59,14 +63,18 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
         return max_child_depth
 
     def _create_simplification(
-        self, file_path: Path, func_node: ast.FunctionDef, lines: List[str], depth: int
+        self,
+        file_path: Path,
+        func_node: ast.FunctionDef,
+        lines: List[str],
+        depth: int,
     ) -> RefactoringOperation:
         """Create a refactoring operation for conditional simplification."""
         # Get original function code
         if hasattr(func_node, "end_lineno") and func_node.end_lineno:
-            old_code = "\n".join(lines[func_node.lineno - 1 : func_node.end_lineno])
+            old_code = "\n".join(lines[func_node.lineno - 1: func_node.end_lineno])
         else:
-            old_code = "\n".join(lines[func_node.lineno - 1 : func_node.lineno + 10])
+            old_code = "\n".join(lines[func_node.lineno - 1: func_node.lineno + 10])
 
         # Generate simplified version using early returns
         new_code = self._generate_simplified_version(func_node, old_code)
@@ -75,25 +83,31 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
             operation_type=self.operation_type,
             file_path=file_path,
             line_number=func_node.lineno,
-            description=f"Simplify nested conditionals in '{func_node.name}' using early returns",
+            description=(
+                f"Simplify nested conditionals in '{func_node.name}' "
+                f"using early returns"
+            ),
             old_code=old_code,
             new_code=new_code,
             risk_score=0.3,  # Moderate risk - changes control flow
-            reasoning=f"This function has {depth} levels of nesting. "
-            f"Using early returns (guard clauses) reduces nesting and "
-            f"improves readability. Each condition is checked upfront, "
-            f"making the logic easier to follow.",
+            reasoning=(
+                f"This function has {depth} levels of nesting. "
+                f"Using early returns (guard clauses) reduces nesting and "
+                f"improves readability. Each condition is checked upfront, "
+                f"making the logic easier to follow."
+            ),
             metadata={"original_depth": depth, "function_name": func_node.name},
         )
 
-    def _generate_simplified_version(self, func_node: ast.FunctionDef, old_code: str) -> str:
+    def _generate_simplified_version(
+        self, func_node: ast.FunctionDef, old_code: str
+    ) -> str:
         """Generate a simplified version with early returns."""
         # Get function signature
         func_def = old_code.split("\n")[0]
 
         # For demonstration, create a template for early returns
         params = [arg.arg for arg in func_node.args.args]
-        param_names = ", ".join(params) if params else ""
 
         # Generate example with early returns
         new_code = f"""{func_def}
@@ -101,14 +115,14 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
     # Check invalid conditions first and return early
     if not {params[0] if params else 'condition'}:
         return default_value
-    
+
     # Each subsequent check is at the same level - no deep nesting
     if not meets_requirement_1():
         return early_result_1
-    
+
     if not meets_requirement_2():
         return early_result_2
-    
+
     # Main logic is at top level - easy to read
     result = perform_main_operation()
     return result"""
