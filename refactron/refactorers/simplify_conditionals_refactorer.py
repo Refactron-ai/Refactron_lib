@@ -72,9 +72,9 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
         """Create a refactoring operation for conditional simplification."""
         # Get original function code
         if hasattr(func_node, "end_lineno") and func_node.end_lineno:
-            old_code = "\n".join(lines[func_node.lineno - 1: func_node.end_lineno])
+            old_code = "\n".join(lines[func_node.lineno - 1 : func_node.end_lineno])
         else:
-            old_code = "\n".join(lines[func_node.lineno - 1: func_node.lineno + 10])
+            old_code = "\n".join(lines[func_node.lineno - 1 : func_node.lineno + 10])
 
         # Generate simplified version using early returns
         new_code = self._generate_simplified_version(func_node, old_code)

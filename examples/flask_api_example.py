@@ -91,5 +91,6 @@ def process_payment():
 
 
 if __name__ == "__main__":
-    # Issue: debug=True in production
-    app.run(debug=True, host="0.0.0.0")
+    # Issue: debug=True in production (intentional for demonstration)
+    # Security note: This is deliberately insecure for educational purposes
+    app.run(debug=True, host="0.0.0.0")  # nosec B104 - example code only
