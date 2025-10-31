@@ -5,14 +5,17 @@
 Refactron is a powerful Python library designed to eliminate technical debt, modernize legacy code, and automate code refactoring with intelligence and safety.
 
 [![CI](https://github.com/Refactron-ai/Refactron_lib/workflows/CI/badge.svg)](https://github.com/Refactron-ai/Refactron_lib/actions)
-[![Tests](https://img.shields.io/badge/tests-98%20passed-brightgreen)]()
-[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-135%20passed-brightgreen)]()
+[![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)]()
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue)]()
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)]()
 [![Status](https://img.shields.io/badge/status-stable-brightgreen)]()
 [![PyPI version](https://badge.fury.io/py/refactron.svg)](https://pypi.org/project/refactron/)
 [![Python Version](https://img.shields.io/pypi/pyversions/refactron.svg)](https://pypi.org/project/refactron/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 [![GitHub Stars](https://img.shields.io/github/stars/Refactron-ai/Refactron_lib?style=social)](https://github.com/Refactron-ai/Refactron_lib)
 [![Downloads](https://pepy.tech/badge/refactron)](https://pepy.tech/project/refactron)
 
@@ -146,9 +149,11 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 
 **Current Metrics:**
 - ✅ **135 tests passing** (100% success rate)
-- ✅ **81% code coverage**
+- ✅ **84% code coverage** (2,060 statements)
 - ✅ **0 critical issues** in production code
 - ✅ Real-world validated on 5,800+ lines
+- ✅ **Pre-commit hooks** for code quality
+- ✅ **Security scanning** with Bandit
 
 ### Roadmap
 
@@ -182,20 +187,36 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 ## 🤝 Contributing
 
 We welcome contributions! Please see:
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [Quick Start Guide](CONTRIBUTING_QUICKSTART.md) - Get started in 5 minutes! 🚀
+- [Contributing Guide](CONTRIBUTING.md) - Detailed contribution process
 - [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
 - [Getting Started (Dev)](GETTING_STARTED_DEV.md) - Development setup
+- [Security Policy](SECURITY.md) - Report vulnerabilities
 
+### Quick Start for Contributors
+```bash
+# Fork, clone, and setup
+git clone https://github.com/YOUR_USERNAME/Refactron_lib.git
+cd Refactron_lib
+python3 -m venv venv && source venv/bin/activate
+pip install -e . && pip install -r requirements-dev.txt
+pip install pre-commit && pre-commit install
 
+# Make changes and test
+pytest
+black refactron tests
+flake8 refactron
+```
 
 ## 🧪 CI/CD Status
 
 Refactron uses GitHub Actions for continuous integration and deployment:
 - ✅ Automated testing on Python 3.8, 3.9, 3.10, 3.11, 3.12
-- ✅ Code quality checks (Black, isort, flake8)
+- ✅ Code quality checks (Black, isort, flake8, mypy)
+- ✅ Pre-commit hooks enforcement
 - ✅ Security scanning with Bandit
 - ✅ Automated dependency updates via Dependabot
-- ✅ 90% test coverage maintained
+- ✅ 84% test coverage (2,060 statements)
 
 Check our [Actions page](https://github.com/Refactron-ai/Refactron_lib/actions) for live build status!
 
