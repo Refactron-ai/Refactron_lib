@@ -15,9 +15,7 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
     def operation_type(self) -> str:
         return "simplify_conditionals"
 
-    def refactor(
-        self, file_path: Path, source_code: str
-    ) -> List[RefactoringOperation]:
+    def refactor(self, file_path: Path, source_code: str) -> List[RefactoringOperation]:
         """
         Find deeply nested conditionals and suggest simplifications.
 
@@ -39,9 +37,7 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
                     depth = self._get_max_nesting_depth(node)
 
                     if depth > 3:  # Deeply nested
-                        operation = self._create_simplification(
-                            file_path, node, lines, depth
-                        )
+                        operation = self._create_simplification(file_path, node, lines, depth)
                         if operation:
                             operations.append(operation)
 
@@ -84,8 +80,7 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
             file_path=file_path,
             line_number=func_node.lineno,
             description=(
-                f"Simplify nested conditionals in '{func_node.name}' "
-                f"using early returns"
+                f"Simplify nested conditionals in '{func_node.name}' " f"using early returns"
             ),
             old_code=old_code,
             new_code=new_code,
@@ -99,9 +94,7 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
             metadata={"original_depth": depth, "function_name": func_node.name},
         )
 
-    def _generate_simplified_version(
-        self, func_node: ast.FunctionDef, old_code: str
-    ) -> str:
+    def _generate_simplified_version(self, func_node: ast.FunctionDef, old_code: str) -> str:
         """Generate a simplified version with early returns."""
         # Get function signature
         func_def = old_code.split("\n")[0]

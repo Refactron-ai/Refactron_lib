@@ -144,29 +144,13 @@ def {func_name}(config: {config_class}):
         """Infer type hint from parameter name."""
         name_lower = param_name.lower()
 
-        if (
-            "count" in name_lower
-            or "number" in name_lower
-            or "id" in name_lower
-        ):
+        if "count" in name_lower or "number" in name_lower or "id" in name_lower:
             return "int"
-        elif (
-            "price" in name_lower
-            or "rate" in name_lower
-            or "amount" in name_lower
-        ):
+        elif "price" in name_lower or "rate" in name_lower or "amount" in name_lower:
             return "float"
-        elif (
-            "name" in name_lower
-            or "text" in name_lower
-            or "message" in name_lower
-        ):
+        elif "name" in name_lower or "text" in name_lower or "message" in name_lower:
             return "str"
-        elif (
-            "is_" in name_lower
-            or "has_" in name_lower
-            or "enabled" in name_lower
-        ):
+        elif "is_" in name_lower or "has_" in name_lower or "enabled" in name_lower:
             return "bool"
         else:
             return "Any  # Specify appropriate type"
