@@ -33,27 +33,11 @@ jobs:
             });
             
             if (issues.data.length === 1) {
-              const message = `👋 **Welcome, @${creator}!**
-
-Thank you for opening your first issue in Refactron! 🎉
-
-**What happens next?**
-- A maintainer will review your issue soon
-- Please provide as much detail as possible to help us understand and address your concern
-- Feel free to add more information if needed
-
-**Want to contribute?**
-- Check out our [Contributing Guide](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md)
-- Look for issues labeled \`good-first-issue\`
-- Comment \`/assign\` on any issue to claim it
-
-Thank you for helping improve Refactron! 🚀`;
-
               await github.rest.issues.createComment({
                 owner,
                 repo,
                 issue_number: number,
-                body: message
+                body: `👋 **Welcome, @${creator}!**\n\nThank you for opening your first issue in Refactron! 🎉\n\n**What happens next?**\n- A maintainer will review your issue soon\n- Please provide as much detail as possible to help us understand and address your concern\n- Feel free to add more information if needed\n\n**Want to contribute?**\n- Check out our [Contributing Guide](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md)\n- Look for issues labeled \`good-first-issue\`\n- Comment \`/assign\` on any issue to claim it\n\nThank you for helping improve Refactron! 🚀`
               });
             }
 
@@ -76,32 +60,10 @@ Thank you for helping improve Refactron! 🚀`;
             const creatorPRs = prs.data.filter(pr => pr.user.login === creator);
             
             if (creatorPRs.length === 1) {
-              const message = `🎉 **Congratulations on your first Pull Request, @${creator}!**
-
-Thank you for contributing to Refactron! We're excited to review your changes. 🚀
-
-**What to expect:**
-- A maintainer will review your PR soon
-- You may be asked to make some changes
-- Once approved, your PR will be merged
-
-**Tips for a smooth review:**
-- Make sure all CI checks pass ✅
-- Respond to feedback promptly
-- Keep your PR focused on a single concern
-- Update the PR description if you make significant changes
-
-**Need help?**
-- Check our [Contributing Guide](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md)
-- Ask questions in the comments
-- Tag a maintainer if you need assistance
-
-Thank you for making Refactron better! 💪`;
-
               await github.rest.issues.createComment({
                 owner,
                 repo,
                 issue_number: number,
-                body: message
+                body: `🎉 **Congratulations on your first Pull Request, @${creator}!**\n\nThank you for contributing to Refactron! We're excited to review your changes. 🚀\n\n**What to expect:**\n- A maintainer will review your PR soon\n- You may be asked to make some changes\n- Once approved, your PR will be merged\n\n**Tips for a smooth review:**\n- Make sure all CI checks pass ✅\n- Respond to feedback promptly\n- Keep your PR focused on a single concern\n- Update the PR description if you make significant changes\n\n**Need help?**\n- Check our [Contributing Guide](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md)\n- Ask questions in the comments\n- Tag a maintainer if you need assistance\n\nThank you for making Refactron better! 💪`
               });
             }
