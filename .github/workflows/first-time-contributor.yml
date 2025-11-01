@@ -54,12 +54,11 @@ jobs:
               owner,
               repo,
               state: 'all',
-              per_page: 10
+              creator,
+              per_page: 2
             });
             
-            const creatorPRs = prs.data.filter(pr => pr.user.login === creator);
-            
-            if (creatorPRs.length === 1) {
+            if (prs.data.length === 1) {
               await github.rest.issues.createComment({
                 owner,
                 repo,
