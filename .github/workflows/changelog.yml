@@ -131,7 +131,11 @@ jobs:
               changelog += `\n`;
             }
             
-            changelog += `\n**Full Changelog**: https://github.com/${owner}/${repo}/compare/${previousVersion}...${version}\n`;
+            if (previousVersion) {
+              changelog += `\n**Full Changelog**: https://github.com/${owner}/${repo}/compare/${previousVersion}...${version}\n`;
+            } else {
+              changelog += `\n**Full Changelog**: https://github.com/${owner}/${repo}/commits/${version}\n`;
+            }
             
             console.log(changelog);
             core.setOutput('changelog', changelog);
