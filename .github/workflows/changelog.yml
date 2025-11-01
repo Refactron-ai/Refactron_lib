@@ -1,0 +1,185 @@
+# Changelog Generator
+name: Generate Changelog
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to generate changelog for (e.g., v1.0.0)'
+        required: true
+        type: string
+      previous_version:
+        description: 'Previous version to compare against (e.g., v0.9.0)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # Fetch all history for all tags and branches
+
+      - name: Generate changelog
+        id: changelog
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const version = '${{ inputs.version }}';
+            const previousVersion = '${{ inputs.previous_version }}';
+            
+            // Get all commits since the previous version
+            let commits;
+            if (previousVersion && previousVersion !== '' && previousVersion !== 'undefined') {
+              const comparison = await github.rest.repos.compareCommitsWithBasehead({
+                owner,
+                repo,
+                basehead: `${previousVersion}...${version}`
+              });
+              commits = comparison.data.commits;
+            } else {
+              // Get commits for the current tag
+              const tag = await github.rest.repos.listCommits({
+                owner,
+                repo,
+                sha: version,
+                per_page: 100
+              });
+              commits = tag.data;
+            }
+            
+            // Categorize commits
+            const features = [];
+            const fixes = [];
+            const docs = [];
+            const refactor = [];
+            const tests = [];
+            const chores = [];
+            const breaking = [];
+            
+            commits.forEach(commit => {
+              const message = commit.commit.message;
+              const firstLine = message.split('\n')[0];
+              
+              if (message.includes('BREAKING CHANGE') || firstLine.startsWith('!')) {
+                breaking.push(firstLine);
+              } else if (firstLine.match(/^feat(\(.*\))?:/i)) {
+                features.push(firstLine.replace(/^feat(\(.*\))?:\s*/i, ''));
+              } else if (firstLine.match(/^fix(\(.*\))?:/i)) {
+                fixes.push(firstLine.replace(/^fix(\(.*\))?:\s*/i, ''));
+              } else if (firstLine.match(/^docs(\(.*\))?:/i)) {
+                docs.push(firstLine.replace(/^docs(\(.*\))?:\s*/i, ''));
+              } else if (firstLine.match(/^refactor(\(.*\))?:/i)) {
+                refactor.push(firstLine.replace(/^refactor(\(.*\))?:\s*/i, ''));
+              } else if (firstLine.match(/^test(\(.*\))?:/i)) {
+                tests.push(firstLine.replace(/^test(\(.*\))?:\s*/i, ''));
+              } else if (firstLine.match(/^chore(\(.*\))?:/i)) {
+                chores.push(firstLine.replace(/^chore(\(.*\))?:\s*/i, ''));
+              }
+            });
+            
+            // Generate changelog content
+            let changelog = `# Changelog for ${version}\n\n`;
+            changelog += `**Release Date:** ${new Date().toISOString().split('T')[0]}\n\n`;
+            
+            if (breaking.length > 0) {
+              changelog += `## ⚠️ Breaking Changes\n\n`;
+              breaking.forEach(item => changelog += `- ${item}\n`);
+              changelog += `\n`;
+            }
+            
+            if (features.length > 0) {
+              changelog += `## ✨ New Features\n\n`;
+              features.forEach(item => changelog += `- ${item}\n`);
+              changelog += `\n`;
+            }
+            
+            if (fixes.length > 0) {
+              changelog += `## 🐛 Bug Fixes\n\n`;
+              fixes.forEach(item => changelog += `- ${item}\n`);
+              changelog += `\n`;
+            }
+            
+            if (refactor.length > 0) {
+              changelog += `## ♻️ Code Refactoring\n\n`;
+              refactor.forEach(item => changelog += `- ${item}\n`);
+              changelog += `\n`;
+            }
+            
+            if (docs.length > 0) {
+              changelog += `## 📚 Documentation\n\n`;
+              docs.forEach(item => changelog += `- ${item}\n`);
+              changelog += `\n`;
+            }
+            
+            if (tests.length > 0) {
+              changelog += `## 🧪 Tests\n\n`;
+              tests.forEach(item => changelog += `- ${item}\n`);
+              changelog += `\n`;
+            }
+            
+            if (chores.length > 0) {
+              changelog += `## 🔧 Chores\n\n`;
+              chores.forEach(item => changelog += `- ${item}\n`);
+              changelog += `\n`;
+            }
+            
+            if (previousVersion) {
+              changelog += `\n**Full Changelog**: https://github.com/${owner}/${repo}/compare/${previousVersion}...${version}\n`;
+            } else {
+              changelog += `\n**Full Changelog**: https://github.com/${owner}/${repo}/commits/${version}\n`;
+            }
+            
+            console.log(changelog);
+            core.setOutput('changelog', changelog);
+            
+            // Save to file
+            const fs = require('fs');
+            fs.writeFileSync('RELEASE_NOTES.md', changelog);
+
+      - name: Upload changelog artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: changelog-${{ inputs.version }}
+          path: RELEASE_NOTES.md
+
+      - name: Create or update release notes
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const changelog = fs.readFileSync('RELEASE_NOTES.md', 'utf8');
+            const { owner, repo } = context.repo;
+            const version = '${{ inputs.version }}';
+            
+            try {
+              // Try to get existing release
+              const release = await github.rest.repos.getReleaseByTag({
+                owner,
+                repo,
+                tag: version
+              });
+              
+              // Update existing release
+              await github.rest.repos.updateRelease({
+                owner,
+                repo,
+                release_id: release.data.id,
+                body: changelog
+              });
+              
+              console.log(`Updated release notes for ${version}`);
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`Release ${version} not found. Create it first with a git tag.`);
+              } else {
+                throw error;
+              }
+            }

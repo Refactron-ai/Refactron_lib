@@ -21,7 +21,7 @@ jobs:
       - name: Mark stale issues and PRs
         uses: actions/stale@v10
         with:
-          repo-token: ${{ secrets.BOT_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           # Stale issue settings
           days-before-stale: 30
           days-before-close: 7
