@@ -1,0 +1,107 @@
+# First-time Contributor Greeting
+name: Welcome First-Time Contributors
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  greet-first-time-contributor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Greet first-time issue creators
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const creator = context.payload.issue.user.login;
+            
+            // Check if this is their first issue
+            const issues = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              creator,
+              state: 'all',
+              per_page: 2
+            });
+            
+            if (issues.data.length === 1) {
+              const message = `👋 **Welcome, @${creator}!**
+
+Thank you for opening your first issue in Refactron! 🎉
+
+**What happens next?**
+- A maintainer will review your issue soon
+- Please provide as much detail as possible to help us understand and address your concern
+- Feel free to add more information if needed
+
+**Want to contribute?**
+- Check out our [Contributing Guide](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md)
+- Look for issues labeled \`good-first-issue\`
+- Comment \`/assign\` on any issue to claim it
+
+Thank you for helping improve Refactron! 🚀`;
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: number,
+                body: message
+              });
+            }
+
+      - name: Greet first-time PR creators
+        if: github.event_name == 'pull_request_target'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const creator = context.payload.pull_request.user.login;
+            
+            // Check if this is their first PR
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'all',
+              per_page: 100
+            });
+            
+            const creatorPRs = prs.data.filter(pr => pr.user.login === creator);
+            
+            if (creatorPRs.length === 1) {
+              const message = `🎉 **Congratulations on your first Pull Request, @${creator}!**
+
+Thank you for contributing to Refactron! We're excited to review your changes. 🚀
+
+**What to expect:**
+- A maintainer will review your PR soon
+- You may be asked to make some changes
+- Once approved, your PR will be merged
+
+**Tips for a smooth review:**
+- Make sure all CI checks pass ✅
+- Respond to feedback promptly
+- Keep your PR focused on a single concern
+- Update the PR description if you make significant changes
+
+**Need help?**
+- Check our [Contributing Guide](https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md)
+- Ask questions in the comments
+- Tag a maintainer if you need assistance
+
+Thank you for making Refactron better! 💪`;
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: number,
+                body: message
+              });
+            }
