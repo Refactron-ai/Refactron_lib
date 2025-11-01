@@ -59,7 +59,11 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
         return max_child_depth
 
     def _create_simplification(
-        self, file_path: Path, func_node: ast.FunctionDef, lines: List[str], depth: int
+        self,
+        file_path: Path,
+        func_node: ast.FunctionDef,
+        lines: List[str],
+        depth: int,
     ) -> RefactoringOperation:
         """Create a refactoring operation for conditional simplification."""
         # Get original function code
@@ -75,14 +79,18 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
             operation_type=self.operation_type,
             file_path=file_path,
             line_number=func_node.lineno,
-            description=f"Simplify nested conditionals in '{func_node.name}' using early returns",
+            description=(
+                f"Simplify nested conditionals in '{func_node.name}' " f"using early returns"
+            ),
             old_code=old_code,
             new_code=new_code,
             risk_score=0.3,  # Moderate risk - changes control flow
-            reasoning=f"This function has {depth} levels of nesting. "
-            f"Using early returns (guard clauses) reduces nesting and "
-            f"improves readability. Each condition is checked upfront, "
-            f"making the logic easier to follow.",
+            reasoning=(
+                f"This function has {depth} levels of nesting. "
+                f"Using early returns (guard clauses) reduces nesting and "
+                f"improves readability. Each condition is checked upfront, "
+                f"making the logic easier to follow."
+            ),
             metadata={"original_depth": depth, "function_name": func_node.name},
         )
 
@@ -93,7 +101,6 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
 
         # For demonstration, create a template for early returns
         params = [arg.arg for arg in func_node.args.args]
-        param_names = ", ".join(params) if params else ""
 
         # Generate example with early returns
         new_code = f"""{func_def}
@@ -101,14 +108,14 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
     # Check invalid conditions first and return early
     if not {params[0] if params else 'condition'}:
         return default_value
-    
+
     # Each subsequent check is at the same level - no deep nesting
     if not meets_requirement_1():
         return early_result_1
-    
+
     if not meets_requirement_2():
         return early_result_2
-    
+
     # Main logic is at top level - easy to read
     result = perform_main_operation()
     return result"""

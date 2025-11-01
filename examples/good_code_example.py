@@ -20,6 +20,7 @@ THRESHOLD_LOW = 100
 
 class CustomerType(Enum):
     """Customer types for order processing."""
+
     PREMIUM = "premium"
     STANDARD = "standard"
 
@@ -27,6 +28,7 @@ class CustomerType(Enum):
 @dataclass
 class OrderConfig:
     """Configuration for order processing."""
+
     order_type: str
     amount: float
     customer_type: CustomerType
@@ -37,10 +39,10 @@ class OrderConfig:
 def calculate_discount(price: float) -> float:
     """
     Calculate discount based on price thresholds.
-    
+
     Args:
         price: The original price
-        
+
     Returns:
         The discount amount
     """
@@ -56,11 +58,11 @@ def calculate_discount(price: float) -> float:
 def calculate_total(price: float, config: OrderConfig) -> float:
     """
     Calculate total order amount.
-    
+
     Args:
         price: Base price
         config: Order configuration object
-        
+
     Returns:
         Total amount after all calculations
     """
@@ -87,13 +89,13 @@ def filter_by_threshold(data: List[int], threshold: int) -> List[int]:
 def process_data(data: List[int]) -> List[int]:
     """
     Process data through multiple transformations.
-    
+
     This function coordinates several smaller operations,
     making it easy to understand and maintain.
-    
+
     Args:
         data: Input data list
-        
+
     Returns:
         Processed data list
     """
@@ -106,41 +108,41 @@ def process_data(data: List[int]) -> List[int]:
 
 class DataProcessor:
     """Process and transform data efficiently."""
-    
+
     def process(self, values: List[int]) -> int:
         """
         Process a list of values.
-        
+
         Args:
             values: List of integers to process
-            
+
         Returns:
             Sum of all values
         """
         return sum(values)
-    
+
     def transform(self, data: List[int]) -> List[int]:
         """
         Transform data with validation.
-        
+
         Args:
             data: Input data list
-            
+
         Returns:
             Transformed data or empty list if invalid
         """
         if not self._is_valid_data(data):
             return []
-        
+
         return [x * 2 for x in data]
-    
+
     def _is_valid_data(self, data: List[int]) -> bool:
         """
         Validate input data.
-        
+
         Args:
             data: Data to validate
-            
+
         Returns:
             True if valid, False otherwise
         """
@@ -158,9 +160,9 @@ class DataProcessor:
 def send_email(recipient: str, subject: str, body: str) -> None:
     """
     Send an email to a recipient.
-    
+
     Single function instead of multiple duplicate ones.
-    
+
     Args:
         recipient: Email address of recipient
         subject: Email subject line
@@ -168,4 +170,3 @@ def send_email(recipient: str, subject: str, body: str) -> None:
     """
     print(f"Sending to {recipient}: {subject}")
     print(f"Body: {body}")
-

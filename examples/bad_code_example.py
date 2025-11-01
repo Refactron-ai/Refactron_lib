@@ -56,28 +56,28 @@ def do_everything(data):
         if item > 0:
             temp = item * 2
             result.append(temp)
-    
+
     filtered = []
     for item in result:
         if item > 10:
             filtered.append(item)
-    
+
     sorted_data = sorted(filtered)
-    
+
     final = []
     for item in sorted_data:
         if item % 2 == 0:
             final.append(item * 3)
         else:
             final.append(item * 2)
-    
+
     return final
 
 
 class DataProcessor:
     def process(self, a, b, c, d, e, f):
         return a + b + c + d + e + f
-    
+
     def transform(self, data):
         if data:
             if isinstance(data, list):
@@ -98,4 +98,3 @@ def send_email2(recipient, subject, body):
 
 def send_email3(recipient, subject, body):
     print(f"Sending to {recipient}: {subject}")
-

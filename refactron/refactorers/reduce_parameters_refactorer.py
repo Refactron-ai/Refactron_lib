@@ -122,7 +122,8 @@ def {func_name}(config: {config_class}):
         for param in params:
             new_code += f"    {param} = config.{param}\n"
 
-        new_code += """    
+        new_code += """
+
     # Your existing logic here
     result = perform_calculation()
     return result
@@ -132,7 +133,9 @@ def {func_name}(config: {config_class}):
 #     {}
 # )
 # result = {}(config)""".format(
-            config_class, ",\n#     ".join([f"{p}=value" for p in params]), func_name
+            config_class,
+            ",\n#     ".join([f"{p}=value" for p in params]),
+            func_name,
         )
 
         return new_code
