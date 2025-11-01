@@ -33,11 +33,11 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const version = '${{ inputs.version }}';
-            const previousVersion = '${{ inputs.previous_version }}' || '';
+            const previousVersion = '${{ inputs.previous_version }}';
             
             // Get all commits since the previous version
             let commits;
-            if (previousVersion) {
+            if (previousVersion && previousVersion !== '' && previousVersion !== 'undefined') {
               const comparison = await github.rest.repos.compareCommitsWithBasehead({
                 owner,
                 repo,
