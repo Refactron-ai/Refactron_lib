@@ -419,5 +419,177 @@ def init() -> None:
     console.print("\n[dim]Edit this file to customize Refactron behavior.[/dim]")
 
 
+@main.group()
+def ai() -> None:
+    """AI-powered code analysis and suggestions (optional features)."""
+    pass
+
+
+@ai.command("explain")
+@click.argument("target", type=click.Path(exists=True))
+@click.option("--provider", type=click.Choice(["openai", "anthropic", "ollama"]), default="openai")
+@click.option("--api-key", help="API key (not needed for Ollama)")
+@click.option("--model", help="Model name (optional)")
+def ai_explain(target: str, provider: str, api_key: Optional[str], model: Optional[str]) -> None:
+    """Get AI explanation of code."""
+    from refactron.ai import create_ai_service
+
+    try:
+        console.print(f"[cyan]🤖 Analyzing {target} with AI ({provider})...[/cyan]\n")
+
+        # Create AI service
+        ai_service = create_ai_service(provider=provider, api_key=api_key, model=model)
+
+        # Read code
+        with open(target, "r") as f:
+            code = f.read()
+
+        # Get explanation
+        explanation = ai_service.explain_code(code)
+
+        console.print("[bold green]📖 Code Explanation:[/bold green]")
+        console.print(explanation)
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        console.print("\n[dim]💡 Tips:[/dim]")
+        console.print("[dim]- For OpenAI: Set OPENAI_API_KEY environment variable[/dim]")
+        console.print("[dim]- For Anthropic: Set ANTHROPIC_API_KEY environment variable[/dim]")
+        console.print("[dim]- For Ollama: Install from https://ollama.ai[/dim]")
+        raise SystemExit(1)
+
+
+@ai.command("suggest")
+@click.argument("target", type=click.Path(exists=True))
+@click.option("--provider", type=click.Choice(["openai", "anthropic", "ollama"]), default="openai")
+@click.option("--api-key", help="API key (not needed for Ollama)")
+@click.option("--model", help="Model name (optional)")
+def ai_suggest(target: str, provider: str, api_key: Optional[str], model: Optional[str]) -> None:
+    """Get AI-powered improvement suggestions."""
+    from refactron.ai import AIConfig, AIProvider
+
+    try:
+        console.print(f"[cyan]🤖 Getting AI suggestions for {target}...[/cyan]\n")
+
+        # Create AI config
+        ai_config = AIConfig(
+            enabled=True,
+            provider=AIProvider(provider),
+            api_key=api_key,
+            model=model,
+        )
+
+        # Create Refactron with AI
+        refactron = Refactron(ai_config=ai_config)
+
+        # Get suggestions
+        suggestions = refactron.get_ai_suggestions(target)
+
+        console.print("[bold green]📖 Code Explanation:[/bold green]")
+        console.print(suggestions["explanation"])
+        console.print("\n[bold yellow]💡 Improvement Suggestions:[/bold yellow]")
+        console.print(suggestions["improvements"])
+        console.print("\n[bold cyan]⚡ Optimization Recommendations:[/bold cyan]")
+        console.print(suggestions["optimizations"])
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        console.print("\n[dim]💡 Tips:[/dim]")
+        console.print("[dim]- For OpenAI: Set OPENAI_API_KEY environment variable[/dim]")
+        console.print("[dim]- For Anthropic: Set ANTHROPIC_API_KEY environment variable[/dim]")
+        console.print("[dim]- For Ollama: Install from https://ollama.ai[/dim]")
+        raise SystemExit(1)
+
+
+@ai.command("document")
+@click.argument("target", type=click.Path(exists=True))
+@click.option("--provider", type=click.Choice(["openai", "anthropic", "ollama"]), default="openai")
+@click.option("--api-key", help="API key (not needed for Ollama)")
+@click.option("--model", help="Model name (optional)")
+@click.option("--function", help="Specific function to document")
+def ai_document(
+    target: str,
+    provider: str,
+    api_key: Optional[str],
+    model: Optional[str],
+    function: Optional[str],
+) -> None:
+    """Generate AI-powered documentation."""
+    from refactron.ai import AIConfig, AIProvider
+
+    try:
+        console.print(f"[cyan]🤖 Generating documentation for {target}...[/cyan]\n")
+
+        # Create AI config
+        ai_config = AIConfig(
+            enabled=True,
+            provider=AIProvider(provider),
+            api_key=api_key,
+            model=model,
+        )
+
+        # Create Refactron with AI
+        refactron = Refactron(ai_config=ai_config)
+
+        # Generate documentation
+        docs = refactron.generate_documentation(target, function or "")
+
+        console.print("[bold green]📝 Generated Documentation:[/bold green]")
+        console.print(docs)
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        console.print("\n[dim]💡 Tips:[/dim]")
+        console.print("[dim]- For OpenAI: Set OPENAI_API_KEY environment variable[/dim]")
+        console.print("[dim]- For Anthropic: Set ANTHROPIC_API_KEY environment variable[/dim]")
+        console.print("[dim]- For Ollama: Install from https://ollama.ai[/dim]")
+        raise SystemExit(1)
+
+
+@ai.command("refactor")
+@click.argument("target", type=click.Path(exists=True))
+@click.option("--provider", type=click.Choice(["openai", "anthropic", "ollama"]), default="openai")
+@click.option("--api-key", help="API key (not needed for Ollama)")
+@click.option("--model", help="Model name (optional)")
+@click.option("--issue-type", default="general", help="Type of issue to address")
+def ai_refactor(
+    target: str,
+    provider: str,
+    api_key: Optional[str],
+    model: Optional[str],
+    issue_type: str,
+) -> None:
+    """Get AI-powered refactoring suggestions."""
+    from refactron.ai import AIConfig, AIProvider
+
+    try:
+        console.print(f"[cyan]🤖 Getting refactoring suggestions for {target}...[/cyan]\n")
+
+        # Create AI config
+        ai_config = AIConfig(
+            enabled=True,
+            provider=AIProvider(provider),
+            api_key=api_key,
+            model=model,
+        )
+
+        # Create Refactron with AI
+        refactron = Refactron(ai_config=ai_config)
+
+        # Get refactoring suggestions
+        refactoring = refactron.get_refactoring_suggestions(target, issue_type)
+
+        console.print("[bold green]🔧 Refactoring Suggestions:[/bold green]")
+        console.print(refactoring)
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        console.print("\n[dim]💡 Tips:[/dim]")
+        console.print("[dim]- For OpenAI: Set OPENAI_API_KEY environment variable[/dim]")
+        console.print("[dim]- For Anthropic: Set ANTHROPIC_API_KEY environment variable[/dim]")
+        console.print("[dim]- For Ollama: Install from https://ollama.ai[/dim]")
+        raise SystemExit(1)
+
+
 if __name__ == "__main__":
     main()

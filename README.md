@@ -37,6 +37,13 @@ Refactron is a powerful Python library designed to eliminate technical debt, mod
 - **Before/After Previews** - See exactly what will change
 - **Risk Scoring** - Know how safe each refactoring is (0.0 = perfectly safe, 1.0 = high risk)
 
+### 🤖 **AI-Powered Features (Optional)**
+- **Code Explanation** - AI explains what your code does
+- **Smart Suggestions** - AI-powered improvement recommendations
+- **Auto Documentation** - Generate docstrings with AI
+- **Optimization Tips** - Performance and efficiency suggestions
+- **Multiple Providers** - OpenAI, Anthropic, or free local models (Ollama)
+
 ### 📊 **Rich Reporting**
 - Multiple formats: Text, JSON, HTML
 - Detailed issue categorization
@@ -49,6 +56,9 @@ Refactron is a powerful Python library designed to eliminate technical debt, mod
 
 ```bash
 pip install refactron
+
+# Optional: Install AI features
+pip install refactron[ai]
 ```
 
 ### Basic Usage
@@ -69,6 +79,30 @@ result.show_diff()
 result.apply()
 ```
 
+### AI-Powered Usage (Optional)
+
+```python
+from refactron import Refactron, AIConfig, AIProvider
+
+# Configure AI (using Ollama - free and local!)
+ai_config = AIConfig(
+    enabled=True,
+    provider=AIProvider.OLLAMA,
+    model="codellama"
+)
+
+refactron = Refactron(ai_config=ai_config)
+
+# Get AI suggestions
+suggestions = refactron.get_ai_suggestions("mycode.py")
+print(suggestions['explanation'])
+print(suggestions['improvements'])
+
+# Generate documentation
+docs = refactron.generate_documentation("mycode.py")
+print(docs)
+```
+
 ### CLI Usage
 
 ```bash
@@ -86,6 +120,11 @@ refactron refactor myfile.py --preview
 
 # Filter specific refactoring types
 refactron refactor myfile.py --preview -t extract_constant -t add_docstring
+
+# AI-powered features (optional)
+refactron ai explain mycode.py --provider ollama
+refactron ai suggest mycode.py --provider openai --api-key sk-...
+refactron ai document mycode.py --provider anthropic
 ```
 
 **Example Output:**
@@ -124,6 +163,7 @@ We've included practical examples in the `examples/` directory:
 - **`flask_api_example.py`** - Common Flask API issues (security, code smells)
 - **`data_science_example.py`** - Data science workflow improvements
 - **`cli_tool_example.py`** - CLI application best practices
+- **`ai_features_example.py`** - AI-powered features demonstration
 
 Try them out:
 ```bash
@@ -132,6 +172,9 @@ refactron analyze examples/flask_api_example.py --detailed
 
 # Get refactoring suggestions
 refactron refactor examples/flask_api_example.py --preview
+
+# Try AI features (requires AI setup)
+python examples/ai_features_example.py
 ```
 
 See `examples/DEMO_USAGE.md` for detailed walkthroughs!
@@ -139,6 +182,7 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 ## 📚 Documentation
 
 ### 🚀 Getting Started
+- [AI Features Guide](docs/AI_FEATURES.md) - Complete guide to AI-powered features
 - [Quick Reference](docs/QUICK_REFERENCE.md) - Command cheatsheet and common patterns
 - [Tutorial](docs/TUTORIAL.md) - Step-by-step guide with examples
 - [Quick Start (Contributors)](CONTRIBUTING_QUICKSTART.md) - Start contributing in 5 minutes
@@ -182,9 +226,11 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 - [x] Type hint analysis
 - [x] Comprehensive test suite (87 tests, 89% coverage)
 
-**Phase 3: Intelligence & Automation** 🚧 **NEXT**
-- [ ] AI-powered pattern recognition
-- [ ] Auto-fix capabilities
+**Phase 3: Intelligence & Automation** 🚀 **IN PROGRESS**
+- [x] AI-powered code analysis (OpenAI, Anthropic, Ollama)
+- [x] AI-powered documentation generation
+- [x] AI-powered optimization suggestions
+- [x] Auto-fix capabilities (rule-based)
 - [ ] Multi-file refactoring
 - [ ] Custom rule engine
 - [ ] Performance profiling
