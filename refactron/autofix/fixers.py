@@ -199,6 +199,7 @@ class AddDocstringsFixer(BaseFixer):
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
         """Preview docstring addition."""
         try:
+            # Parse to validate syntax before attempting to modify
             ast.parse(code)
         except SyntaxError:
             return FixResult(
