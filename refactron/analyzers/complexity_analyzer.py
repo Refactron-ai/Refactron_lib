@@ -42,12 +42,16 @@ class ComplexityAnalyzer(BaseAnalyzer):
                     issue = CodeIssue(
                         category=IssueCategory.COMPLEXITY,
                         level=level,
-                        message=f"Function '{result.name}' has high complexity ({result.complexity})",
+                        message=(
+                            f"Function '{result.name}' has high complexity ({result.complexity})"
+                        ),
                         file_path=file_path,
                         line_number=result.lineno,
-                        suggestion=f"Consider breaking this function into smaller functions. "
-                        f"Current complexity: {result.complexity}, "
-                        f"recommended: ≤ {self.config.max_function_complexity}",
+                        suggestion=(
+                            f"Consider breaking this function into smaller functions. "
+                            f"Current complexity: {result.complexity}, "
+                            f"recommended: ≤ {self.config.max_function_complexity}"
+                        ),
                         rule_id="C001",
                         metadata={"complexity": result.complexity, "type": "cyclomatic"},
                     )
@@ -83,12 +87,16 @@ class ComplexityAnalyzer(BaseAnalyzer):
                             issue = CodeIssue(
                                 category=IssueCategory.COMPLEXITY,
                                 level=IssueLevel.WARNING,
-                                message=f"Function '{node.name}' is too long ({func_length} lines)",
+                                message=(
+                                    f"Function '{node.name}' is too long ({func_length} lines)"
+                                ),
                                 file_path=file_path,
                                 line_number=node.lineno,
-                                suggestion=f"Consider breaking this function into smaller functions. "
-                                f"Current length: {func_length} lines, "
-                                f"recommended: ≤ {self.config.max_function_length} lines",
+                                suggestion=(
+                                    f"Consider breaking this function into smaller functions. "
+                                    f"Current length: {func_length} lines, "
+                                    f"recommended: ≤ {self.config.max_function_length} lines"
+                                ),
                                 rule_id="C002",
                                 metadata={"length": func_length},
                             )

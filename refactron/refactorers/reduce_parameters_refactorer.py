@@ -65,14 +65,20 @@ class ReduceParametersRefactorer(BaseRefactorer):
             operation_type=self.operation_type,
             file_path=file_path,
             line_number=func_node.lineno,
-            description=f"Replace {param_count} parameters with a configuration object in '{func_node.name}'",
+            description=(
+                f"Replace {param_count} parameters with a configuration object in "
+                f"'{func_node.name}'"
+            ),
             old_code=old_code,
             new_code=new_code,
             risk_score=0.4,  # Moderate risk - API change
-            reasoning=f"This function has {param_count} parameters (limit: {self.config.max_parameters}). "
-            f"Using a configuration object (dataclass or dict) reduces cognitive load, "
-            f"makes the function easier to test, and allows adding new parameters "
-            f"without changing the function signature.",
+            reasoning=(
+                f"This function has {param_count} parameters (limit: "
+                f"{self.config.max_parameters}). "
+                f"Using a configuration object (dataclass or dict) reduces cognitive load, "
+                f"makes the function easier to test, and allows adding new parameters "
+                f"without changing the function signature."
+            ),
             metadata={
                 "parameter_count": param_count,
                 "function_name": func_node.name,
@@ -108,10 +114,10 @@ class {config_class}:
 def {func_name}(config: {config_class}):
     '''
     Refactored version using configuration object.
-    
+
     Args:
         config: Configuration containing all parameters
-        
+
     Returns:
         Same as before
     '''

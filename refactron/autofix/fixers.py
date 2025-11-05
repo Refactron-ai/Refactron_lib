@@ -6,7 +6,6 @@ No expensive AI APIs required!
 """
 
 import ast
-import re
 from typing import Set
 
 from refactron.autofix.engine import BaseFixer
@@ -17,7 +16,7 @@ from refactron.core.models import CodeIssue
 class RemoveUnusedImportsFixer(BaseFixer):
     """Removes unused import statements."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="remove_unused_imports", risk_score=0.0)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -138,7 +137,7 @@ class RemoveUnusedImportsFixer(BaseFixer):
 class ExtractMagicNumbersFixer(BaseFixer):
     """Extracts magic numbers into named constants."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="extract_magic_numbers", risk_score=0.2)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -174,7 +173,7 @@ class ExtractMagicNumbersFixer(BaseFixer):
         """Apply magic number extraction."""
         return self.preview(issue, code)
 
-    def _generate_constant_name(self, value, issue: CodeIssue) -> str:
+    def _generate_constant_name(self, value: str, issue: CodeIssue) -> str:
         """Generate a meaningful constant name."""
         # Try to infer from context
         if "context" in issue.metadata:
@@ -194,13 +193,14 @@ class ExtractMagicNumbersFixer(BaseFixer):
 class AddDocstringsFixer(BaseFixer):
     """Adds missing docstrings to functions and classes."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="add_docstrings", risk_score=0.1)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
         """Preview docstring addition."""
         try:
-            tree = ast.parse(code)
+            # Parse to validate syntax before attempting to modify
+            ast.parse(code)
         except SyntaxError:
             return FixResult(
                 success=False, reason="Syntax error in code", risk_score=self.risk_score
@@ -255,7 +255,7 @@ class AddDocstringsFixer(BaseFixer):
 class RemoveDeadCodeFixer(BaseFixer):
     """Removes dead/unreachable code."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="remove_dead_code", risk_score=0.1)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -294,7 +294,7 @@ class RemoveDeadCodeFixer(BaseFixer):
 class FixTypeHintsFixer(BaseFixer):
     """Adds or fixes type hints."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="fix_type_hints", risk_score=0.4)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -313,7 +313,7 @@ class FixTypeHintsFixer(BaseFixer):
 class SortImportsFixer(BaseFixer):
     """Sort and organize imports using isort."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="sort_imports", risk_score=0.0)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -359,7 +359,7 @@ class SortImportsFixer(BaseFixer):
 class RemoveTrailingWhitespaceFixer(BaseFixer):
     """Remove trailing whitespace from lines."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="remove_trailing_whitespace", risk_score=0.0)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -421,7 +421,7 @@ class NormalizeQuotesFixer(BaseFixer):
         if fixed == code:
             return FixResult(
                 success=True,
-                reason=f"Quotes already normalized",
+                reason="Quotes already normalized",
                 original=code,
                 fixed=code,
                 risk_score=self.risk_score,
@@ -448,7 +448,7 @@ class NormalizeQuotesFixer(BaseFixer):
 class SimplifyBooleanFixer(BaseFixer):
     """Simplify boolean expressions."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="simplify_boolean", risk_score=0.3)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -500,7 +500,7 @@ class SimplifyBooleanFixer(BaseFixer):
 class ConvertToFStringFixer(BaseFixer):
     """Convert old-style format strings to f-strings."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="convert_to_fstring", risk_score=0.2)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -549,7 +549,7 @@ class ConvertToFStringFixer(BaseFixer):
 class RemoveUnusedVariablesFixer(BaseFixer):
     """Remove unused variables."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="remove_unused_variables", risk_score=0.2)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
@@ -608,8 +608,6 @@ class FixIndentationFixer(BaseFixer):
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
         """Preview indentation fix."""
-        import re
-
         lines = code.split("\n")
         fixed_lines = []
         changes = 0
@@ -656,7 +654,7 @@ class FixIndentationFixer(BaseFixer):
 class AddMissingCommasFixer(BaseFixer):
     """Add missing trailing commas in lists/dicts."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(name="add_missing_commas", risk_score=0.1)
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:

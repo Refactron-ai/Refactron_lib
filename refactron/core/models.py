@@ -97,4 +97,7 @@ class RefactoringOperation:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def __str__(self) -> str:
-        return f"{self.operation_type} at {self.file_path}:{self.line_number} (risk: {self.risk_score:.2f})"
+        return (
+            f"{self.operation_type} at {self.file_path}:{self.line_number} "
+            f"(risk: {self.risk_score:.2f})"
+        )

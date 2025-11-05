@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Tuple
 
 from refactron.core.models import RefactoringOperation
 from refactron.refactorers.base_refactorer import BaseRefactorer
@@ -36,7 +36,7 @@ class MagicNumberRefactorer(BaseRefactorer):
             magic_numbers = self._find_magic_numbers(tree)
 
             # Group by function
-            functions_with_magic = {}
+            functions_with_magic: Dict[str, List[Tuple[ast.AST, float]]] = {}
             for node, value in magic_numbers:
                 func_node = self._get_containing_function(tree, node)
                 if func_node:
