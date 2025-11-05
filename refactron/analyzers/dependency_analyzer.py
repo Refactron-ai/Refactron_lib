@@ -274,8 +274,7 @@ class DependencyAnalyzer(BaseAnalyzer):
             "imp": "Use importlib instead",
             "optparse": "Use argparse instead",
             "xml.etree.cElementTree": (
-                "Use xml.etree.ElementTree instead (C implementation is default in "
-                "Python 3.3+)"
+                "Use xml.etree.ElementTree instead (C implementation is default in " "Python 3.3+)"
             ),
         }
 
