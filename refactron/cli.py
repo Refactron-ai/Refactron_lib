@@ -471,10 +471,10 @@ def ai_suggest(target: str, provider: str, api_key: Optional[str], model: Option
     try:
         console.print(f"[cyan]🤖 Getting AI suggestions for {target}...[/cyan]\n")
 
-        # Create AI config
+        # Create AI config with proper enum conversion
         ai_config = AIConfig(
             enabled=True,
-            provider=AIProvider(provider),
+            provider=AIProvider[provider.upper()],
             api_key=api_key,
             model=model,
         )
@@ -520,10 +520,10 @@ def ai_document(
     try:
         console.print(f"[cyan]🤖 Generating documentation for {target}...[/cyan]\n")
 
-        # Create AI config
+        # Create AI config with proper enum conversion
         ai_config = AIConfig(
             enabled=True,
-            provider=AIProvider(provider),
+            provider=AIProvider[provider.upper()],
             api_key=api_key,
             model=model,
         )
@@ -565,10 +565,10 @@ def ai_refactor(
     try:
         console.print(f"[cyan]🤖 Getting refactoring suggestions for {target}...[/cyan]\n")
 
-        # Create AI config
+        # Create AI config with proper enum conversion
         ai_config = AIConfig(
             enabled=True,
-            provider=AIProvider(provider),
+            provider=AIProvider[provider.upper()],
             api_key=api_key,
             model=model,
         )

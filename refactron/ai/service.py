@@ -168,9 +168,19 @@ def create_ai_service(
         >>> # Using Ollama (local, free)
         >>> service = create_ai_service('ollama', model='codellama')
     """
+    # Convert string provider to AIProvider enum
+    provider_lower = provider.lower()
+    try:
+        provider_enum = AIProvider[provider_lower.upper()]
+    except KeyError:
+        raise ValueError(
+            f"Unsupported provider: {provider}. "
+            f"Must be one of: {', '.join([p.value for p in AIProvider])}"
+        )
+
     config = AIConfig(
         enabled=True,
-        provider=AIProvider(provider.lower()),
+        provider=provider_enum,
         api_key=api_key,
         model=model,
         **kwargs,

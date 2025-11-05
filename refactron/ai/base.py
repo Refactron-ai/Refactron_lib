@@ -12,7 +12,6 @@ class AIProvider(Enum):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     OLLAMA = "ollama"
-    LOCAL = "local"
 
 
 @dataclass
