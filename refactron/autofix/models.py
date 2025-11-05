@@ -29,6 +29,6 @@ class FixResult:
     risk_score: float = 1.0
     files_affected: List[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.files_affected is None:
             self.files_affected = []

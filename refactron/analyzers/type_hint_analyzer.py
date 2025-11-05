@@ -156,7 +156,7 @@ class TypeHintAnalyzer(BaseAnalyzer):
 
     def _check_any_usage(self, tree: ast.AST, file_path: Path) -> List[CodeIssue]:
         """Check for usage of 'Any' type which defeats type checking."""
-        issues = []
+        issues: List[CodeIssue] = []
 
         # Check if typing.Any is imported
         has_any_import = False

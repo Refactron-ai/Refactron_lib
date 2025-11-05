@@ -2,16 +2,19 @@
 
 import ast
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Set, Tuple
 
 from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
+
+if TYPE_CHECKING:
+    from refactron.core.config import RefactronConfig
 
 
 class DependencyAnalyzer(BaseAnalyzer):
     """Analyzes import statements and dependencies."""
 
-    def __init__(self, config):
+    def __init__(self, config: "RefactronConfig") -> None:
         super().__init__(config)
         self.stdlib_modules = self._get_stdlib_modules()
 

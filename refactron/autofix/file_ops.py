@@ -34,7 +34,7 @@ class FileOperations:
                 return {"backups": []}
         return {"backups": []}
 
-    def _save_backup_index(self):
+    def _save_backup_index(self) -> None:
         """Save backup index to disk."""
         self.backup_dir.mkdir(parents=True, exist_ok=True)
         with open(self.backup_index_file, "w") as f:
