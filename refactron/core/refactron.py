@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Union
 
+from refactron.ai import AIConfig, AIService
 from refactron.analyzers.code_smell_analyzer import CodeSmellAnalyzer
 from refactron.analyzers.complexity_analyzer import ComplexityAnalyzer
 from refactron.analyzers.dead_code_analyzer import DeadCodeAnalyzer
@@ -29,16 +30,26 @@ class Refactron:
         >>> refactron = Refactron()
         >>> result = refactron.analyze("mycode.py")
         >>> print(result.report())
+        
+    Example with AI:
+        >>> from refactron.ai import AIConfig, AIProvider
+        >>> ai_config = AIConfig(enabled=True, provider=AIProvider.OPENAI, api_key="sk-...")
+        >>> refactron = Refactron(ai_config=ai_config)
+        >>> suggestions = refactron.get_ai_suggestions("mycode.py")
     """
 
-    def __init__(self, config: Optional[RefactronConfig] = None):
+    def __init__(
+        self, config: Optional[RefactronConfig] = None, ai_config: Optional[AIConfig] = None
+    ):
         """
         Initialize Refactron.
 
         Args:
             config: Configuration object. If None, uses default config.
+            ai_config: AI configuration. If None, AI features are disabled.
         """
         self.config = config or RefactronConfig.default()
+        self.ai_service = AIService(ai_config) if ai_config else None
         self._initialize_analyzers()
         self._initialize_refactorers()
 
@@ -228,3 +239,102 @@ class Refactron:
                 return True
 
         return False
+
+    def get_ai_suggestions(self, target: Union[str, Path]) -> dict:
+        """
+        Get AI-powered suggestions for code improvements.
+
+        Args:
+            target: Path to file to analyze
+
+        Returns:
+            Dictionary with AI suggestions
+
+        Raises:
+            RuntimeError: If AI features are not enabled
+        """
+        if not self.ai_service or not self.ai_service.is_enabled():
+            raise RuntimeError(
+                "AI features not enabled. Initialize Refactron with ai_config parameter."
+            )
+
+        target_path = Path(target)
+        if not target_path.exists() or not target_path.is_file():
+            raise FileNotFoundError(f"File not found: {target}")
+
+        with open(target_path, "r", encoding="utf-8") as f:
+            code = f.read()
+
+        # Analyze the file first to get issues
+        analysis = self.analyze(target_path)
+        issues = []
+        if analysis.file_metrics:
+            issues = [
+                f"{issue.severity}: {issue.message}" for issue in analysis.file_metrics[0].issues
+            ]
+
+        return {
+            "file": str(target_path),
+            "explanation": self.ai_service.explain_code(code),
+            "improvements": self.ai_service.suggest_improvements(code, issues),
+            "optimizations": self.ai_service.optimize_code(code),
+        }
+
+    def generate_documentation(self, target: Union[str, Path], function_name: str = "") -> str:
+        """
+        Generate AI-powered documentation for code.
+
+        Args:
+            target: Path to file
+            function_name: Optional specific function to document
+
+        Returns:
+            Generated documentation
+
+        Raises:
+            RuntimeError: If AI features are not enabled
+        """
+        if not self.ai_service or not self.ai_service.is_enabled():
+            raise RuntimeError(
+                "AI features not enabled. Initialize Refactron with ai_config parameter."
+            )
+
+        target_path = Path(target)
+        if not target_path.exists() or not target_path.is_file():
+            raise FileNotFoundError(f"File not found: {target}")
+
+        with open(target_path, "r", encoding="utf-8") as f:
+            code = f.read()
+
+        context = f"Function: {function_name}" if function_name else "Full module"
+        return self.ai_service.generate_docstring(code, context)
+
+    def get_refactoring_suggestions(
+        self, target: Union[str, Path], issue_type: str = "general"
+    ) -> str:
+        """
+        Get AI-powered refactoring suggestions.
+
+        Args:
+            target: Path to file
+            issue_type: Type of issue to address (e.g., 'complexity', 'code_smell')
+
+        Returns:
+            Refactoring suggestions
+
+        Raises:
+            RuntimeError: If AI features are not enabled
+        """
+        if not self.ai_service or not self.ai_service.is_enabled():
+            raise RuntimeError(
+                "AI features not enabled. Initialize Refactron with ai_config parameter."
+            )
+
+        target_path = Path(target)
+        if not target_path.exists() or not target_path.is_file():
+            raise FileNotFoundError(f"File not found: {target}")
+
+        with open(target_path, "r", encoding="utf-8") as f:
+            code = f.read()
+
+        return self.ai_service.generate_refactoring_suggestion(code, issue_type)

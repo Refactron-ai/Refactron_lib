@@ -1,0 +1,11 @@
+# Optional AI dependencies
+# Install with: pip install -r requirements-ai.txt
+
+# OpenAI provider (GPT models)
+openai>=1.0.0
+
+# Anthropic provider (Claude models)
+anthropic>=0.20.0
+
+# Ollama provider (local models)
+requests>=2.31.0
