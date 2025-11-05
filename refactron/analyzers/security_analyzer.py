@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import List, Set
+from typing import List
 
 from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
@@ -176,11 +176,15 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     issue = CodeIssue(
                                         category=IssueCategory.SECURITY,
                                         level=IssueLevel.CRITICAL,
-                                        message=f"Potential hardcoded secret in variable '{target.id}'",
+                                        message=(
+                                            f"Potential hardcoded secret in variable '{target.id}'"
+                                        ),
                                         file_path=file_path,
                                         line_number=node.lineno,
-                                        suggestion="Store secrets in environment variables or a secure vault, "
-                                        "never hardcode them in source code",
+                                        suggestion=(
+                                            "Store secrets in environment variables or a secure "
+                                            "vault, never hardcode them in source code"
+                                        ),
                                         rule_id="SEC003",
                                         metadata={"variable": target.id},
                                     )
@@ -209,7 +213,10 @@ class SecurityAnalyzer(BaseAnalyzer):
                                 message="Potential SQL injection via f-string in execute()",
                                 file_path=file_path,
                                 line_number=node.lineno,
-                                suggestion="Use parameterized queries instead: cursor.execute(sql, (param1, param2))",
+                                suggestion=(
+                                    "Use parameterized queries instead: cursor.execute(sql, "
+                                    "(param1, param2))"
+                                ),
                                 rule_id="SEC004",
                             )
                             issues.append(issue)
@@ -223,7 +230,10 @@ class SecurityAnalyzer(BaseAnalyzer):
                                 message="Potential SQL injection via % formatting in execute()",
                                 file_path=file_path,
                                 line_number=node.lineno,
-                                suggestion="Use parameterized queries instead: cursor.execute(sql, (param1, param2))",
+                                suggestion=(
+                                    "Use parameterized queries instead: cursor.execute(sql, "
+                                    "(param1, param2))"
+                                ),
                                 rule_id="SEC004",
                             )
                             issues.append(issue)
@@ -248,10 +258,15 @@ class SecurityAnalyzer(BaseAnalyzer):
                                 issue = CodeIssue(
                                     category=IssueCategory.SECURITY,
                                     level=IssueLevel.CRITICAL,
-                                    message=f"Command injection risk: {func_name}() with shell=True",
+                                    message=(
+                                        f"Command injection risk: {func_name}() with shell=True"
+                                    ),
                                     file_path=file_path,
                                     line_number=node.lineno,
-                                    suggestion="Avoid shell=True. Use subprocess with list of arguments instead",
+                                    suggestion=(
+                                        "Avoid shell=True. Use subprocess with list of arguments "
+                                        "instead"
+                                    ),
                                     rule_id="SEC005",
                                 )
                                 issues.append(issue)
@@ -296,7 +311,9 @@ class SecurityAnalyzer(BaseAnalyzer):
                         message="Unsafe YAML loading with yaml.load()",
                         file_path=file_path,
                         line_number=node.lineno,
-                        suggestion="Use yaml.safe_load() instead to prevent arbitrary code execution",
+                        suggestion=(
+                            "Use yaml.safe_load() instead to prevent arbitrary code execution"
+                        ),
                         rule_id="SEC007",
                     )
                     issues.append(issue)

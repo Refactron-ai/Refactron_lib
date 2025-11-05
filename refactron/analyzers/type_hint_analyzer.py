@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import List, Set
+from typing import List
 
 from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
@@ -74,7 +74,9 @@ class TypeHintAnalyzer(BaseAnalyzer):
                             message=f"Function '{node.name}' missing return type annotation",
                             file_path=file_path,
                             line_number=node.lineno,
-                            suggestion=f"Add return type annotation: def {node.name}(...) -> ReturnType:",
+                            suggestion=(
+                                f"Add return type annotation: def {node.name}(...) -> ReturnType:"
+                            ),
                             rule_id="TYPE001",
                             metadata={"function": node.name},
                         )
@@ -102,7 +104,10 @@ class TypeHintAnalyzer(BaseAnalyzer):
                         issue = CodeIssue(
                             category=IssueCategory.TYPE_HINTS,
                             level=IssueLevel.INFO,
-                            message=f"Parameter '{arg.arg}' in function '{node.name}' missing type annotation",
+                            message=(
+                                f"Parameter '{arg.arg}' in function '{node.name}' missing type "
+                                f"annotation"
+                            ),
                             file_path=file_path,
                             line_number=node.lineno,
                             suggestion=f"Add type annotation: {arg.arg}: TypeName",
@@ -133,10 +138,15 @@ class TypeHintAnalyzer(BaseAnalyzer):
                                     issue = CodeIssue(
                                         category=IssueCategory.TYPE_HINTS,
                                         level=IssueLevel.INFO,
-                                        message=f"Class attribute '{target.id}' in '{node.name}' missing type annotation",
+                                        message=(
+                                            f"Class attribute '{target.id}' in '{node.name}' "
+                                            f"missing type annotation"
+                                        ),
                                         file_path=file_path,
                                         line_number=item.lineno,
-                                        suggestion=f"Add type annotation: {target.id}: TypeName = value",
+                                        suggestion=(
+                                            f"Add type annotation: {target.id}: TypeName = value"
+                                        ),
                                         rule_id="TYPE003",
                                         metadata={"attribute": target.id, "class": node.name},
                                     )
@@ -172,7 +182,10 @@ class TypeHintAnalyzer(BaseAnalyzer):
                         message=f"Function '{node.name}' uses 'Any' return type",
                         file_path=file_path,
                         line_number=node.lineno,
-                        suggestion="Consider using a more specific type instead of Any for better type safety",
+                        suggestion=(
+                            "Consider using a more specific type instead of Any for better type "
+                            "safety"
+                        ),
                         rule_id="TYPE004",
                         metadata={"function": node.name},
                     )
@@ -184,7 +197,9 @@ class TypeHintAnalyzer(BaseAnalyzer):
                         issue = CodeIssue(
                             category=IssueCategory.TYPE_HINTS,
                             level=IssueLevel.INFO,
-                            message=f"Parameter '{arg.arg}' in function '{node.name}' uses 'Any' type",
+                            message=(
+                                f"Parameter '{arg.arg}' in function '{node.name}' uses 'Any' type"
+                            ),
                             file_path=file_path,
                             line_number=node.lineno,
                             suggestion="Consider using a more specific type instead of Any",
@@ -234,7 +249,10 @@ class TypeHintAnalyzer(BaseAnalyzer):
                             issue = CodeIssue(
                                 category=IssueCategory.TYPE_HINTS,
                                 level=IssueLevel.INFO,
-                                message=f"Incomplete generic type for parameter '{arg.arg}': {generic_type}",
+                                message=(
+                                    f"Incomplete generic type for parameter '{arg.arg}': "
+                                    f"{generic_type}"
+                                ),
                                 file_path=file_path,
                                 line_number=node.lineno,
                                 suggestion=suggestion,

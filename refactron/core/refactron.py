@@ -119,9 +119,9 @@ class Refactron:
 
         # Initialize basic metrics
         lines = source_code.split("\n")
-        loc = len([l for l in lines if l.strip() and not l.strip().startswith("#")])
-        comment_lines = len([l for l in lines if l.strip().startswith("#")])
-        blank_lines = len([l for l in lines if not l.strip()])
+        loc = len([line for line in lines if line.strip() and not line.strip().startswith("#")])
+        comment_lines = len([line for line in lines if line.strip().startswith("#")])
+        blank_lines = len([line for line in lines if not line.strip()])
 
         metrics = FileMetrics(
             file_path=file_path,

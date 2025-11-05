@@ -65,9 +65,11 @@ class CodeSmellAnalyzer(BaseAnalyzer):
                         message=f"Function '{node.name}' has too many parameters ({param_count})",
                         file_path=file_path,
                         line_number=node.lineno,
-                        suggestion=f"Consider using a configuration object or breaking down the function. "
-                        f"Current: {param_count} parameters, "
-                        f"recommended: ≤ {self.config.max_parameters}",
+                        suggestion=(
+                            f"Consider using a configuration object or breaking down the function. "
+                            f"Current: {param_count} parameters, "
+                            f"recommended: ≤ {self.config.max_parameters}"
+                        ),
                         rule_id="S001",
                         metadata={"parameter_count": param_count},
                     )
@@ -144,7 +146,10 @@ class CodeSmellAnalyzer(BaseAnalyzer):
                                     message=f"Potential duplicate function: '{node.name}'",
                                     file_path=file_path,
                                     line_number=node.lineno,
-                                    suggestion="Consider consolidating similar functions or using parameters.",
+                                    suggestion=(
+                                        "Consider consolidating similar functions or using "
+                                        "parameters."
+                                    ),
                                     rule_id="S003",
                                 )
                                 issues.append(issue)
@@ -195,7 +200,9 @@ class CodeSmellAnalyzer(BaseAnalyzer):
                         message=f"{entity_type} '{node.name}' is missing a docstring",
                         file_path=file_path,
                         line_number=node.lineno,
-                        suggestion=f"Add a docstring to explain what this {entity_type.lower()} does.",
+                        suggestion=(
+                            f"Add a docstring to explain what this {entity_type.lower()} does."
+                        ),
                         rule_id="S005",
                     )
                     issues.append(issue)

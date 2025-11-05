@@ -1,7 +1,6 @@
 """Analyzer for import dependencies and module relationships."""
 
 import ast
-from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
@@ -145,11 +144,16 @@ class DependencyAnalyzer(BaseAnalyzer):
                         issue = CodeIssue(
                             category=IssueCategory.MAINTAINABILITY,
                             level=IssueLevel.WARNING,
-                            message=f"Import inside function '{node.name}' may indicate circular dependency",
+                            message=(
+                                f"Import inside function '{node.name}' may indicate circular "
+                                f"dependency"
+                            ),
                             file_path=file_path,
                             line_number=child.lineno,
-                            suggestion="Move imports to module level if possible. "
-                            "If avoiding circular imports, consider restructuring modules",
+                            suggestion=(
+                                "Move imports to module level if possible. "
+                                "If avoiding circular imports, consider restructuring modules"
+                            ),
                             rule_id="DEP003",
                             metadata={"module": module, "function": node.name},
                         )
@@ -188,10 +192,15 @@ class DependencyAnalyzer(BaseAnalyzer):
                     issue = CodeIssue(
                         category=IssueCategory.STYLE,
                         level=IssueLevel.INFO,
-                        message=f"Import order: {import_type} import after {expected_order[prev_type_idx]}",
+                        message=(
+                            f"Import order: {import_type} import after "
+                            f"{expected_order[prev_type_idx]}"
+                        ),
                         file_path=file_path,
                         line_number=line,
-                        suggestion="Follow PEP 8 import order: stdlib, third-party, then local imports",
+                        suggestion=(
+                            "Follow PEP 8 import order: stdlib, third-party, then local imports"
+                        ),
                         rule_id="DEP004",
                         metadata={"module": module},
                     )
@@ -241,7 +250,10 @@ class DependencyAnalyzer(BaseAnalyzer):
                             message=f"Duplicate import: '{module}'",
                             file_path=file_path,
                             line_number=node.lineno,
-                            suggestion=f"Remove duplicate import. First imported at line {seen_imports[module]}",
+                            suggestion=(
+                                f"Remove duplicate import. First imported at line "
+                                f"{seen_imports[module]}"
+                            ),
                             rule_id="DEP006",
                             metadata={"module": module, "first_line": seen_imports[module]},
                         )
@@ -258,7 +270,9 @@ class DependencyAnalyzer(BaseAnalyzer):
         deprecated = {
             "imp": "Use importlib instead",
             "optparse": "Use argparse instead",
-            "xml.etree.cElementTree": "Use xml.etree.ElementTree instead (C implementation is default in Python 3.3+)",
+            "xml.etree.cElementTree": (
+                "Use xml.etree.ElementTree instead (C implementation is default in " "Python 3.3+)"
+            ),
         }
 
         for node in ast.walk(tree):

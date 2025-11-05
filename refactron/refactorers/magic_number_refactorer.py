@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import List
 
 from refactron.core.models import RefactoringOperation
 from refactron.refactorers.base_refactorer import BaseRefactorer

@@ -6,7 +6,6 @@ No expensive AI APIs required!
 """
 
 import ast
-import re
 from typing import Set
 
 from refactron.autofix.engine import BaseFixer
@@ -200,7 +199,7 @@ class AddDocstringsFixer(BaseFixer):
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
         """Preview docstring addition."""
         try:
-            tree = ast.parse(code)
+            ast.parse(code)
         except SyntaxError:
             return FixResult(
                 success=False, reason="Syntax error in code", risk_score=self.risk_score
@@ -421,7 +420,7 @@ class NormalizeQuotesFixer(BaseFixer):
         if fixed == code:
             return FixResult(
                 success=True,
-                reason=f"Quotes already normalized",
+                reason="Quotes already normalized",
                 original=code,
                 fixed=code,
                 risk_score=self.risk_score,
@@ -608,8 +607,6 @@ class FixIndentationFixer(BaseFixer):
 
     def preview(self, issue: CodeIssue, code: str) -> FixResult:
         """Preview indentation fix."""
-        import re
-
         lines = code.split("\n")
         fixed_lines = []
         changes = 0

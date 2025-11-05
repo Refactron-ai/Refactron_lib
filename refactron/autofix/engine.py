@@ -5,7 +5,7 @@ This engine uses AST analysis and pattern matching to apply safe
 automatic fixes without requiring expensive AI APIs.
 """
 
-from typing import Dict, Optional
+from typing import Dict
 
 from refactron.autofix.models import FixResult, FixRiskLevel
 from refactron.core.models import CodeIssue
@@ -105,7 +105,10 @@ class AutoFixEngine:
         if fixer.risk_score > self.safety_level.value:
             return FixResult(
                 success=False,
-                reason=f"Fix risk level ({fixer.risk_score}) exceeds safety level ({self.safety_level.value})",
+                reason=(
+                    f"Fix risk level ({fixer.risk_score}) exceeds safety level "
+                    f"({self.safety_level.value})"
+                ),
             )
 
         # Apply fix

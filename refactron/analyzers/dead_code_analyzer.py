@@ -79,7 +79,10 @@ class DeadCodeAnalyzer(BaseAnalyzer):
                         message=f"Function '{func_name}' is defined but never called",
                         file_path=file_path,
                         line_number=line_num,
-                        suggestion=f"Remove unused function '{func_name}' or export it if it's part of the API",
+                        suggestion=(
+                            f"Remove unused function '{func_name}' or export it if it's part "
+                            f"of the API"
+                        ),
                         rule_id="DEAD001",
                         metadata={"function": func_name},
                     )
@@ -115,10 +118,16 @@ class DeadCodeAnalyzer(BaseAnalyzer):
                         issue = CodeIssue(
                             category=IssueCategory.MAINTAINABILITY,
                             level=IssueLevel.INFO,
-                            message=f"Variable '{var_name}' is assigned but never used in function '{node.name}'",
+                            message=(
+                                f"Variable '{var_name}' is assigned but never used in function "
+                                f"'{node.name}'"
+                            ),
                             file_path=file_path,
                             line_number=line_num,
-                            suggestion=f"Remove unused variable '{var_name}' or use _ if intentionally unused",
+                            suggestion=(
+                                f"Remove unused variable '{var_name}' or use _ if intentionally "
+                                f"unused"
+                            ),
                             rule_id="DEAD002",
                             metadata={"variable": var_name, "function": node.name},
                         )
@@ -235,7 +244,9 @@ class DeadCodeAnalyzer(BaseAnalyzer):
                             message="Condition is always True",
                             file_path=file_path,
                             line_number=node.lineno,
-                            suggestion="Remove the if statement and keep the body, or fix the condition",
+                            suggestion=(
+                                "Remove the if statement and keep the body, or fix the condition"
+                            ),
                             rule_id="DEAD005",
                         )
                         issues.append(issue)

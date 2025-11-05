@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Optional
 
 import click
-from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
@@ -66,7 +65,8 @@ def _print_status_messages(summary: dict) -> None:
         console.print("[green]✨ Excellent! No issues found.[/green]")
     elif summary["critical"] > 0:
         console.print(
-            f"[red]⚠️  Found {summary['critical']} critical issue(s) that need immediate attention![/red]"
+            f"[red]⚠️  Found {summary['critical']} critical issue(s) that need immediate "
+            f"attention![/red]"
         )
 
 
@@ -133,7 +133,8 @@ def _print_refactor_messages(summary: dict, preview: bool) -> None:
         console.print("[green]✨ No refactoring opportunities found. Your code looks good![/green]")
     elif summary["high_risk"] > 0:
         console.print(
-            f"[yellow]⚠️  {summary['high_risk']} operation(s) are high-risk. Review carefully![/yellow]"
+            f"[yellow]⚠️  {summary['high_risk']} operation(s) are high-risk. Review "
+            f"carefully![/yellow]"
         )
 
     if preview and summary["total_operations"] > 0:
@@ -392,10 +393,12 @@ def autofix(
         console.print(f"{risk_emoji} {fixer_name} (risk: {fixer.risk_score:.1f})")
 
     console.print(
-        "\n[dim]💡 Tip: Auto-fix requires analyzed issues. Integration with analyzers coming soon![/dim]"
+        "\n[dim]💡 Tip: Auto-fix requires analyzed issues. Integration with analyzers "
+        "coming soon![/dim]"
     )
     console.print(
-        "[dim]📖 For now, use 'refactron analyze' to find issues, then 'refactron refactor' to fix them.[/dim]"
+        "[dim]📖 For now, use 'refactron analyze' to find issues, then 'refactron refactor' "
+        "to fix them.[/dim]"
     )
 
 
