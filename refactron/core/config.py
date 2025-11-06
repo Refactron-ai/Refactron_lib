@@ -20,6 +20,7 @@ class RefactronConfig:
             "dependency",
             "dead_code",
             "type_hints",
+            "performance",
         ]
     )
 

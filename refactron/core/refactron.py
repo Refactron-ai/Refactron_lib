@@ -8,6 +8,7 @@ from refactron.analyzers.code_smell_analyzer import CodeSmellAnalyzer
 from refactron.analyzers.complexity_analyzer import ComplexityAnalyzer
 from refactron.analyzers.dead_code_analyzer import DeadCodeAnalyzer
 from refactron.analyzers.dependency_analyzer import DependencyAnalyzer
+from refactron.analyzers.performance_analyzer import PerformanceAnalyzer
 from refactron.analyzers.security_analyzer import SecurityAnalyzer
 from refactron.analyzers.type_hint_analyzer import TypeHintAnalyzer
 from refactron.core.analysis_result import AnalysisResult
@@ -63,6 +64,9 @@ class Refactron:
 
         if "type_hints" in self.config.enabled_analyzers:
             self.analyzers.append(TypeHintAnalyzer(self.config))
+
+        if "performance" in self.config.enabled_analyzers:
+            self.analyzers.append(PerformanceAnalyzer(self.config))
 
     def _initialize_refactorers(self) -> None:
         """Initialize all enabled refactorers."""
