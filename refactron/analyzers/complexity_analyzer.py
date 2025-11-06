@@ -101,13 +101,13 @@ class ComplexityAnalyzer(BaseAnalyzer):
                                 metadata={"length": func_length},
                             )
                             issues.append(issue)
-                
+
                 # Check for nested loop depth
                 issues.extend(self._check_nested_loops(tree, file_path))
-                
+
                 # Check for method call chain complexity
                 issues.extend(self._check_call_chain_complexity(tree, file_path))
-                
+
             except SyntaxError:
                 pass
 

@@ -75,7 +75,9 @@ class PerformanceAnalyzer(BaseAnalyzer):
                                 level=IssueLevel.WARNING,
                                 message=f"Potential N+1 query: '{func_name}()' called inside a loop",
                                 file_path=file_path,
-                                line_number=child.lineno if hasattr(child, "lineno") else node.lineno,
+                                line_number=(
+                                    child.lineno if hasattr(child, "lineno") else node.lineno
+                                ),
                                 suggestion=(
                                     "Consider using batch queries, joins, or eager loading "
                                     "to fetch all data at once instead of querying in a loop."
@@ -214,7 +216,9 @@ class PerformanceAnalyzer(BaseAnalyzer):
                                         f"(variable: '{child.target.id}')"
                                     ),
                                     file_path=file_path,
-                                    line_number=child.lineno if hasattr(child, "lineno") else node.lineno,
+                                    line_number=(
+                                        child.lineno if hasattr(child, "lineno") else node.lineno
+                                    ),
                                     suggestion=(
                                         "Consider using ''.join() with a list for better performance "
                                         "when concatenating strings in a loop."

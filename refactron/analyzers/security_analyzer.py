@@ -383,7 +383,7 @@ class SecurityAnalyzer(BaseAnalyzer):
 
         # First pass: collect all variable assignments with string operations
         string_concat_vars = {}
-        
+
         for node in ast.walk(tree):
             if isinstance(node, ast.Assign):
                 for target in node.targets:
@@ -391,9 +391,13 @@ class SecurityAnalyzer(BaseAnalyzer):
                         # Check if the assignment uses string concatenation or .format()
                         if isinstance(node.value, ast.BinOp) and isinstance(node.value.op, ast.Add):
                             # Check if at least one side is a string
-                            if isinstance(node.value.left, ast.Constant) or isinstance(node.value.right, ast.Constant):
+                            if isinstance(node.value.left, ast.Constant) or isinstance(
+                                node.value.right, ast.Constant
+                            ):
                                 string_concat_vars[target.id] = node.lineno
-                        elif isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute):
+                        elif isinstance(node.value, ast.Call) and isinstance(
+                            node.value.func, ast.Attribute
+                        ):
                             if node.value.func.attr == "format":
                                 string_concat_vars[target.id] = node.lineno
 
@@ -438,17 +442,21 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     rule_id="SEC009",
                                 )
                                 issues.append(issue)
-                        
+
                         # Check if the variable was created with string concatenation/format
                         elif isinstance(arg, ast.Name) and arg.id in string_concat_vars:
                             issue = CodeIssue(
                                 category=IssueCategory.SECURITY,
                                 level=IssueLevel.CRITICAL,
-                                message=f"SQL query variable '{arg.id}' uses unsafe string operations - use parameterized queries",
+                                message=(
+                                    f"SQL query variable '{arg.id}' uses unsafe string "
+                                    "operations - use parameterized queries"
+                                ),
                                 file_path=file_path,
                                 line_number=node.lineno,
                                 suggestion=(
-                                    "Use parameterized queries: cursor.execute('SELECT * FROM table WHERE id = ?', (value,))"
+                                    "Use parameterized queries: cursor.execute("
+                                    "'SELECT * FROM table WHERE id = ?', (value,))"
                                 ),
                                 rule_id="SEC009",
                             )
@@ -474,10 +482,15 @@ class SecurityAnalyzer(BaseAnalyzer):
                             # Check for f-strings, format, or concatenation in URLs
                             is_dynamic = (
                                 isinstance(url_arg, ast.JoinedStr)
-                                or (isinstance(url_arg, ast.Call) and 
-                                    isinstance(url_arg.func, ast.Attribute) and 
-                                    url_arg.func.attr == "format")
-                                or (isinstance(url_arg, ast.BinOp) and isinstance(url_arg.op, ast.Add))
+                                or (
+                                    isinstance(url_arg, ast.Call)
+                                    and isinstance(url_arg.func, ast.Attribute)
+                                    and url_arg.func.attr == "format"
+                                )
+                                or (
+                                    isinstance(url_arg, ast.BinOp)
+                                    and isinstance(url_arg.op, ast.Add)
+                                )
                             )
 
                             if is_dynamic:
@@ -532,7 +545,9 @@ class SecurityAnalyzer(BaseAnalyzer):
                 # Check for SSL context creation with weak settings
                 if isinstance(node.func, ast.Attribute) and node.func.attr == "SSLContext":
                     for keyword in node.keywords:
-                        if keyword.arg == "verify_mode" and isinstance(keyword.value, ast.Attribute):
+                        if keyword.arg == "verify_mode" and isinstance(
+                            keyword.value, ast.Attribute
+                        ):
                             if "CERT_NONE" in self._get_full_function_name(keyword.value):
                                 issue = CodeIssue(
                                     category=IssueCategory.SECURITY,
@@ -549,7 +564,10 @@ class SecurityAnalyzer(BaseAnalyzer):
 
                 # Check for requests with verify=False
                 func_name = self._get_full_function_name(node.func)
-                if any(req_func in func_name for req_func in ["requests.get", "requests.post", "requests.request"]):
+                if any(
+                    req_func in func_name
+                    for req_func in ["requests.get", "requests.post", "requests.request"]
+                ):
                     for keyword in node.keywords:
                         if keyword.arg == "verify" and isinstance(keyword.value, ast.Constant):
                             if keyword.value.value is False:
