@@ -1,5 +1,6 @@
 """Integration test to demonstrate new analyzer features."""
 
+import tempfile
 from pathlib import Path
 from refactron.core.refactron import Refactron
 from refactron.core.config import RefactronConfig
@@ -65,8 +66,9 @@ def problematic_function(a, b, c, d, e, f, g):
 '''
     
     # Create a temporary test file
-    test_file = Path("/tmp/test_analyzer_integration.py")
-    test_file.write_text(code)
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write(code)
+        test_file = Path(f.name)
     
     try:
         # Initialize Refactron with all analyzers enabled

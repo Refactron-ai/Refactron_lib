@@ -1,6 +1,7 @@
 """Analyzer for code smells and anti-patterns."""
 
 import ast
+import copy
 from pathlib import Path
 from typing import List, Set
 
@@ -297,10 +298,14 @@ class CodeSmellAnalyzer(BaseAnalyzer):
                         return ast.Name(id="VAR", ctx=node.ctx)
                 
                 # Create a copy and transform it
-                import copy
                 pattern_node = copy.deepcopy(node)
                 pattern_node = PatternVisitor().visit(pattern_node)
-                return ast.unparse(pattern_node)
+                # Use ast.unparse if available (Python 3.9+), otherwise fallback
+                if hasattr(ast, 'unparse'):
+                    return ast.unparse(pattern_node)
+                else:
+                    # Fallback for older Python versions - use ast.dump
+                    return ast.dump(pattern_node)
             except Exception:
                 return ""
 

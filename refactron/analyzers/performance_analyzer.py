@@ -121,17 +121,16 @@ class PerformanceAnalyzer(BaseAnalyzer):
 
             # Check for nested list comprehensions that build large intermediate lists
             if isinstance(node, ast.ListComp):
-                # Count comprehension depth
-                depth = 0
+                # Count comprehension depth by traversing nested comprehensions
+                depth = 1  # Start at 1 for the current comprehension
                 current = node
-                while isinstance(current, (ast.ListComp, ast.GeneratorExp)):
-                    depth += 1
-                    if hasattr(current, "generators") and current.generators:
-                        iter_node = current.generators[0].iter
-                        if isinstance(iter_node, (ast.ListComp, ast.GeneratorExp)):
-                            current = iter_node
-                        else:
-                            break
+                while True:
+                    if not (hasattr(current, "generators") and current.generators):
+                        break
+                    iter_node = current.generators[0].iter
+                    if isinstance(iter_node, (ast.ListComp, ast.GeneratorExp)):
+                        depth += 1
+                        current = iter_node
                     else:
                         break
 
