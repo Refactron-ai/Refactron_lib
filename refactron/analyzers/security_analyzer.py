@@ -33,6 +33,19 @@ class SecurityAnalyzer(BaseAnalyzer):
         "sha1": "SHA1 is deprecated - use SHA256 or better",
     }
 
+    # SSRF-prone functions
+    SSRF_FUNCTIONS = {
+        "requests.get",
+        "requests.post",
+        "requests.put",
+        "requests.delete",
+        "requests.patch",
+        "urllib.request.urlopen",
+        "urllib2.urlopen",
+        "httplib.HTTPConnection",
+        "httplib2.Http",
+    }
+
     @property
     def name(self) -> str:
         return "security"
@@ -62,6 +75,10 @@ class SecurityAnalyzer(BaseAnalyzer):
             issues.extend(self._check_weak_crypto(tree, file_path))
             issues.extend(self._check_unsafe_yaml(tree, file_path))
             issues.extend(self._check_assert_statements(tree, file_path))
+            issues.extend(self._check_sql_parameterization(tree, file_path))
+            issues.extend(self._check_ssrf_vulnerabilities(tree, file_path))
+            issues.extend(self._check_insecure_random(tree, file_path))
+            issues.extend(self._check_weak_ssl_tls(tree, file_path))
 
         except SyntaxError:
             pass
@@ -359,3 +376,194 @@ class SecurityAnalyzer(BaseAnalyzer):
                 return f"{value_name}.{node.attr}"
             return node.attr
         return ""
+
+    def _check_sql_parameterization(self, tree: ast.AST, file_path: Path) -> List[CodeIssue]:
+        """Check for proper SQL parameterization usage."""
+        issues = []
+
+        # First pass: collect all variable assignments with string operations
+        string_concat_vars = {}
+        
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        # Check if the assignment uses string concatenation or .format()
+                        if isinstance(node.value, ast.BinOp) and isinstance(node.value.op, ast.Add):
+                            # Check if at least one side is a string
+                            if isinstance(node.value.left, ast.Constant) or isinstance(node.value.right, ast.Constant):
+                                string_concat_vars[target.id] = node.lineno
+                        elif isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute):
+                            if node.value.func.attr == "format":
+                                string_concat_vars[target.id] = node.lineno
+
+        # Second pass: check execute() calls
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                func_name = self._get_function_name(node.func)
+
+                # Check for execute() calls
+                if func_name in ["execute", "executemany"]:
+                    # Check if parameterized queries are being used properly
+                    if len(node.args) >= 1:
+                        arg = node.args[0]
+
+                        # Check for string concatenation in SQL queries
+                        if isinstance(arg, ast.BinOp) and isinstance(arg.op, ast.Add):
+                            issue = CodeIssue(
+                                category=IssueCategory.SECURITY,
+                                level=IssueLevel.CRITICAL,
+                                message="SQL query uses string concatenation - use parameterized queries",
+                                file_path=file_path,
+                                line_number=node.lineno,
+                                suggestion=(
+                                    "Use parameterized queries: cursor.execute('SELECT * FROM table WHERE id = ?', (value,))"
+                                ),
+                                rule_id="SEC009",
+                            )
+                            issues.append(issue)
+
+                        # Check for .format() method calls
+                        elif isinstance(arg, ast.Call) and isinstance(arg.func, ast.Attribute):
+                            if arg.func.attr == "format":
+                                issue = CodeIssue(
+                                    category=IssueCategory.SECURITY,
+                                    level=IssueLevel.CRITICAL,
+                                    message="SQL query uses .format() - use parameterized queries",
+                                    file_path=file_path,
+                                    line_number=node.lineno,
+                                    suggestion=(
+                                        "Use parameterized queries with placeholders instead of .format()"
+                                    ),
+                                    rule_id="SEC009",
+                                )
+                                issues.append(issue)
+                        
+                        # Check if the variable was created with string concatenation/format
+                        elif isinstance(arg, ast.Name) and arg.id in string_concat_vars:
+                            issue = CodeIssue(
+                                category=IssueCategory.SECURITY,
+                                level=IssueLevel.CRITICAL,
+                                message=f"SQL query variable '{arg.id}' uses unsafe string operations - use parameterized queries",
+                                file_path=file_path,
+                                line_number=node.lineno,
+                                suggestion=(
+                                    "Use parameterized queries: cursor.execute('SELECT * FROM table WHERE id = ?', (value,))"
+                                ),
+                                rule_id="SEC009",
+                            )
+                            issues.append(issue)
+
+        return issues
+
+    def _check_ssrf_vulnerabilities(self, tree: ast.AST, file_path: Path) -> List[CodeIssue]:
+        """Check for Server-Side Request Forgery (SSRF) vulnerabilities."""
+        issues = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                func_name = self._get_full_function_name(node.func)
+
+                # Check for HTTP request functions with user-controlled URLs
+                for ssrf_func in self.SSRF_FUNCTIONS:
+                    if ssrf_func in func_name:
+                        # Check if URL parameter is potentially user-controlled
+                        if node.args:
+                            url_arg = node.args[0]
+
+                            # Check for f-strings, format, or concatenation in URLs
+                            is_dynamic = (
+                                isinstance(url_arg, ast.JoinedStr)
+                                or (isinstance(url_arg, ast.Call) and 
+                                    isinstance(url_arg.func, ast.Attribute) and 
+                                    url_arg.func.attr == "format")
+                                or (isinstance(url_arg, ast.BinOp) and isinstance(url_arg.op, ast.Add))
+                            )
+
+                            if is_dynamic:
+                                issue = CodeIssue(
+                                    category=IssueCategory.SECURITY,
+                                    level=IssueLevel.ERROR,
+                                    message=f"Potential SSRF vulnerability in {ssrf_func}() with dynamic URL",
+                                    file_path=file_path,
+                                    line_number=node.lineno,
+                                    suggestion=(
+                                        "Validate and sanitize URLs. Use allowlists for domains. "
+                                        "Avoid user-controlled URLs in HTTP requests."
+                                    ),
+                                    rule_id="SEC010",
+                                    metadata={"function": ssrf_func},
+                                )
+                                issues.append(issue)
+
+        return issues
+
+    def _check_insecure_random(self, tree: ast.AST, file_path: Path) -> List[CodeIssue]:
+        """Check for insecure random number generation."""
+        issues = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                # Check for random module imports
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        if alias.name == "random":
+                            issue = CodeIssue(
+                                category=IssueCategory.SECURITY,
+                                level=IssueLevel.WARNING,
+                                message="Using 'random' module - not cryptographically secure",
+                                file_path=file_path,
+                                line_number=node.lineno,
+                                suggestion=(
+                                    "For security-sensitive operations, use 'secrets' module instead"
+                                ),
+                                rule_id="SEC011",
+                            )
+                            issues.append(issue)
+
+        return issues
+
+    def _check_weak_ssl_tls(self, tree: ast.AST, file_path: Path) -> List[CodeIssue]:
+        """Check for weak SSL/TLS configurations."""
+        issues = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check for SSL context creation with weak settings
+                if isinstance(node.func, ast.Attribute) and node.func.attr == "SSLContext":
+                    for keyword in node.keywords:
+                        if keyword.arg == "verify_mode" and isinstance(keyword.value, ast.Attribute):
+                            if "CERT_NONE" in self._get_full_function_name(keyword.value):
+                                issue = CodeIssue(
+                                    category=IssueCategory.SECURITY,
+                                    level=IssueLevel.CRITICAL,
+                                    message="SSL certificate verification disabled (CERT_NONE)",
+                                    file_path=file_path,
+                                    line_number=node.lineno,
+                                    suggestion=(
+                                        "Always verify SSL certificates. Use CERT_REQUIRED instead."
+                                    ),
+                                    rule_id="SEC012",
+                                )
+                                issues.append(issue)
+
+                # Check for requests with verify=False
+                func_name = self._get_full_function_name(node.func)
+                if any(req_func in func_name for req_func in ["requests.get", "requests.post", "requests.request"]):
+                    for keyword in node.keywords:
+                        if keyword.arg == "verify" and isinstance(keyword.value, ast.Constant):
+                            if keyword.value.value is False:
+                                issue = CodeIssue(
+                                    category=IssueCategory.SECURITY,
+                                    level=IssueLevel.CRITICAL,
+                                    message="SSL certificate verification disabled (verify=False)",
+                                    file_path=file_path,
+                                    line_number=node.lineno,
+                                    suggestion=(
+                                        "Enable SSL verification. Remove verify=False parameter."
+                                    ),
+                                    rule_id="SEC013",
+                                )
+                                issues.append(issue)
+
+        return issues
