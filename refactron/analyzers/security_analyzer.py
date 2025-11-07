@@ -1,6 +1,7 @@
 """Analyzer for security vulnerabilities and unsafe patterns."""
 
 import ast
+import fnmatch
 from pathlib import Path
 from typing import List
 
@@ -50,6 +51,55 @@ class SecurityAnalyzer(BaseAnalyzer):
     def name(self) -> str:
         return "security"
 
+    def _is_ignored_file(self, file_path: Path) -> bool:
+        """Check if file should be ignored for security checks."""
+        path_str = str(file_path)
+        for pattern in self.config.security_ignore_patterns:
+            if fnmatch.fnmatch(path_str, pattern):
+                return True
+        return False
+
+    def _is_rule_whitelisted(self, rule_id: str, file_path: Path) -> bool:
+        """Check if a rule is whitelisted for a specific file."""
+        whitelist = self.config.security_rule_whitelist.get(rule_id, [])
+        path_str = str(file_path)
+        for pattern in whitelist:
+            if fnmatch.fnmatch(path_str, pattern):
+                return True
+        return False
+
+    def _get_context_confidence(self, file_path: Path, rule_id: str) -> float:
+        """
+        Calculate confidence score based on file context.
+
+        Args:
+            file_path: Path to the file being analyzed
+            rule_id: The rule being checked
+
+        Returns:
+            Confidence multiplier (0.0-1.0)
+        """
+        path_str = str(file_path).lower()
+
+        # Test files get lower confidence for certain rules
+        test_indicators = ["test_", "_test.", "tests/", "/test/", "testing/"]
+        is_test_file = any(indicator in path_str for indicator in test_indicators)
+
+        # Rules that are less critical in test files
+        test_tolerant_rules = ["SEC001", "SEC002", "SEC011"]
+
+        if is_test_file and rule_id in test_tolerant_rules:
+            return 0.6  # Lower confidence in test files
+
+        # Example/demo files get lower confidence
+        demo_indicators = ["example", "demo", "sample", "tutorial"]
+        is_demo_file = any(indicator in path_str for indicator in demo_indicators)
+
+        if is_demo_file and rule_id in test_tolerant_rules:
+            return 0.7
+
+        return 1.0  # Default full confidence
+
     def analyze(self, file_path: Path, source_code: str) -> List[CodeIssue]:
         """
         Analyze code for security vulnerabilities.
@@ -61,6 +111,10 @@ class SecurityAnalyzer(BaseAnalyzer):
         Returns:
             List of security-related issues
         """
+        # Check if file is in ignore list
+        if self._is_ignored_file(file_path):
+            return []
+
         issues = []
 
         try:
@@ -83,7 +137,18 @@ class SecurityAnalyzer(BaseAnalyzer):
         except SyntaxError:
             pass
 
-        return issues
+        # Filter out whitelisted rules and low confidence issues
+        filtered_issues = []
+        for issue in issues:
+            if issue.rule_id and self._is_rule_whitelisted(issue.rule_id, file_path):
+                continue
+
+            if issue.confidence < self.config.security_min_confidence:
+                continue
+
+            filtered_issues.append(issue)
+
+        return filtered_issues
 
     def _check_dangerous_functions(self, tree: ast.AST, file_path: Path) -> List[CodeIssue]:
         """Check for dangerous built-in functions."""
@@ -94,6 +159,9 @@ class SecurityAnalyzer(BaseAnalyzer):
                 func_name = self._get_function_name(node.func)
 
                 if func_name in self.DANGEROUS_FUNCTIONS:
+                    # Calculate context-aware confidence
+                    confidence = self._get_context_confidence(file_path, "SEC001")
+
                     issue = CodeIssue(
                         category=IssueCategory.SECURITY,
                         level=IssueLevel.CRITICAL,
@@ -102,6 +170,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                         line_number=node.lineno,
                         suggestion=self.DANGEROUS_FUNCTIONS[func_name],
                         rule_id="SEC001",
+                        confidence=confidence,
                         metadata={"function": func_name},
                     )
                     issues.append(issue)
@@ -123,6 +192,9 @@ class SecurityAnalyzer(BaseAnalyzer):
 
                 for module in modules:
                     if module in self.DANGEROUS_MODULES:
+                        # Calculate context-aware confidence
+                        confidence = self._get_context_confidence(file_path, "SEC002")
+
                         issue = CodeIssue(
                             category=IssueCategory.SECURITY,
                             level=IssueLevel.WARNING,
@@ -131,6 +203,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                             line_number=node.lineno,
                             suggestion=self.DANGEROUS_MODULES[module],
                             rule_id="SEC002",
+                            confidence=confidence,
                             metadata={"module": module},
                         )
                         issues.append(issue)
@@ -190,6 +263,15 @@ class SecurityAnalyzer(BaseAnalyzer):
                                 value = node.value.value
                                 # Ignore empty strings and obvious placeholders
                                 if value and value not in ["", "TODO", "CHANGEME", "your-key-here"]:
+                                    # Lower confidence for test/example files
+                                    confidence = 0.8
+                                    path_str = str(file_path).lower()
+                                    if any(
+                                        ind in path_str
+                                        for ind in ["test", "example", "demo", "sample"]
+                                    ):
+                                        confidence = 0.5
+
                                     issue = CodeIssue(
                                         category=IssueCategory.SECURITY,
                                         level=IssueLevel.CRITICAL,
@@ -203,6 +285,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                             "vault, never hardcode them in source code"
                                         ),
                                         rule_id="SEC003",
+                                        confidence=confidence,
                                         metadata={"variable": target.id},
                                     )
                                     issues.append(issue)
@@ -235,6 +318,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     "(param1, param2))"
                                 ),
                                 rule_id="SEC004",
+                                confidence=0.9,
                             )
                             issues.append(issue)
 
@@ -252,6 +336,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     "(param1, param2))"
                                 ),
                                 rule_id="SEC004",
+                                confidence=0.9,
                             )
                             issues.append(issue)
 
@@ -285,6 +370,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                         "instead"
                                     ),
                                     rule_id="SEC005",
+                                    confidence=0.95,
                                 )
                                 issues.append(issue)
 
@@ -307,6 +393,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                 line_number=node.lineno,
                                 suggestion=self.WEAK_CRYPTO[alias.name],
                                 rule_id="SEC006",
+                                confidence=0.85,
                                 metadata={"algorithm": alias.name},
                             )
                             issues.append(issue)
@@ -332,6 +419,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                             "Use yaml.safe_load() instead to prevent arbitrary code execution"
                         ),
                         rule_id="SEC007",
+                        confidence=0.95,
                     )
                     issues.append(issue)
 
@@ -344,6 +432,7 @@ class SecurityAnalyzer(BaseAnalyzer):
         for node in ast.walk(tree):
             if isinstance(node, ast.Assert):
                 # Asserts can be disabled with -O flag, making them unreliable for security
+                # Lower confidence since asserts are common and context-dependent
                 issue = CodeIssue(
                     category=IssueCategory.SECURITY,
                     level=IssueLevel.INFO,
@@ -353,6 +442,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                     suggestion="Don't use assert for security checks or input validation. "
                     "Use explicit if statements and raise exceptions instead",
                     rule_id="SEC008",
+                    confidence=0.6,
                 )
                 issues.append(issue)
 
@@ -428,6 +518,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     "'SELECT * FROM table WHERE id = ?', (value,))"
                                 ),
                                 rule_id="SEC009",
+                                confidence=0.9,
                             )
                             issues.append(issue)
 
@@ -438,8 +529,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     category=IssueCategory.SECURITY,
                                     level=IssueLevel.CRITICAL,
                                     message=(
-                                        "SQL query uses .format() - "
-                                        "use parameterized queries"
+                                        "SQL query uses .format() - " "use parameterized queries"
                                     ),
                                     file_path=file_path,
                                     line_number=node.lineno,
@@ -448,6 +538,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                         "instead of .format()"
                                     ),
                                     rule_id="SEC009",
+                                    confidence=0.9,
                                 )
                                 issues.append(issue)
 
@@ -467,6 +558,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     "'SELECT * FROM table WHERE id = ?', (value,))"
                                 ),
                                 rule_id="SEC009",
+                                confidence=0.85,
                             )
                             issues.append(issue)
 
@@ -516,6 +608,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                         "Avoid user-controlled URLs in HTTP requests."
                                     ),
                                     rule_id="SEC010",
+                                    confidence=0.75,
                                     metadata={"function": ssrf_func},
                                 )
                                 issues.append(issue)
@@ -532,13 +625,12 @@ class SecurityAnalyzer(BaseAnalyzer):
                 if isinstance(node, ast.Import):
                     for alias in node.names:
                         if alias.name == "random":
+                            # Lower confidence as random is often fine for non-security use
+                            confidence = self._get_context_confidence(file_path, "SEC011")
                             issue = CodeIssue(
                                 category=IssueCategory.SECURITY,
                                 level=IssueLevel.WARNING,
-                                message=(
-                                    "Using 'random' module - "
-                                    "not cryptographically secure"
-                                ),
+                                message=("Using 'random' module - " "not cryptographically secure"),
                                 file_path=file_path,
                                 line_number=node.lineno,
                                 suggestion=(
@@ -546,6 +638,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     "use 'secrets' module instead"
                                 ),
                                 rule_id="SEC011",
+                                confidence=confidence * 0.7,
                             )
                             issues.append(issue)
 
@@ -574,6 +667,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                         "Always verify SSL certificates. Use CERT_REQUIRED instead."
                                     ),
                                     rule_id="SEC012",
+                                    confidence=0.95,
                                 )
                                 issues.append(issue)
 
@@ -596,6 +690,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                         "Enable SSL verification. Remove verify=False parameter."
                                     ),
                                     rule_id="SEC013",
+                                    confidence=0.95,
                                 )
                                 issues.append(issue)
 

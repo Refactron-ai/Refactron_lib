@@ -44,6 +44,7 @@ class CodeIssue:
     code_snippet: Optional[str] = None
     suggestion: Optional[str] = None
     rule_id: Optional[str] = None
+    confidence: float = 1.0  # Confidence score 0.0-1.0 (1.0 = high confidence)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def __str__(self) -> str:
