@@ -101,6 +101,13 @@ class ComplexityAnalyzer(BaseAnalyzer):
                                 metadata={"length": func_length},
                             )
                             issues.append(issue)
+
+                # Check for nested loop depth
+                issues.extend(self._check_nested_loops(tree, file_path))
+
+                # Check for method call chain complexity
+                issues.extend(self._check_call_chain_complexity(tree, file_path))
+
             except SyntaxError:
                 pass
 
@@ -134,3 +141,84 @@ class ComplexityAnalyzer(BaseAnalyzer):
 
         # Fallback: count lines in the function body
         return len(node.body)
+
+    def _check_nested_loops(self, tree: ast.AST, file_path: Path) -> List[CodeIssue]:
+        """Check for deeply nested loops."""
+        issues = []
+        max_loop_depth = 3
+
+        def get_loop_depth(node: ast.AST, depth: int = 0) -> int:
+            """Calculate maximum loop nesting depth."""
+            if isinstance(node, (ast.For, ast.While)):
+                depth += 1
+
+            max_child_depth = depth
+            for child in ast.iter_child_nodes(node):
+                child_depth = get_loop_depth(child, depth)
+                max_child_depth = max(max_child_depth, child_depth)
+
+            return max_child_depth
+
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                loop_depth = get_loop_depth(node)
+
+                if loop_depth > max_loop_depth:
+                    issue = CodeIssue(
+                        category=IssueCategory.COMPLEXITY,
+                        level=IssueLevel.WARNING,
+                        message=(
+                            f"Function '{node.name}' has deeply nested loops "
+                            f"(depth: {loop_depth})"
+                        ),
+                        file_path=file_path,
+                        line_number=node.lineno,
+                        suggestion=(
+                            "Consider extracting nested loop logic into separate functions "
+                            "or using list comprehensions where appropriate. "
+                            f"Current depth: {loop_depth}, recommended: ≤ {max_loop_depth}"
+                        ),
+                        rule_id="C003",
+                        metadata={"loop_depth": loop_depth},
+                    )
+                    issues.append(issue)
+
+        return issues
+
+    def _check_call_chain_complexity(self, tree: ast.AST, file_path: Path) -> List[CodeIssue]:
+        """Check for complex method call chains."""
+        issues = []
+        max_chain_length = 4
+
+        def get_chain_length(node: ast.AST) -> int:
+            """Calculate the length of a method call chain."""
+            if isinstance(node, ast.Call):
+                return 1 + get_chain_length(node.func)
+            elif isinstance(node, ast.Attribute):
+                return 1 + get_chain_length(node.value)
+            else:
+                return 0
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                chain_length = get_chain_length(node)
+
+                if chain_length > max_chain_length:
+                    issue = CodeIssue(
+                        category=IssueCategory.COMPLEXITY,
+                        level=IssueLevel.INFO,
+                        message=f"Complex method call chain detected (length: {chain_length})",
+                        file_path=file_path,
+                        line_number=node.lineno if hasattr(node, "lineno") else 0,
+                        suggestion=(
+                            "Consider breaking long call chains into intermediate "
+                            "variables to improve readability and debugging. "
+                            f"Current chain length: {chain_length}, "
+                            f"recommended: ≤ {max_chain_length}"
+                        ),
+                        rule_id="C004",
+                        metadata={"chain_length": chain_length},
+                    )
+                    issues.append(issue)
+
+        return issues
