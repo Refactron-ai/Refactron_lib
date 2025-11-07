@@ -12,6 +12,11 @@ from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
 class SecurityAnalyzer(BaseAnalyzer):
     """Detects common security vulnerabilities and unsafe code patterns."""
 
+    # Confidence score constants
+    TEST_FILE_CONFIDENCE_MULTIPLIER = 0.6
+    DEMO_FILE_CONFIDENCE_MULTIPLIER = 0.7
+    INSECURE_RANDOM_BASE_CONFIDENCE = 0.7
+
     # Dangerous functions that should be avoided
     DANGEROUS_FUNCTIONS = {
         "eval": "Code injection vulnerability - never use eval() with user input",
@@ -89,14 +94,14 @@ class SecurityAnalyzer(BaseAnalyzer):
         test_tolerant_rules = ["SEC001", "SEC002", "SEC011"]
 
         if is_test_file and rule_id in test_tolerant_rules:
-            return 0.6  # Lower confidence in test files
+            return self.TEST_FILE_CONFIDENCE_MULTIPLIER
 
         # Example/demo files get lower confidence
         demo_indicators = ["example", "demo", "sample", "tutorial"]
         is_demo_file = any(indicator in path_str for indicator in demo_indicators)
 
         if is_demo_file and rule_id in test_tolerant_rules:
-            return 0.7
+            return self.DEMO_FILE_CONFIDENCE_MULTIPLIER
 
         return 1.0  # Default full confidence
 
@@ -630,7 +635,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                             issue = CodeIssue(
                                 category=IssueCategory.SECURITY,
                                 level=IssueLevel.WARNING,
-                                message=("Using 'random' module - " "not cryptographically secure"),
+                                message=("Using 'random' module - not cryptographically secure"),
                                 file_path=file_path,
                                 line_number=node.lineno,
                                 suggestion=(
@@ -638,7 +643,7 @@ class SecurityAnalyzer(BaseAnalyzer):
                                     "use 'secrets' module instead"
                                 ),
                                 rule_id="SEC011",
-                                confidence=confidence * 0.7,
+                                confidence=confidence * self.INSECURE_RANDOM_BASE_CONFIDENCE,
                             )
                             issues.append(issue)
 
