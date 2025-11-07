@@ -23,6 +23,10 @@ Refactron is a powerful Python library designed to eliminate technical debt, mod
 
 ### 🔍 **Comprehensive Analysis**
 - **Security Scanning** - Detect `eval()`, `exec()`, SQL injection, shell injection, hardcoded secrets
+  - **Context-Aware Analysis** - Lower confidence for test files and examples
+  - **Confidence Scores** - Each issue rated 0.0-1.0 for detection certainty
+  - **Whitelist/Ignore Rules** - Fine-grained control over security checks
+  - **False Positive Tracking** - Learn from and filter known false positives
 - **Code Smells** - Find magic numbers, long functions, too many parameters, deep nesting
 - **Complexity Metrics** - Cyclomatic complexity, maintainability index
 - **Type Hints** - Identify missing or incomplete type annotations
@@ -148,6 +152,7 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 - [Architecture](ARCHITECTURE.md) - Technical design and internals
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute
 - [Security Policy](SECURITY.md) - Vulnerability reporting
+- [False Positive Reduction](docs/FALSE_POSITIVE_REDUCTION.md) - Security analyzer features for reducing false positives
 
 ### 📊 Project Information
 - [Case Study](CASE_STUDY.md) - Real-world testing results
