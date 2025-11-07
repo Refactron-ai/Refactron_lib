@@ -167,7 +167,10 @@ class ComplexityAnalyzer(BaseAnalyzer):
                     issue = CodeIssue(
                         category=IssueCategory.COMPLEXITY,
                         level=IssueLevel.WARNING,
-                        message=f"Function '{node.name}' has deeply nested loops (depth: {loop_depth})",
+                        message=(
+                            f"Function '{node.name}' has deeply nested loops "
+                            f"(depth: {loop_depth})"
+                        ),
                         file_path=file_path,
                         line_number=node.lineno,
                         suggestion=(
@@ -208,9 +211,10 @@ class ComplexityAnalyzer(BaseAnalyzer):
                         file_path=file_path,
                         line_number=node.lineno if hasattr(node, "lineno") else 0,
                         suggestion=(
-                            "Consider breaking long call chains into intermediate variables "
-                            "to improve readability and debugging. "
-                            f"Current chain length: {chain_length}, recommended: ≤ {max_chain_length}"
+                            "Consider breaking long call chains into intermediate "
+                            "variables to improve readability and debugging. "
+                            f"Current chain length: {chain_length}, "
+                            f"recommended: ≤ {max_chain_length}"
                         ),
                         rule_id="C004",
                         metadata={"chain_length": chain_length},

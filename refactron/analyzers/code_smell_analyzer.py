@@ -340,7 +340,10 @@ class CodeSmellAnalyzer(BaseAnalyzer):
                         issue = CodeIssue(
                             category=IssueCategory.CODE_SMELL,
                             level=IssueLevel.WARNING,
-                            message=f"Repeated code block found in function '{node.name}' ({len(occurrences)} occurrences)",
+                            message=(
+                                f"Repeated code block found in function '{node.name}' "
+                                f"({len(occurrences)} occurrences)"
+                            ),
                             file_path=file_path,
                             line_number=occurrences[0],
                             suggestion=(

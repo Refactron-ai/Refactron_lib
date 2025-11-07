@@ -73,7 +73,10 @@ class PerformanceAnalyzer(BaseAnalyzer):
                             issue = CodeIssue(
                                 category=IssueCategory.PERFORMANCE,
                                 level=IssueLevel.WARNING,
-                                message=f"Potential N+1 query: '{func_name}()' called inside a loop",
+                                message=(
+                                    f"Potential N+1 query: '{func_name}()' "
+                                    "called inside a loop"
+                                ),
                                 file_path=file_path,
                                 line_number=(
                                     child.lineno if hasattr(child, "lineno") else node.lineno
@@ -114,8 +117,9 @@ class PerformanceAnalyzer(BaseAnalyzer):
                                 file_path=file_path,
                                 line_number=node.lineno if hasattr(node, "lineno") else 0,
                                 suggestion=(
-                                    f"Consider using a list comprehension instead of list({inner_func}(...)) "
-                                    "for better readability and potential performance improvement."
+                                    f"Consider using a list comprehension instead of "
+                                    f"list({inner_func}(...)) for better readability "
+                                    "and potential performance improvement."
                                 ),
                                 rule_id="P002",
                             )
@@ -220,8 +224,8 @@ class PerformanceAnalyzer(BaseAnalyzer):
                                         child.lineno if hasattr(child, "lineno") else node.lineno
                                     ),
                                     suggestion=(
-                                        "Consider using ''.join() with a list for better performance "
-                                        "when concatenating strings in a loop."
+                                        "Consider using ''.join() with a list for better "
+                                        "performance when concatenating strings in a loop."
                                     ),
                                     rule_id="P005",
                                     metadata={"variable": child.target.id},

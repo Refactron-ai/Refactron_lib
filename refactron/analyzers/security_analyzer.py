@@ -417,11 +417,15 @@ class SecurityAnalyzer(BaseAnalyzer):
                             issue = CodeIssue(
                                 category=IssueCategory.SECURITY,
                                 level=IssueLevel.CRITICAL,
-                                message="SQL query uses string concatenation - use parameterized queries",
+                                message=(
+                                    "SQL query uses string concatenation - "
+                                    "use parameterized queries"
+                                ),
                                 file_path=file_path,
                                 line_number=node.lineno,
                                 suggestion=(
-                                    "Use parameterized queries: cursor.execute('SELECT * FROM table WHERE id = ?', (value,))"
+                                    "Use parameterized queries: cursor.execute("
+                                    "'SELECT * FROM table WHERE id = ?', (value,))"
                                 ),
                                 rule_id="SEC009",
                             )
@@ -433,11 +437,15 @@ class SecurityAnalyzer(BaseAnalyzer):
                                 issue = CodeIssue(
                                     category=IssueCategory.SECURITY,
                                     level=IssueLevel.CRITICAL,
-                                    message="SQL query uses .format() - use parameterized queries",
+                                    message=(
+                                        "SQL query uses .format() - "
+                                        "use parameterized queries"
+                                    ),
                                     file_path=file_path,
                                     line_number=node.lineno,
                                     suggestion=(
-                                        "Use parameterized queries with placeholders instead of .format()"
+                                        "Use parameterized queries with placeholders "
+                                        "instead of .format()"
                                     ),
                                     rule_id="SEC009",
                                 )
@@ -497,7 +505,10 @@ class SecurityAnalyzer(BaseAnalyzer):
                                 issue = CodeIssue(
                                     category=IssueCategory.SECURITY,
                                     level=IssueLevel.ERROR,
-                                    message=f"Potential SSRF vulnerability in {ssrf_func}() with dynamic URL",
+                                    message=(
+                                        f"Potential SSRF vulnerability in {ssrf_func}() "
+                                        "with dynamic URL"
+                                    ),
                                     file_path=file_path,
                                     line_number=node.lineno,
                                     suggestion=(
@@ -524,11 +535,15 @@ class SecurityAnalyzer(BaseAnalyzer):
                             issue = CodeIssue(
                                 category=IssueCategory.SECURITY,
                                 level=IssueLevel.WARNING,
-                                message="Using 'random' module - not cryptographically secure",
+                                message=(
+                                    "Using 'random' module - "
+                                    "not cryptographically secure"
+                                ),
                                 file_path=file_path,
                                 line_number=node.lineno,
                                 suggestion=(
-                                    "For security-sensitive operations, use 'secrets' module instead"
+                                    "For security-sensitive operations, "
+                                    "use 'secrets' module instead"
                                 ),
                                 rule_id="SEC011",
                             )

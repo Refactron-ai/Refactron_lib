@@ -185,16 +185,16 @@ def process_items(items):
     x = items[0]
     y = x * 2
     z = y + 1
-    
+
     result1 = z
-    
+
     # Second block (repeated)
     x = items[1]
     y = x * 2
     z = y + 1
-    
+
     result2 = z
-    
+
     return result1 + result2
 """
 
@@ -256,11 +256,11 @@ def process_data(items):
     total = 0
     for item in items:
         total += item
-    
+
     squared = []
     for item in items:
         squared.append(item ** 2)
-    
+
     return total, squared
 """
 

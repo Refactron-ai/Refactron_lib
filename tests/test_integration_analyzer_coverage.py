@@ -20,49 +20,49 @@ import requests
 
 def problematic_function(a, b, c, d, e, f, g):
     """This function has many issues."""
-    
+
     # Security: Insecure random
     token = random.randint(1000, 9999)
-    
+
     # Security: SQL injection via string concatenation
     user_id = "123"
     query = "SELECT * FROM users WHERE id = " + user_id
     conn = sqlite3.connect("db.sqlite")
     cursor = conn.cursor()
     cursor.execute(query)
-    
+
     # Security: SSRF vulnerability
     url = f"http://api.example.com/{user_id}"
     response = requests.get(url, verify=False)
-    
+
     # Complexity: Nested loops
     for i in range(10):
         for j in range(10):
             for k in range(10):
                 for l in range(10):
                     print(i, j, k, l)
-    
+
     # Performance: N+1 query
     items = [1, 2, 3, 4, 5]
     for item in items:
         cursor.execute("SELECT * FROM data WHERE id = ?", (item,))
-    
+
     # Performance: Inefficient string concatenation
     result = ""
     for item in items:
         result += str(item)
-    
+
     # Code smell: Repeated code
     x = items[0]
     y = x * 2
     z = y + 1
     first = z
-    
+
     x = items[1]
     y = x * 2
     z = y + 1
     second = z
-    
+
     return result
 '''
 
