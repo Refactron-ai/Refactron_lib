@@ -64,6 +64,17 @@ class RefactronConfig:
     # Custom rules
     custom_rules: Dict[str, Any] = field(default_factory=dict)
 
+    # Security analyzer settings
+    security_ignore_patterns: List[str] = field(
+        default_factory=lambda: [
+            "**/test_*.py",
+            "**/tests/**/*.py",
+            "**/*_test.py",
+        ]
+    )
+    security_rule_whitelist: Dict[str, List[str]] = field(default_factory=dict)
+    security_min_confidence: float = 0.5  # Minimum confidence to report issues
+
     @classmethod
     def from_file(cls, config_path: Path) -> "RefactronConfig":
         """Load configuration from a YAML file."""
@@ -91,6 +102,9 @@ class RefactronConfig:
             "include_patterns": self.include_patterns,
             "exclude_patterns": self.exclude_patterns,
             "custom_rules": self.custom_rules,
+            "security_ignore_patterns": self.security_ignore_patterns,
+            "security_rule_whitelist": self.security_rule_whitelist,
+            "security_min_confidence": self.security_min_confidence,
         }
 
         with open(config_path, "w") as f:
