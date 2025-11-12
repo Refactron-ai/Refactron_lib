@@ -207,7 +207,7 @@ def process(data):
         return None
     if not data.user:
         return None
-    
+
     return data.user.process()
 ```
 
@@ -254,4 +254,3 @@ def process(data):
 ---
 
 **Want to see the difference?** Compare the examples with their refactored versions in the `refactored/` directory (coming soon)!
-

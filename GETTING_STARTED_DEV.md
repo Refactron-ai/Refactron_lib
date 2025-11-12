@@ -168,18 +168,18 @@ from refactron.core.models import CodeIssue, IssueLevel, IssueCategory
 
 class MyAnalyzer(BaseAnalyzer):
     """Describe what your analyzer does."""
-    
+
     @property
     def name(self) -> str:
         return "my_analyzer"
-    
+
     def analyze(self, file_path: Path, source_code: str) -> List[CodeIssue]:
         """Analyze code and return issues."""
         issues = []
-        
+
         try:
             tree = ast.parse(source_code)
-            
+
             # Your analysis logic here
             for node in ast.walk(tree):
                 if isinstance(node, ast.FunctionDef):
@@ -195,10 +195,10 @@ class MyAnalyzer(BaseAnalyzer):
                             rule_id="MY001",
                         )
                         issues.append(issue)
-        
+
         except SyntaxError:
             pass
-        
+
         return issues
 ```
 
@@ -212,9 +212,9 @@ from refactron.analyzers.my_analyzer import MyAnalyzer
 def _initialize_analyzers(self) -> None:
     """Initialize all enabled analyzers."""
     self.analyzers = []
-    
+
     # ... existing analyzers ...
-    
+
     if "my_analyzer" in self.config.enabled_analyzers:
         self.analyzers.append(MyAnalyzer(self.config))
 ```
@@ -246,12 +246,12 @@ from pathlib import Path
 def test_my_analyzer():
     config = RefactronConfig()
     analyzer = MyAnalyzer(config)
-    
+
     code = """
 def f():
     pass
 """
-    
+
     issues = analyzer.analyze(Path("test.py"), code)
     assert len(issues) > 0
     assert issues[0].message.startswith("Function name")
@@ -405,4 +405,3 @@ pytest tests/test_refactron.py -v
 ---
 
 Happy coding! If you have questions, refer to the documentation or open an issue.
-

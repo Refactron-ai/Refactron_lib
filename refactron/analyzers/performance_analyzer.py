@@ -74,8 +74,7 @@ class PerformanceAnalyzer(BaseAnalyzer):
                                 category=IssueCategory.PERFORMANCE,
                                 level=IssueLevel.WARNING,
                                 message=(
-                                    f"Potential N+1 query: '{func_name}()' "
-                                    "called inside a loop"
+                                    f"Potential N+1 query: '{func_name}()' " "called inside a loop"
                                 ),
                                 file_path=file_path,
                                 line_number=(

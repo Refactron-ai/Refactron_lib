@@ -34,7 +34,7 @@ jobs:
             const { owner, repo } = context.repo;
             const version = '${{ inputs.version }}';
             const previousVersion = '${{ inputs.previous_version }}';
-            
+
             // Get all commits since the previous version
             let commits;
             if (previousVersion && previousVersion !== '' && previousVersion !== 'undefined') {
@@ -54,7 +54,7 @@ jobs:
               });
               commits = tag.data;
             }
-            
+
             // Categorize commits
             const features = [];
             const fixes = [];
@@ -63,11 +63,11 @@ jobs:
             const tests = [];
             const chores = [];
             const breaking = [];
-            
+
             commits.forEach(commit => {
               const message = commit.commit.message;
               const firstLine = message.split('\n')[0];
-              
+
               if (message.includes('BREAKING CHANGE') || firstLine.startsWith('!')) {
                 breaking.push(firstLine);
               } else if (firstLine.match(/^feat(\(.*\))?:/i)) {
@@ -84,62 +84,62 @@ jobs:
                 chores.push(firstLine.replace(/^chore(\(.*\))?:\s*/i, ''));
               }
             });
-            
+
             // Generate changelog content
             let changelog = `# Changelog for ${version}\n\n`;
             changelog += `**Release Date:** ${new Date().toISOString().split('T')[0]}\n\n`;
-            
+
             if (breaking.length > 0) {
               changelog += `## ⚠️ Breaking Changes\n\n`;
               breaking.forEach(item => changelog += `- ${item}\n`);
               changelog += `\n`;
             }
-            
+
             if (features.length > 0) {
               changelog += `## ✨ New Features\n\n`;
               features.forEach(item => changelog += `- ${item}\n`);
               changelog += `\n`;
             }
-            
+
             if (fixes.length > 0) {
               changelog += `## 🐛 Bug Fixes\n\n`;
               fixes.forEach(item => changelog += `- ${item}\n`);
               changelog += `\n`;
             }
-            
+
             if (refactor.length > 0) {
               changelog += `## ♻️ Code Refactoring\n\n`;
               refactor.forEach(item => changelog += `- ${item}\n`);
               changelog += `\n`;
             }
-            
+
             if (docs.length > 0) {
               changelog += `## 📚 Documentation\n\n`;
               docs.forEach(item => changelog += `- ${item}\n`);
               changelog += `\n`;
             }
-            
+
             if (tests.length > 0) {
               changelog += `## 🧪 Tests\n\n`;
               tests.forEach(item => changelog += `- ${item}\n`);
               changelog += `\n`;
             }
-            
+
             if (chores.length > 0) {
               changelog += `## 🔧 Chores\n\n`;
               chores.forEach(item => changelog += `- ${item}\n`);
               changelog += `\n`;
             }
-            
+
             if (previousVersion) {
               changelog += `\n**Full Changelog**: https://github.com/${owner}/${repo}/compare/${previousVersion}...${version}\n`;
             } else {
               changelog += `\n**Full Changelog**: https://github.com/${owner}/${repo}/commits/${version}\n`;
             }
-            
+
             console.log(changelog);
             core.setOutput('changelog', changelog);
-            
+
             // Save to file
             const fs = require('fs');
             fs.writeFileSync('RELEASE_NOTES.md', changelog);
@@ -158,7 +158,7 @@ jobs:
             const changelog = fs.readFileSync('RELEASE_NOTES.md', 'utf8');
             const { owner, repo } = context.repo;
             const version = '${{ inputs.version }}';
-            
+
             try {
               // Try to get existing release
               const release = await github.rest.repos.getReleaseByTag({
@@ -166,7 +166,7 @@ jobs:
                 repo,
                 tag: version
               });
-              
+
               // Update existing release
               await github.rest.repos.updateRelease({
                 owner,
@@ -174,7 +174,7 @@ jobs:
                 release_id: release.data.id,
                 body: changelog
               });
-              
+
               console.log(`Updated release notes for ${version}`);
             } catch (error) {
               if (error.status === 404) {
