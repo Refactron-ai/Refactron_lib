@@ -4,8 +4,6 @@ import os
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from refactron import Refactron
 from refactron.core.config import RefactronConfig
 from refactron.core.models import IssueLevel

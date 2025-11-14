@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from refactron.analyzers.code_smell_analyzer import CodeSmellAnalyzer
 from refactron.analyzers.complexity_analyzer import ComplexityAnalyzer
 from refactron.core.config import RefactronConfig

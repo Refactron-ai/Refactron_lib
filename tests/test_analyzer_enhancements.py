@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from refactron.analyzers.code_smell_analyzer import CodeSmellAnalyzer
 from refactron.analyzers.complexity_analyzer import ComplexityAnalyzer
 from refactron.analyzers.performance_analyzer import PerformanceAnalyzer
@@ -146,9 +144,7 @@ def process_string(text):
 
         issues = analyzer.analyze(Path("test.py"), code)
         # This creates a long call chain
-        call_chain_issues = [i for i in issues if i.rule_id == "C004"]
-        # May or may not trigger depending on exact chain length calculation
-        # Just verify the analyzer runs without errors
+        # Verify the analyzer runs without errors and returns issues
         assert isinstance(issues, list)
 
 

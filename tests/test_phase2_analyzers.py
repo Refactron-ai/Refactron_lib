@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from refactron.analyzers.dead_code_analyzer import DeadCodeAnalyzer
 from refactron.analyzers.dependency_analyzer import DependencyAnalyzer
 from refactron.analyzers.security_analyzer import SecurityAnalyzer

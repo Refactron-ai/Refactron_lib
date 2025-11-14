@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from refactron.autofix.fixers import (
     AddDocstringsFixer,
     ExtractMagicNumbersFixer,
