@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from refactron.core.models import RefactoringOperation
 from refactron.refactorers.base_refactorer import BaseRefactorer
@@ -43,7 +43,7 @@ class ExtractMethodRefactorer(BaseRefactorer):
 
     def _analyze_function(
         self,
-        node: ast.FunctionDef,
+        node: Union[ast.FunctionDef, ast.AsyncFunctionDef],
         file_path: Path,
         source_code: str,
     ) -> List[RefactoringOperation]:

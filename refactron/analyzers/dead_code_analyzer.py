@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Union
 
 from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
@@ -169,7 +169,7 @@ class DeadCodeAnalyzer(BaseAnalyzer):
         return issues
 
     def _check_loop_unreachable(
-        self, loop_node: ast.AST, file_path: Path, issues: List[CodeIssue]
+        self, loop_node: Union[ast.For, ast.While], file_path: Path, issues: List[CodeIssue]
     ) -> None:
         """Check for unreachable code in loops."""
         found_break = False

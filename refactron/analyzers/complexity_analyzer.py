@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from radon.complexity import cc_visit
 from radon.metrics import mi_visit
@@ -134,7 +134,9 @@ class ComplexityAnalyzer(BaseAnalyzer):
             return IssueLevel.WARNING
         return IssueLevel.INFO
 
-    def _get_function_length(self, node: ast.FunctionDef, source_code: str) -> int:
+    def _get_function_length(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef], source_code: str
+    ) -> int:
         """Calculate the number of lines in a function."""
         if hasattr(node, "end_lineno") and node.end_lineno:
             return node.end_lineno - node.lineno + 1

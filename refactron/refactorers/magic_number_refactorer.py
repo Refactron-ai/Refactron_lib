@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from refactron.core.models import RefactoringOperation
 from refactron.refactorers.base_refactorer import BaseRefactorer
@@ -69,7 +69,9 @@ class MagicNumberRefactorer(BaseRefactorer):
 
         return magic_numbers
 
-    def _get_containing_function(self, tree: ast.AST, target_node: ast.AST) -> ast.FunctionDef:
+    def _get_containing_function(
+        self, tree: ast.AST, target_node: ast.AST
+    ) -> Union[ast.FunctionDef, ast.AsyncFunctionDef, None]:
         """Find the function containing the target node."""
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):

@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from refactron.core.models import RefactoringOperation
 from refactron.refactorers.base_refactorer import BaseRefactorer
@@ -61,7 +61,7 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
     def _create_simplification(
         self,
         file_path: Path,
-        func_node: ast.FunctionDef,
+        func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef],
         lines: List[str],
         depth: int,
     ) -> RefactoringOperation:
@@ -94,7 +94,9 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
             metadata={"original_depth": depth, "function_name": func_node.name},
         )
 
-    def _generate_simplified_version(self, func_node: ast.FunctionDef, old_code: str) -> str:
+    def _generate_simplified_version(
+        self, func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef], old_code: str
+    ) -> str:
         """Generate a simplified version with early returns."""
         # Get function signature
         func_def = old_code.split("\n")[0]

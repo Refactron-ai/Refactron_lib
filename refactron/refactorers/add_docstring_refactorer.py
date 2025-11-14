@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from refactron.core.models import RefactoringOperation
 from refactron.refactorers.base_refactorer import BaseRefactorer
@@ -50,7 +50,10 @@ class AddDocstringRefactorer(BaseRefactorer):
         return operations
 
     def _create_docstring_addition(
-        self, file_path: Path, node: ast.AST, lines: List[str]
+        self,
+        file_path: Path,
+        node: Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef],
+        lines: List[str],
     ) -> RefactoringOperation:
         """Create a refactoring operation for adding a docstring."""
         entity_type = "Class" if isinstance(node, ast.ClassDef) else "Function"
@@ -79,7 +82,9 @@ class AddDocstringRefactorer(BaseRefactorer):
             metadata={"entity_type": entity_type, "entity_name": node.name},
         )
 
-    def _generate_with_docstring(self, node: ast.AST, lines: List[str]) -> str:
+    def _generate_with_docstring(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef], lines: List[str]
+    ) -> str:
         """Generate code with an appropriate docstring."""
         if isinstance(node, ast.ClassDef):
             return self._generate_class_with_docstring(node, lines)
@@ -111,7 +116,9 @@ class AddDocstringRefactorer(BaseRefactorer):
         else:
             return docstring + f"{indent_str}pass"
 
-    def _generate_function_with_docstring(self, node: ast.FunctionDef, lines: List[str]) -> str:
+    def _generate_function_with_docstring(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef], lines: List[str]
+    ) -> str:
         """Generate function code with docstring."""
         func_def = lines[node.lineno - 1]
         indent = len(func_def) - len(func_def.lstrip())
@@ -153,7 +160,9 @@ class AddDocstringRefactorer(BaseRefactorer):
         name_words = self._split_camel_case(node.name)
         return f"{' '.join(name_words)} class."
 
-    def _generate_function_description(self, node: ast.FunctionDef) -> str:
+    def _generate_function_description(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]
+    ) -> str:
         """Generate a description for a function."""
         name_words = node.name.replace("_", " ")
 
@@ -193,7 +202,9 @@ class AddDocstringRefactorer(BaseRefactorer):
         else:
             return f"The {param_name.replace('_', ' ')}"
 
-    def _generate_return_description(self, node: ast.FunctionDef) -> str:
+    def _generate_return_description(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef]
+    ) -> str:
         """Generate a description for the return value."""
         # Try to infer from function name
         if node.name.startswith("is_") or node.name.startswith("has_"):

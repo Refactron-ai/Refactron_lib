@@ -8,7 +8,7 @@ import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from refactron import Refactron
 from refactron.core.config import RefactronConfig
@@ -51,7 +51,7 @@ class RealWorldTester:
             summary = result.summary()
 
             # Categorize issues by type
-            issues_by_category = {}
+            issues_by_category: Dict[str, List[Dict[str, Any]]] = {}
             for issue in result.all_issues:
                 category = issue.category.value
                 if category not in issues_by_category:

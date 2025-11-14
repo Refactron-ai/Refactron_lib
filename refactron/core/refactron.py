@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Union
 
+from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.analyzers.code_smell_analyzer import CodeSmellAnalyzer
 from refactron.analyzers.complexity_analyzer import ComplexityAnalyzer
 from refactron.analyzers.dead_code_analyzer import DeadCodeAnalyzer
@@ -16,6 +17,7 @@ from refactron.core.config import RefactronConfig
 from refactron.core.models import FileMetrics
 from refactron.core.refactor_result import RefactorResult
 from refactron.refactorers.add_docstring_refactorer import AddDocstringRefactorer
+from refactron.refactorers.base_refactorer import BaseRefactorer
 from refactron.refactorers.extract_method_refactorer import ExtractMethodRefactorer
 from refactron.refactorers.magic_number_refactorer import MagicNumberRefactorer
 from refactron.refactorers.reduce_parameters_refactorer import ReduceParametersRefactorer
@@ -40,13 +42,13 @@ class Refactron:
             config: Configuration object. If None, uses default config.
         """
         self.config = config or RefactronConfig.default()
+        self.analyzers: List[BaseAnalyzer] = []
+        self.refactorers: List[BaseRefactorer] = []
         self._initialize_analyzers()
         self._initialize_refactorers()
 
     def _initialize_analyzers(self) -> None:
         """Initialize all enabled analyzers."""
-        self.analyzers = []
-
         if "complexity" in self.config.enabled_analyzers:
             self.analyzers.append(ComplexityAnalyzer(self.config))
 
@@ -70,8 +72,6 @@ class Refactron:
 
     def _initialize_refactorers(self) -> None:
         """Initialize all enabled refactorers."""
-        self.refactorers = []
-
         if "extract_method" in self.config.enabled_refactorers:
             self.refactorers.append(ExtractMethodRefactorer(self.config))
 

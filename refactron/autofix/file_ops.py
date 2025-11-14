@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 class FileOperations:
@@ -24,12 +24,13 @@ class FileOperations:
         self.backup_index_file = self.backup_dir / "index.json"
         self.backup_index = self._load_backup_index()
 
-    def _load_backup_index(self) -> Dict:
+    def _load_backup_index(self) -> Dict[Any, Any]:
         """Load backup index from disk."""
         if self.backup_index_file.exists():
             try:
                 with open(self.backup_index_file, "r") as f:
-                    return json.load(f)
+                    result: Dict[Any, Any] = json.load(f)  # type: ignore[assignment]
+                    return result
             except Exception:
                 return {"backups": []}
         return {"backups": []}
@@ -171,14 +172,15 @@ class FileOperations:
 
         return count
 
-    def list_backups(self) -> list:
+    def list_backups(self) -> List[Any]:
         """
         List all backups.
 
         Returns:
             List of backup information
         """
-        return self.backup_index["backups"]
+        result: List[Any] = self.backup_index["backups"]  # type: ignore[assignment]
+        return result
 
     def clear_backups(self) -> int:
         """
