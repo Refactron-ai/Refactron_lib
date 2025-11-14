@@ -5,8 +5,9 @@ Refactoring Demo - Shows Concrete Code Suggestions
 This demo showcases Refactron's ability to generate actual refactored code.
 """
 
-from refactron import Refactron
 from pathlib import Path
+
+from refactron import Refactron
 
 
 def main():

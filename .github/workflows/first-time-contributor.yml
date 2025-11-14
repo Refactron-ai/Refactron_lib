@@ -22,7 +22,7 @@ jobs:
           script: |
             const { owner, repo, number } = context.issue;
             const creator = context.payload.issue.user.login;
-            
+
             // Check if this is their first issue
             const issues = await github.rest.issues.listForRepo({
               owner,
@@ -31,7 +31,7 @@ jobs:
               state: 'all',
               per_page: 2
             });
-            
+
             if (issues.data.length === 1) {
               await github.rest.issues.createComment({
                 owner,
@@ -48,7 +48,7 @@ jobs:
           script: |
             const { owner, repo, number } = context.issue;
             const creator = context.payload.pull_request.user.login;
-            
+
             // Check if this is their first PR
             const prs = await github.rest.pulls.list({
               owner,
@@ -57,7 +57,7 @@ jobs:
               creator,
               per_page: 2
             });
-            
+
             if (prs.data.length === 1) {
               await github.rest.issues.createComment({
                 owner,

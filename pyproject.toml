@@ -48,7 +48,7 @@ dev = [
 
 [project.urls]
 Homepage = "https://refactron.us.kg"
-Documentation = "https://refactron-ai.github.io/Refactron_lib/"  
+Documentation = "https://refactron-ai.github.io/Refactron_lib/"
 Repository = "https://github.com/Refactron-ai/Refactron_lib"
 "Bug Tracker" = "https://github.com/Refactron-ai/Refactron_lib/issues"
 
@@ -94,4 +94,3 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-

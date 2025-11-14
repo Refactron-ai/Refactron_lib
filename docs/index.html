@@ -6,33 +6,33 @@
     <meta name="description" content="Refactron - The Intelligent Code Refactoring Transformer for Python. Eliminate technical debt and modernize legacy code automatically with AI-powered analysis.">
     <meta name="keywords" content="python, refactoring, code quality, static analysis, technical debt, code optimization, automated refactoring">
     <meta name="author" content="Om Sherikar">
-    
+
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://refactron-ai.github.io/Refactron_lib/">
     <meta property="og:title" content="Refactron - Intelligent Code Refactoring for Python">
     <meta property="og:description" content="Eliminate technical debt and modernize legacy code with AI-powered refactoring. 8 analyzers, 5 refactorers, 90% test coverage.">
     <meta property="og:image" content="https://refactron-ai.github.io/Refactron_lib/og-image.png">
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Refactron - Intelligent Code Refactoring">
     <meta name="twitter:description" content="Eliminate technical debt with AI-powered Python refactoring">
-    
+
     <title>Refactron - The Intelligent Code Refactoring Transformer for Python</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         :root {
             --primary: #2563eb;
             --primary-light: #3b82f6;
@@ -42,7 +42,7 @@
             --success: #10b981;
             --warning: #f59e0b;
             --error: #ef4444;
-            
+
             --white: #ffffff;
             --gray-50: #f8fafc;
             --gray-100: #f1f5f9;
@@ -54,23 +54,23 @@
             --gray-700: #334155;
             --gray-800: #1e293b;
             --gray-900: #0f172a;
-            
+
             --text-primary: #0f172a;
             --text-secondary: #475569;
             --text-muted: #64748b;
             --text-light: #94a3b8;
-            
+
             --border: #e2e8f0;
             --border-light: #f1f5f9;
             --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        
+
         html {
             scroll-behavior: smooth;
         }
-        
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--white);
@@ -80,20 +80,20 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        
+
         /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1.5rem;
         }
-        
+
         .container-wide {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 1.5rem;
         }
-        
+
         /* Navigation */
         nav {
             position: sticky;
@@ -104,7 +104,7 @@
             border-bottom: 1px solid var(--border);
             box-shadow: var(--shadow);
         }
-        
+
         .nav-content {
             max-width: 1400px;
             margin: 0 auto;
@@ -113,7 +113,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .logo {
             width: 120px;
             height: 40px;
@@ -131,12 +131,12 @@
             background-repeat: no-repeat;
             background-position: center;
         }
-        
+
         .logo:hover {
             border-color: var(--primary);
             background: var(--gray-50);
         }
-        
+
         .logo::before {
             content: 'LOGO';
             font-size: 0.75rem;
@@ -144,13 +144,13 @@
             color: var(--gray-500);
             letter-spacing: 0.05em;
         }
-        
+
         /* Hide placeholder text when logo is present */
         .logo:has(img)::before,
         .logo[style*="background-image"]::before {
             display: none;
         }
-        
+
         .logo::after {
             content: 'Click to upload';
             position: absolute;
@@ -163,49 +163,49 @@
             opacity: 0;
             transition: opacity 0.2s ease;
         }
-        
+
         .logo:hover::after {
             opacity: 1;
         }
-        
+
         /* Logo placeholder states */
         .logo:focus {
             outline: 2px solid var(--primary);
             outline-offset: 2px;
         }
-        
+
         .logo:active {
             transform: scale(0.98);
         }
-        
+
         /* Footer logo adjustments */
         .footer-section .logo {
             margin-bottom: 1rem;
             background-image: url('images/logo-footer.png'), url('images/logo-footer.svg');
         }
-        
+
         .footer-section .logo::after {
             display: none;
         }
-        
+
         /* Logo loaded state */
         .logo.logo-loaded {
             background: transparent;
             border: none;
         }
-        
+
         .logo.logo-loaded::before,
         .logo.logo-loaded::after {
             display: none;
         }
-        
+
         .nav-links {
             display: flex;
             gap: 2rem;
             list-style: none;
             align-items: center;
         }
-        
+
         .nav-links a {
             color: var(--text-secondary);
             text-decoration: none;
@@ -214,11 +214,11 @@
             transition: color 0.2s ease;
             position: relative;
         }
-        
+
         .nav-links a:hover {
             color: var(--primary);
         }
-        
+
         .nav-links a::after {
             content: '';
             position: absolute;
@@ -229,11 +229,11 @@
             background: var(--primary);
             transition: width 0.2s ease;
         }
-        
+
         .nav-links a:hover::after {
             width: 100%;
         }
-        
+
         .github-button {
             display: inline-flex;
             align-items: center;
@@ -248,26 +248,26 @@
             font-size: 0.9rem;
             transition: all 0.2s ease;
         }
-        
+
         .github-button:hover {
             background: var(--gray-100);
             border-color: var(--primary);
             color: var(--primary);
         }
-        
+
         .github-button svg {
             width: 16px;
             height: 16px;
             fill: currentColor;
         }
-        
+
         /* Hero Section */
         .hero {
             padding: 6rem 0 4rem;
             text-align: center;
             background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
         }
-        
+
         .hero h1 {
             font-size: 3.5rem;
             font-weight: 700;
@@ -276,14 +276,14 @@
             letter-spacing: -0.02em;
             line-height: 1.1;
         }
-        
+
         .hero .tagline {
             font-size: 1.5rem;
             color: var(--text-secondary);
             margin-bottom: 1rem;
             font-weight: 500;
         }
-        
+
         .hero .description {
             font-size: 1.125rem;
             max-width: 600px;
@@ -291,7 +291,7 @@
             line-height: 1.7;
             color: var(--text-muted);
         }
-        
+
         /* Buttons */
         .cta-buttons {
             display: flex;
@@ -300,7 +300,7 @@
             flex-wrap: wrap;
             margin-bottom: 3rem;
         }
-        
+
         .btn {
             padding: 0.875rem 1.75rem;
             font-size: 1rem;
@@ -315,31 +315,31 @@
             transition: all 0.2s ease;
             font-family: inherit;
         }
-        
+
         .btn-primary {
             background: var(--primary);
             color: var(--white);
             box-shadow: var(--shadow);
         }
-        
+
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
-        
+
         .btn-secondary {
             background: var(--white);
             color: var(--text-primary);
             border: 1px solid var(--border);
         }
-        
+
         .btn-secondary:hover {
             background: var(--gray-50);
             border-color: var(--primary);
             color: var(--primary);
         }
-        
+
         /* Badges */
         .badges {
             display: flex;
@@ -347,16 +347,16 @@
             justify-content: center;
             flex-wrap: wrap;
         }
-        
+
         .badges img {
             height: 20px;
             transition: transform 0.2s ease;
         }
-        
+
         .badges img:hover {
             transform: scale(1.05);
         }
-        
+
         /* Stats Bar */
         .stats-bar {
             background: var(--white);
@@ -367,17 +367,17 @@
             max-width: 800px;
             box-shadow: var(--shadow);
         }
-        
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 2rem;
         }
-        
+
         .stat-item {
             text-align: center;
         }
-        
+
         .stat-number {
             font-size: 2.5rem;
             font-weight: 700;
@@ -385,24 +385,24 @@
             line-height: 1;
             margin-bottom: 0.5rem;
         }
-        
+
         .stat-label {
             color: var(--text-muted);
             font-size: 0.9rem;
             font-weight: 500;
         }
-        
+
         /* Section */
         section {
             padding: 5rem 0;
         }
-        
+
         .section-header {
             text-align: center;
             max-width: 600px;
             margin: 0 auto 3rem;
         }
-        
+
         .section-label {
             display: inline-block;
             padding: 0.375rem 0.875rem;
@@ -416,7 +416,7 @@
             letter-spacing: 0.05em;
             margin-bottom: 1rem;
         }
-        
+
         .section-title {
             font-size: 2.5rem;
             font-weight: 700;
@@ -425,20 +425,20 @@
             letter-spacing: -0.02em;
             line-height: 1.2;
         }
-        
+
         .section-description {
             font-size: 1.125rem;
             color: var(--text-muted);
             line-height: 1.7;
         }
-        
+
         /* Features Grid */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
         }
-        
+
         .feature-card {
             background: var(--white);
             border: 1px solid var(--border);
@@ -447,36 +447,36 @@
             transition: all 0.2s ease;
             box-shadow: var(--shadow);
         }
-        
+
         .feature-card:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
-        
+
         .feature-icon {
             font-size: 2.5rem;
             margin-bottom: 1.5rem;
             display: inline-block;
         }
-        
+
         .feature-card h3 {
             font-size: 1.25rem;
             margin-bottom: 1rem;
             color: var(--text-primary);
             font-weight: 600;
         }
-        
+
         .feature-card p {
             color: var(--text-muted);
             margin-bottom: 1.5rem;
             line-height: 1.6;
         }
-        
+
         .feature-list {
             list-style: none;
         }
-        
+
         .feature-list li {
             padding: 0.5rem 0;
             padding-left: 1.5rem;
@@ -485,7 +485,7 @@
             font-size: 0.95rem;
             line-height: 1.5;
         }
-        
+
         .feature-list li::before {
             content: '✓';
             position: absolute;
@@ -494,12 +494,12 @@
             font-weight: 600;
             font-size: 1rem;
         }
-        
+
         /* Code Demo */
         .demo-section {
             background: var(--gray-50);
         }
-        
+
         .code-block {
             background: var(--white);
             border: 1px solid var(--border);
@@ -509,7 +509,7 @@
             overflow-x: auto;
             box-shadow: var(--shadow);
         }
-        
+
         .code-header {
             display: flex;
             justify-content: space-between;
@@ -518,19 +518,19 @@
             padding-bottom: 0.75rem;
             border-bottom: 1px solid var(--border-light);
         }
-        
+
         .code-title {
             color: var(--text-primary);
             font-weight: 600;
             font-size: 0.95rem;
         }
-        
+
         .terminal-prompt {
             color: var(--success);
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
         }
-        
+
         .code-block pre {
             margin: 0;
             color: var(--text-primary);
@@ -538,18 +538,18 @@
             font-size: 0.9rem;
             line-height: 1.6;
         }
-        
+
         .code-block code {
             color: var(--primary);
         }
-        
+
         /* Use Cases */
         .use-cases-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
         }
-        
+
         .use-case-card {
             background: var(--white);
             border: 1px solid var(--border);
@@ -559,31 +559,31 @@
             transition: all 0.2s ease;
             box-shadow: var(--shadow);
         }
-        
+
         .use-case-card:hover {
             border-color: var(--primary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
-        
+
         .use-case-icon {
             font-size: 2rem;
             margin-bottom: 1rem;
         }
-        
+
         .use-case-card h3 {
             font-size: 1.125rem;
             margin-bottom: 0.75rem;
             color: var(--text-primary);
             font-weight: 600;
         }
-        
+
         .use-case-card p {
             color: var(--text-muted);
             font-size: 0.95rem;
             line-height: 1.6;
         }
-        
+
         /* CTA Section */
         .cta-section {
             background: var(--gray-50);
@@ -593,20 +593,20 @@
             text-align: center;
             margin: 3rem 0;
         }
-        
+
         .cta-section h2 {
             font-size: 2rem;
             margin-bottom: 1rem;
             color: var(--text-primary);
             font-weight: 700;
         }
-        
+
         .cta-section p {
             font-size: 1.125rem;
             color: var(--text-muted);
             margin-bottom: 2rem;
         }
-        
+
         /* Footer */
         footer {
             padding: 3rem 0 2rem;
@@ -614,40 +614,40 @@
             margin-top: 4rem;
             background: var(--gray-50);
         }
-        
+
         .footer-content {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
             margin-bottom: 2rem;
         }
-        
+
         .footer-section h4 {
             font-size: 1rem;
             margin-bottom: 1rem;
             color: var(--text-primary);
             font-weight: 600;
         }
-        
+
         .footer-links {
             list-style: none;
         }
-        
+
         .footer-links li {
             margin-bottom: 0.5rem;
         }
-        
+
         .footer-links a {
             color: var(--text-muted);
             text-decoration: none;
             transition: color 0.2s ease;
             font-size: 0.95rem;
         }
-        
+
         .footer-links a:hover {
             color: var(--primary);
         }
-        
+
         .footer-bottom {
             padding-top: 2rem;
             border-top: 1px solid var(--border);
@@ -655,18 +655,18 @@
             color: var(--text-muted);
             font-size: 0.9rem;
         }
-        
+
         .footer-bottom a {
             color: var(--primary);
             text-decoration: none;
         }
-        
+
         .social-links {
             display: flex;
             gap: 0.75rem;
             margin-top: 1rem;
         }
-        
+
         .social-link {
             width: 36px;
             height: 36px;
@@ -680,85 +680,85 @@
             text-decoration: none;
             transition: all 0.2s ease;
         }
-        
+
         .social-link:hover {
             background: var(--primary);
             border-color: var(--primary);
             color: var(--white);
         }
-        
+
         /* Responsive */
         @media (max-width: 968px) {
             .hero h1 {
                 font-size: 2.5rem;
             }
-            
+
             .hero .tagline {
                 font-size: 1.25rem;
             }
-            
+
             .section-title {
                 font-size: 2rem;
             }
         }
-        
+
         @media (max-width: 768px) {
             .hero {
                 padding: 4rem 0 3rem;
             }
-            
+
             .hero h1 {
                 font-size: 2rem;
             }
-            
+
             .hero .tagline {
                 font-size: 1.125rem;
             }
-            
+
             .hero .description {
                 font-size: 1rem;
             }
-            
+
             .nav-links {
                 display: none;
             }
-            
+
             .section-title {
                 font-size: 1.75rem;
             }
-            
+
             .features-grid,
             .use-cases-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .btn {
                 padding: 0.75rem 1.5rem;
                 font-size: 0.95rem;
             }
-            
+
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-        
+
         @media (max-width: 480px) {
             .container {
                 padding: 0 1rem;
             }
-            
+
             .nav-content {
                 padding: 1rem;
             }
-            
+
             .hero {
                 padding: 3rem 0 2rem;
             }
-            
+
             section {
                 padding: 3rem 0;
             }
-            
+
             .stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -786,17 +786,17 @@
             </ul>
         </div>
     </nav>
-    
+
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <h1>Refactron</h1>
             <p class="tagline">The Intelligent Code Refactoring Transformer</p>
             <p class="description">
-                Eliminate technical debt, modernize legacy code, and automate refactoring with AI-powered intelligence. 
+                Eliminate technical debt, modernize legacy code, and automate refactoring with AI-powered intelligence.
                 Built for Python developers who care about code quality and maintainability.
             </p>
-            
+
             <div class="cta-buttons">
                 <a href="https://pypi.org/project/refactron/" class="btn btn-primary" target="_blank">
                     📦 Install from PyPI
@@ -805,7 +805,7 @@
                     ⭐ Star on GitHub
                 </a>
             </div>
-            
+
             <div class="badges">
                 <img src="https://github.com/Refactron-ai/Refactron_lib/workflows/CI/badge.svg" alt="CI Status">
                 <img src="https://img.shields.io/badge/coverage-90%25-brightgreen" alt="Coverage">
@@ -813,7 +813,7 @@
                 <img src="https://badge.fury.io/py/refactron.svg" alt="PyPI version">
                 <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
             </div>
-            
+
             <div class="stats-bar">
                 <div class="stats-grid">
                     <div class="stat-item">
@@ -836,7 +836,7 @@
             </div>
         </div>
     </section>
-    
+
     <!-- Features Section -->
     <section id="features">
         <div class="container">
@@ -847,7 +847,7 @@
                     Comprehensive tools to analyze, refactor, and optimize your Python codebase with confidence
                 </p>
             </div>
-            
+
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🔍</div>
@@ -862,7 +862,7 @@
                         <li>Dependency & import analysis</li>
                     </ul>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon">🔧</div>
                     <h3>Intelligent Refactoring</h3>
@@ -876,7 +876,7 @@
                         <li>Risk scoring for each change</li>
                     </ul>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon">📊</div>
                     <h3>Rich Reporting</h3>
@@ -893,7 +893,7 @@
             </div>
         </div>
     </section>
-    
+
     <!-- Demo Section -->
     <section id="demo" class="demo-section">
         <div class="container">
@@ -904,7 +904,7 @@
                     Install Refactron and start analyzing your code immediately
                 </p>
             </div>
-            
+
             <div class="code-block">
                 <div class="code-header">
                     <span class="code-title">Installation</span>
@@ -912,7 +912,7 @@
                 </div>
                 <pre><code>pip install refactron</code></pre>
             </div>
-            
+
             <div class="code-block">
                 <div class="code-header">
                     <span class="code-title">Analyze Your Code</span>
@@ -924,7 +924,7 @@ refactron analyze your_project/
 # Get detailed report
 refactron analyze your_file.py --detailed</code></pre>
             </div>
-            
+
             <div class="code-block">
                 <div class="code-header">
                     <span class="code-title">Get Refactoring Suggestions</span>
@@ -936,7 +936,7 @@ refactron refactor your_file.py --preview
 # Apply specific refactoring types
 refactron refactor your_file.py --types magic_number,reduce_params</code></pre>
             </div>
-            
+
             <div class="code-block">
                 <div class="code-header">
                     <span class="code-title">Python API</span>
@@ -958,7 +958,7 @@ print(refactorings.show_diff())</code></pre>
             </div>
         </div>
     </section>
-    
+
     <!-- Use Cases Section -->
     <section id="use-cases">
         <div class="container-wide">
@@ -969,38 +969,38 @@ print(refactorings.show_diff())</code></pre>
                     From legacy modernization to maintaining high-quality codebases
                 </p>
             </div>
-            
+
             <div class="use-cases-grid">
                 <div class="use-case-card">
                     <div class="use-case-icon">🏢</div>
                     <h3>Enterprise Legacy Code</h3>
                     <p>Modernize decades-old Python code with automated refactoring and security scanning</p>
                 </div>
-                
+
                 <div class="use-case-card">
                     <div class="use-case-icon">🚀</div>
                     <h3>Startup MVPs</h3>
                     <p>Clean up technical debt quickly as your codebase grows and evolves</p>
                 </div>
-                
+
                 <div class="use-case-card">
                     <div class="use-case-icon">👥</div>
                     <h3>Team Onboarding</h3>
                     <p>Help new developers understand code quality standards and patterns</p>
                 </div>
-                
+
                 <div class="use-case-card">
                     <div class="use-case-icon">🔄</div>
                     <h3>CI/CD Integration</h3>
                     <p>Automate code quality checks in your deployment pipeline</p>
                 </div>
-                
+
                 <div class="use-case-card">
                     <div class="use-case-icon">📚</div>
                     <h3>Open Source Projects</h3>
                     <p>Maintain consistent quality across contributions from multiple developers</p>
                 </div>
-                
+
                 <div class="use-case-card">
                     <div class="use-case-icon">🎓</div>
                     <h3>Learning & Teaching</h3>
@@ -1009,7 +1009,7 @@ print(refactorings.show_diff())</code></pre>
             </div>
         </div>
     </section>
-    
+
     <!-- CTA Section -->
     <section>
         <div class="container">
@@ -1027,7 +1027,7 @@ print(refactorings.show_diff())</code></pre>
             </div>
         </div>
     </section>
-    
+
     <!-- Footer -->
     <footer>
         <div class="container">
@@ -1052,7 +1052,7 @@ print(refactorings.show_diff())</code></pre>
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="footer-section">
                     <h4>Product</h4>
                     <ul class="footer-links">
@@ -1062,7 +1062,7 @@ print(refactorings.show_diff())</code></pre>
                         <li><a href="https://pypi.org/project/refactron/">Download</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-section">
                     <h4>Documentation</h4>
                     <ul class="footer-links">
@@ -1072,7 +1072,7 @@ print(refactorings.show_diff())</code></pre>
                         <li><a href="https://github.com/Refactron-ai/Refactron_lib/blob/main/CASE_STUDY.md">Case Study</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-section">
                     <h4>Community</h4>
                     <ul class="footer-links">
@@ -1083,7 +1083,7 @@ print(refactorings.show_diff())</code></pre>
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
                 <p>
                     Built with ❤️ by <a href="https://github.com/omsherikar">Om Sherikar</a>
@@ -1094,7 +1094,7 @@ print(refactorings.show_diff())</code></pre>
             </div>
         </div>
     </footer>
-    
+
     <!-- Smooth Scroll Script -->
     <script>
         // Smooth scroll for anchor links
@@ -1110,7 +1110,7 @@ print(refactorings.show_diff())</code></pre>
                 }
             });
         });
-        
+
         // Logo detection and loading
         function checkLogoLoaded() {
             const logos = document.querySelectorAll('.logo');
@@ -1126,7 +1126,7 @@ print(refactorings.show_diff())</code></pre>
                 img.src = 'images/logo.png';
             });
         }
-        
+
         // Check for logo when page loads
         document.addEventListener('DOMContentLoaded', checkLogoLoaded);
     </script>

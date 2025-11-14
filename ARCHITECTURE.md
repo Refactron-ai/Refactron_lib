@@ -84,7 +84,7 @@ class BaseAnalyzer(ABC):
     @abstractmethod
     def analyze(self, file_path: Path, source_code: str) -> List[CodeIssue]:
         pass
-    
+
     @property
     @abstractmethod
     def name(self) -> str:
@@ -97,7 +97,7 @@ class BaseAnalyzer(ABC):
    - Cyclomatic complexity
    - Function length
    - Maintainability index
-   
+
 2. **CodeSmellAnalyzer**
    - Too many parameters
    - Deep nesting
@@ -115,14 +115,14 @@ class MyAnalyzer(BaseAnalyzer):
     @property
     def name(self) -> str:
         return "my_analyzer"
-    
+
     def analyze(self, file_path: Path, source_code: str) -> List[CodeIssue]:
         issues = []
-        
+
         # Your analysis logic here
         tree = ast.parse(source_code)
         # ... analyze the AST
-        
+
         # Create issues
         issue = CodeIssue(
             category=IssueCategory.CODE_SMELL,
@@ -134,7 +134,7 @@ class MyAnalyzer(BaseAnalyzer):
             rule_id="MY001",
         )
         issues.append(issue)
-        
+
         return issues
 ```
 
@@ -157,7 +157,7 @@ class BaseRefactorer(ABC):
     @abstractmethod
     def refactor(self, file_path: Path, source_code: str) -> List[RefactoringOperation]:
         pass
-    
+
     @property
     @abstractmethod
     def operation_type(self) -> str:
@@ -180,14 +180,14 @@ class MyRefactorer(BaseRefactorer):
     @property
     def operation_type(self) -> str:
         return "my_refactoring"
-    
+
     def refactor(self, file_path: Path, source_code: str) -> List[RefactoringOperation]:
         operations = []
-        
+
         # Your refactoring logic here
         tree = ast.parse(source_code)
         # ... find refactoring opportunities
-        
+
         operation = RefactoringOperation(
             operation_type=self.operation_type,
             file_path=file_path,
@@ -199,7 +199,7 @@ class MyRefactorer(BaseRefactorer):
             reasoning="This improves readability",
         )
         operations.append(operation)
-        
+
         return operations
 ```
 
@@ -208,18 +208,18 @@ class MyRefactorer(BaseRefactorer):
 1. **File Discovery**
    - Scan directories for Python files
    - Apply include/exclude patterns
-   
+
 2. **File Analysis**
    - Read source code
    - Parse into AST
    - Run each enabled analyzer
    - Collect issues
-   
+
 3. **Metric Calculation**
    - Lines of code
    - Comment lines
    - Complexity metrics
-   
+
 4. **Result Aggregation**
    - Combine all issues
    - Generate summary statistics
@@ -229,15 +229,15 @@ class MyRefactorer(BaseRefactorer):
 
 1. **Analysis Phase**
    - Run analyzers to understand code
-   
+
 2. **Opportunity Detection**
    - Each refactorer identifies opportunities
    - Calculate risk scores
-   
+
 3. **Operation Generation**
    - Create RefactoringOperation objects
    - Include before/after code
-   
+
 4. **Preview/Application**
    - Show diff (preview mode)
    - Apply changes (apply mode)
@@ -362,4 +362,3 @@ For more details, see:
 - [API Documentation](docs/api.md)
 - [Contributing Guide](CONTRIBUTING.md)
 - [Examples](examples/)
-

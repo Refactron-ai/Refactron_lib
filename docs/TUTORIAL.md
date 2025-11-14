@@ -60,7 +60,7 @@ print(analysis.report())
 ```
 🔍 Refactron Analysis
 
-     Analysis Summary     
+     Analysis Summary
 ┏━━━━━━━━━━━━━━━━┳━━━━━━━┓
 ┃ Metric         ┃ Value ┃
 ┡━━━━━━━━━━━━━━━━╇━━━━━━━┩
@@ -237,7 +237,7 @@ analysis = refactron.analyze("src/")
 
 # Filter by severity
 critical_issues = [
-    issue for issue in analysis.issues 
+    issue for issue in analysis.issues
     if issue.level.value == "CRITICAL"
 ]
 

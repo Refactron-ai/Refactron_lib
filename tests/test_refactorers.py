@@ -392,7 +392,7 @@ def process_data():
     x19 = 19
     x20 = 20
     x21 = 21
-    
+
     # This loop should be suggested for extraction
     for i in range(100):
         result = i * 2
@@ -501,13 +501,13 @@ def long_function():
     """
             + "\n    ".join([f"x{i} = {i}" for i in range(25)])
             + """
-    
+
     for i in range(10):
         print(i)
-    
+
     for j in range(10):
         print(j)
-    
+
     while True:
         break
 """

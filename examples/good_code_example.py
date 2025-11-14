@@ -5,9 +5,8 @@ This demonstrates what code should look like after applying Refactron's suggesti
 """
 
 from dataclasses import dataclass
-from typing import List
 from enum import Enum
-
+from typing import List
 
 # Constants instead of magic numbers
 PREMIUM_DISCOUNT = 0.15

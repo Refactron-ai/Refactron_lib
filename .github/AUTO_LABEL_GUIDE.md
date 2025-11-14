@@ -220,12 +220,12 @@ Labels Applied:
 
 ## 🎯 **Benefits**
 
-✅ **Automated** - No manual label management  
-✅ **Consistent** - Same rules for everyone  
-✅ **Fast** - Labels added within seconds  
-✅ **Smart** - Keyword and file-based detection  
-✅ **Helpful** - Helps organize issues/PRs  
-✅ **Free** - No external services needed  
+✅ **Automated** - No manual label management
+✅ **Consistent** - Same rules for everyone
+✅ **Fast** - Labels added within seconds
+✅ **Smart** - Keyword and file-based detection
+✅ **Helpful** - Helps organize issues/PRs
+✅ **Free** - No external services needed
 
 ---
 
