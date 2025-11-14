@@ -5,8 +5,9 @@ This is a typical Flask API with common issues that Refactron can detect and fix
 Run: refactron analyze flask_api_example.py
 """
 
-from flask import Flask, request, jsonify
 import os
+
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 

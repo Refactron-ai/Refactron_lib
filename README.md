@@ -96,7 +96,7 @@ refactron refactor myfile.py --preview -t extract_constant -t add_docstring
 ```
 🔍 Refactron Analysis
 
-     Analysis Summary     
+     Analysis Summary
 ┏━━━━━━━━━━━━━━━━┳━━━━━━━┓
 ┃ Metric         ┃ Value ┃
 ┡━━━━━━━━━━━━━━━━╇━━━━━━━┩
@@ -244,4 +244,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 **Star ⭐ this repo if you find it helpful!**
-

@@ -51,4 +51,3 @@ To customize the site:
 GitHub Pages automatically deploys from the `docs/` directory on the `main` branch.
 
 Any push to `main` with changes in `docs/` will trigger a new deployment.
-

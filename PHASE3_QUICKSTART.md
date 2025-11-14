@@ -74,20 +74,20 @@ from refactron.core.models import Issue
 
 class AutoFixEngine:
     """Engine for applying automatic fixes to code issues."""
-    
+
     def __init__(self, safety_level: str = 'safe'):
         self.safety_level = safety_level
         self.fixers = {}
-    
+
     def can_fix(self, issue: Issue) -> bool:
         """Check if issue can be auto-fixed."""
         return issue.type in self.fixers
-    
+
     def fix(self, issue: Issue, preview: bool = True) -> 'FixResult':
         """Apply automatic fix to an issue."""
         if not self.can_fix(issue):
             return FixResult(success=False, reason="No fixer available")
-        
+
         fixer = self.fixers[issue.type]
         if preview:
             return fixer.preview(issue)
@@ -96,8 +96,8 @@ class AutoFixEngine:
 
 class FixResult:
     """Result of an automatic fix."""
-    
-    def __init__(self, success: bool, reason: str = "", 
+
+    def __init__(self, success: bool, reason: str = "",
                  diff: Optional[str] = None):
         self.success = success
         self.reason = reason

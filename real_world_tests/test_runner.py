@@ -6,9 +6,9 @@ This script analyzes actual Python projects and generates detailed reports.
 
 import json
 import time
-from pathlib import Path
-from typing import Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict
 
 from refactron import Refactron
 from refactron.core.config import RefactronConfig

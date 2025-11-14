@@ -164,7 +164,7 @@ jobs:
       run: |
         refactron refactor examples/simple_clean_example.py --preview
         echo "✅ Refactor command executed successfully"
-    
+
     - name: Test analyze on intentionally bad code (should find issues)
       run: |
         # This should find issues but we don't want to fail the build
@@ -185,4 +185,3 @@ jobs:
         r = Refactron(config)
         print('✅ Python API import successful')
         "
-

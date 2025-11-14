@@ -6,9 +6,10 @@ This script demonstrates the basic functionality of Refactron.
 Run this to see Refactron in action!
 """
 
+from pathlib import Path
+
 from refactron import Refactron
 from refactron.core.config import RefactronConfig
-from pathlib import Path
 
 
 def demo_analysis():

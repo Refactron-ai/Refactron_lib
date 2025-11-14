@@ -228,10 +228,10 @@ def another_empty():
 def check_something():
     if True:
         return "always"
-    
+
     if False:
         return "never"
-    
+
     x = 5
     if x == True:
         return "redundant"
@@ -336,7 +336,7 @@ def _private_function(x):
 class MyClass:
     def method(self, value):
         return value
-    
+
     @classmethod
     def class_method(cls, value):
         return value
@@ -370,7 +370,7 @@ def process_data(data):
     if True:
         result = eval(data)
         return result
-    
+
 def unused_helper():
     pass
 """

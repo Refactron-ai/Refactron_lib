@@ -22,28 +22,28 @@ jobs:
             const issue = context.payload.issue;
             const commenter = comment.user.login;
             const commentBody = comment.body.toLowerCase().trim();
-            
+
             console.log(`Processing comment from ${commenter}: "${comment.body}"`);
-            
+
             // Check if comment contains /assign command
             if (commentBody === '/assign') {
               const issueNumber = issue.number;
               const currentAssignees = issue.assignees.map(a => a.login);
-              
+
               console.log(`Current assignees: ${currentAssignees.join(', ')}`);
-              
+
               // Check if issue is already assigned
               if (currentAssignees.length > 0) {
                 // Issue is already assigned
                 const assignedTo = currentAssignees.join(', ');
-                
+
                 await github.rest.issues.createComment({
                   owner,
                   repo,
                   issue_number: issueNumber,
                   body: `❌ **Assignment Failed**\n\nThis issue is already assigned to: **@${assignedTo}**\n\nOnly one person can be assigned to an issue at a time. If you'd like to collaborate, please comment on the issue instead! 💬`
                 });
-                
+
                 console.log(`Issue #${issueNumber} already assigned to ${assignedTo}`);
               } else {
                 // Issue is not assigned, assign to commenter
@@ -53,14 +53,14 @@ jobs:
                   issue_number: issueNumber,
                   assignees: [commenter]
                 });
-                
+
                 await github.rest.issues.createComment({
                   owner,
                   repo,
                   issue_number: issueNumber,
                   body: `✅ **Successfully Assigned!**\n\nThis issue has been assigned to **@${commenter}**.\n\nThank you for volunteering to work on this issue! 🚀\n\n**Next steps:**\n- Fork the repository\n- Create a branch for your changes\n- Make your changes\n- Submit a pull request\n- Reference this issue in your PR\n\nGood luck! 💪`
                 });
-                
+
                 console.log(`Successfully assigned issue #${issueNumber} to ${commenter}`);
               }
             } else {
@@ -80,12 +80,12 @@ jobs:
             const issue = context.payload.issue;
             const commenter = comment.user.login;
             const commentBody = comment.body.toLowerCase().trim();
-            
+
             // Check if comment contains /unassign command
             if (commentBody === '/unassign') {
               const issueNumber = issue.number;
               const currentAssignees = issue.assignees.map(a => a.login);
-              
+
               // Check if commenter is assigned to this issue
               if (currentAssignees.includes(commenter)) {
                 // Remove assignment
@@ -95,14 +95,14 @@ jobs:
                   issue_number: issueNumber,
                   assignees: [commenter]
                 });
-                
+
                 await github.rest.issues.createComment({
                   owner,
                   repo,
                   issue_number: issueNumber,
                   body: `✅ **Assignment Removed**\n\n**@${commenter}** has unassigned themselves from this issue.\n\nThe issue is now available for others to claim! 🎯`
                 });
-                
+
                 console.log(`Removed assignment for ${commenter} from issue #${issueNumber}`);
               } else {
                 // Commenter is not assigned
@@ -112,7 +112,7 @@ jobs:
                   issue_number: issueNumber,
                   body: `❌ **Cannot Unassign**\n\nYou are not currently assigned to this issue, so there's nothing to unassign.\n\nCurrent assignees: ${currentAssignees.length > 0 ? `@${currentAssignees.join(', ')}` : 'None'}`
                 });
-                
+
                 console.log(`${commenter} tried to unassign but wasn't assigned to issue #${issueNumber}`);
               }
             }
@@ -129,17 +129,17 @@ jobs:
             const comment = context.payload.comment;
             const issue = context.payload.issue;
             const commentBody = comment.body.toLowerCase().trim();
-            
+
             // Check if comment contains /help command
             if (commentBody === '/help' || commentBody === '/commands') {
               const issueNumber = issue.number;
-              
+
               await github.rest.issues.createComment({
                 owner,
                 repo,
                 issue_number: issueNumber,
                 body: `🤖 **Auto-assign Bot Commands**\n\nHere are the available commands:\n\n**Assignment Commands:**\n- \`/assign\` - Assign this issue to yourself\n- \`/unassign\` - Remove your assignment from this issue\n\n**Help Commands:**\n- \`/help\` - Show this help message\n- \`/commands\` - Show this help message\n\n**How it works:**\n- Only one person can be assigned to an issue at a time\n- Use \`/assign\` to claim an issue you want to work on\n- Use \`/unassign\` if you can no longer work on the issue\n- If someone else is already assigned, you'll get a message\n\n**Example:**\nJust comment \`/assign\` on any issue to claim it! 🚀`
               });
-              
+
               console.log(`Showed help message for issue #${issueNumber}`);
             }
