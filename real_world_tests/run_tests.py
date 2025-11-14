@@ -20,7 +20,7 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from real_world_tests.test_runner import RealWorldTester
+from real_world_tests.test_runner import RealWorldTester  # noqa: E402
 
 
 def main():
@@ -76,14 +76,14 @@ def main():
         )
         total_critical = sum(r["summary"]["critical"] for r in reports if r["status"] == "success")
 
-        print(f"\n📈 Overall Statistics:")
+        print("\n📈 Overall Statistics:")
         print(f"   Total Issues: {total_issues}")
         print(f"   Critical Issues: {total_critical}")
 
         if total_critical > 0:
             print(f"\n⚠️  Found {total_critical} critical issue(s) that should be addressed!")
         else:
-            print(f"\n✨ No critical issues found! Great job!")
+            print("\n✨ No critical issues found! Great job!")
 
 
 if __name__ == "__main__":

@@ -135,12 +135,13 @@ def main():
             print(f"✓ {description:40} : {len(ops):2} suggestions (avg risk: {avg_risk:.2f})")
 
     # Risk breakdown
-    print(f"\n🛡️  RISK BREAKDOWN")
+    print("\n🛡️  RISK BREAKDOWN")
     print("=" * 80)
     print(f"✅ Safe Operations (risk ≤ 0.3):      {len(result.safe_operations)}")
-    print(
-        f"⚠️  Moderate Risk (0.3 < risk ≤ 0.7): {result.total_operations - len(result.safe_operations) - len(result.high_risk_operations)}"
+    moderate_count = (
+        result.total_operations - len(result.safe_operations) - len(result.high_risk_operations)
     )
+    print(f"⚠️  Moderate Risk (0.3 < risk ≤ 0.7): {moderate_count}")
     print(f"🔴 High Risk (risk > 0.7):           {len(result.high_risk_operations)}")
 
     print("\n" + "=" * 80)

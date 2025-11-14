@@ -5,8 +5,6 @@ Phase 2 Demo - Advanced Analysis
 Shows off all Phase 2 analyzers in action!
 """
 
-from pathlib import Path
-
 from refactron import Refactron
 from refactron.core.config import RefactronConfig
 

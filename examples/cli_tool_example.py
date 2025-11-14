@@ -7,12 +7,8 @@ Run: refactron refactor cli_tool_example.py --preview
 """
 
 import argparse
-
-# Issue: Unused imports
-import json
 import os
 import sys
-import time
 
 # Issue: Hardcoded configuration
 API_ENDPOINT = "https://api.example.com"
