@@ -6,9 +6,9 @@ This script analyzes actual Python projects and generates detailed reports.
 
 import json
 import time
-from pathlib import Path
-from typing import Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
 
 from refactron import Refactron
 from refactron.core.config import RefactronConfig
@@ -37,7 +37,7 @@ class RealWorldTester:
         for py_file in py_files:
             try:
                 total_lines += len(py_file.read_text().splitlines())
-            except:
+            except Exception:
                 pass
 
         print(f"📁 Files: {len(py_files)}")
@@ -51,7 +51,7 @@ class RealWorldTester:
             summary = result.summary()
 
             # Categorize issues by type
-            issues_by_category = {}
+            issues_by_category: Dict[str, List[Dict[str, Any]]] = {}
             for issue in result.all_issues:
                 category = issue.category.value
                 if category not in issues_by_category:
@@ -86,18 +86,18 @@ class RealWorldTester:
             }
 
             # Print summary
-            print(f"\n✅ Analysis Complete!")
+            print("\n✅ Analysis Complete!")
             print(f"⏱️  Time: {analysis_time:.2f}s")
             print(f"🔍 Issues Found: {summary['total_issues']}")
             print(f"   🔴 Critical: {summary['critical']}")
             print(f"   ⚡ Warnings: {summary['warnings']}")
             print(f"   ℹ️  Info: {summary['info']}")
-            print(f"\n📈 Metrics:")
+            print("\n📈 Metrics:")
             print(f"   Issues per file: {issues_per_file:.2f}")
             print(f"   Issues per 1K lines: {issues_per_1000_lines:.2f}")
 
             if issues_by_category:
-                print(f"\n📊 Issues by Category:")
+                print("\n📊 Issues by Category:")
                 for category, issues in sorted(
                     issues_by_category.items(), key=lambda x: len(x[1]), reverse=True
                 ):
@@ -158,7 +158,10 @@ class RealWorldTester:
                 total_issues += summary["total_issues"]
                 total_critical += summary["critical"]
 
-        md += f"| **TOTAL** | **{total_files}** | **{total_lines:,}** | **{total_issues}** | **{total_critical}** | - |\n\n"
+        md += (
+            f"| **TOTAL** | **{total_files}** | **{total_lines:,}** | "
+            f"**{total_issues}** | **{total_critical}** | - |\n\n"
+        )
 
         # Individual project details
         md += "---\n\n"
@@ -174,18 +177,18 @@ class RealWorldTester:
             summary = report["summary"]
             metrics = report["metrics"]
 
-            md += f"**Statistics:**\n"
+            md += "**Statistics:**\n"
             md += f"- Files: {report['files_analyzed']}\n"
             md += f"- Lines: {report['total_lines']:,}\n"
             md += f"- Analysis Time: {report['analysis_time']}\n\n"
 
-            md += f"**Issues Found:**\n"
+            md += "**Issues Found:**\n"
             md += f"- 🔴 Critical: {summary['critical']}\n"
             md += f"- ⚡ Warnings: {summary['warnings']}\n"
             md += f"- ℹ️  Info: {summary['info']}\n"
             md += f"- **Total:** {summary['total_issues']}\n\n"
 
-            md += f"**Quality Metrics:**\n"
+            md += "**Quality Metrics:**\n"
             md += f"- Issues per file: {metrics['issues_per_file']}\n"
             md += f"- Issues per 1,000 lines: {metrics['issues_per_1000_lines']}\n\n"
 

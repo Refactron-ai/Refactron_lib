@@ -5,14 +5,10 @@ Common issues in data science code that Refactron can detect.
 Run: refactron analyze data_science_example.py
 """
 
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
 import pickle
 
-# Issue: Unused imports
-import json
-import sys
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 # Issue: No docstrings, magic numbers
@@ -60,9 +56,6 @@ def preprocess_data(
 def train_model(X, y):
     # Issue: Magic numbers for hyperparameters
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Issue: Using eval
-    learning_rate = eval("0.001")
 
     # Training code here
     return None

@@ -10,11 +10,6 @@ import argparse
 import os
 import sys
 
-# Issue: Unused imports
-import json
-import time
-
-
 # Issue: Hardcoded configuration
 API_ENDPOINT = "https://api.example.com"
 API_TOKEN = "secret_token_12345"

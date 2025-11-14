@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-import pytest
-
 from refactron.core.config import RefactronConfig
 from refactron.refactorers.add_docstring_refactorer import AddDocstringRefactorer
 from refactron.refactorers.extract_method_refactorer import ExtractMethodRefactorer
@@ -241,7 +239,7 @@ def calculate_total(items):
 
         # Should generate appropriate descriptions based on function names
         descriptions = [op.new_code for op in operations]
-        combined = "\n".join(descriptions)
+        _combined = "\n".join(descriptions)  # noqa: F841
 
         # Check for contextual descriptions
         assert any("Get" in d or "get" in d for d in descriptions)
@@ -392,7 +390,7 @@ def process_data():
     x19 = 19
     x20 = 20
     x21 = 21
-    
+
     # This loop should be suggested for extraction
     for i in range(100):
         result = i * 2
@@ -501,13 +499,13 @@ def long_function():
     """
             + "\n    ".join([f"x{i} = {i}" for i in range(25)])
             + """
-    
+
     for i in range(10):
         print(i)
-    
+
     for j in range(10):
         print(j)
-    
+
     while True:
         break
 """

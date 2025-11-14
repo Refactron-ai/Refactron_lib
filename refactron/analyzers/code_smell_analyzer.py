@@ -3,7 +3,7 @@
 import ast
 import copy
 from pathlib import Path
-from typing import List, Set
+from typing import Dict, List, Set
 
 from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
@@ -302,7 +302,8 @@ class CodeSmellAnalyzer(BaseAnalyzer):
                 pattern_node = PatternVisitor().visit(pattern_node)
                 # Use ast.unparse if available (Python 3.9+), otherwise fallback
                 if hasattr(ast, "unparse"):
-                    return ast.unparse(pattern_node)
+                    result: str = ast.unparse(pattern_node)  # type: ignore[assignment]
+                    return result
                 else:
                     # Fallback for older Python versions - use ast.dump
                     return ast.dump(pattern_node)
@@ -313,7 +314,7 @@ class CodeSmellAnalyzer(BaseAnalyzer):
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 # Collect patterns of statement blocks (3+ consecutive lines)
-                statement_blocks = {}
+                statement_blocks: Dict[str, List[int]] = {}
 
                 if len(node.body) < 6:  # Need at least 6 statements for meaningful duplication
                     continue

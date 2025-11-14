@@ -4,7 +4,6 @@ import os
 import tempfile
 from pathlib import Path
 
-import pytest
 from click.testing import CliRunner
 
 from refactron.cli import analyze, init, main, refactor, report
@@ -310,7 +309,7 @@ class TestInitCommand:
                 config_path.write_text("existing: config")
 
                 # Try to init without confirming
-                result = runner.invoke(init, input="n\n")
+                _result = runner.invoke(init, input="n\n")  # noqa: F841
 
                 # Should still have original content
                 assert "existing: config" in config_path.read_text()

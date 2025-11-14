@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import List
+from typing import Dict, List, Union
 
 from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
@@ -74,8 +74,7 @@ class PerformanceAnalyzer(BaseAnalyzer):
                                 category=IssueCategory.PERFORMANCE,
                                 level=IssueLevel.WARNING,
                                 message=(
-                                    f"Potential N+1 query: '{func_name}()' "
-                                    "called inside a loop"
+                                    f"Potential N+1 query: '{func_name}()' " "called inside a loop"
                                 ),
                                 file_path=file_path,
                                 line_number=(
@@ -129,7 +128,7 @@ class PerformanceAnalyzer(BaseAnalyzer):
             if isinstance(node, ast.ListComp):
                 # Count comprehension depth by traversing nested comprehensions
                 depth = 1  # Start at 1 for the current comprehension
-                current = node
+                current: Union[ast.ListComp, ast.GeneratorExp] = node
                 while True:
                     if not (hasattr(current, "generators") and current.generators):
                         break
@@ -165,7 +164,7 @@ class PerformanceAnalyzer(BaseAnalyzer):
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 # Look for multiple iterations over the same variable
-                iterations = {}
+                iterations: Dict[str, List[int]] = {}
 
                 for child in ast.walk(node):
                     if isinstance(child, ast.For):

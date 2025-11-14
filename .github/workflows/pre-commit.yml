@@ -2,9 +2,9 @@ name: Pre-commit
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 permissions:
   contents: read

@@ -2,7 +2,7 @@
 
 import ast
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 from refactron.core.models import RefactoringOperation
 from refactron.refactorers.base_refactorer import BaseRefactorer
@@ -49,7 +49,11 @@ class ReduceParametersRefactorer(BaseRefactorer):
         return operations
 
     def _create_parameter_reduction(
-        self, file_path: Path, func_node: ast.FunctionDef, lines: List[str], param_count: int
+        self,
+        file_path: Path,
+        func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef],
+        lines: List[str],
+        param_count: int,
     ) -> RefactoringOperation:
         """Create a refactoring operation for parameter reduction."""
         # Get original function code
@@ -86,7 +90,9 @@ class ReduceParametersRefactorer(BaseRefactorer):
             },
         )
 
-    def _generate_with_config_object(self, func_node: ast.FunctionDef, old_code: str) -> str:
+    def _generate_with_config_object(
+        self, func_node: Union[ast.FunctionDef, ast.AsyncFunctionDef], old_code: str
+    ) -> str:
         """Generate version using a configuration object."""
         func_name = func_node.name
         params = [arg.arg for arg in func_node.args.args]

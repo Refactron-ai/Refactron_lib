@@ -5,13 +5,18 @@ This example demonstrates common error handling patterns
 and how to improve them.
 """
 
+import time
+from typing import Callable, TypeVar
+
+T = TypeVar("T")
+
 
 # ❌ BAD: Generic exception catching
 def bad_file_reader(filename):
     try:
         with open(filename, "r") as f:
             return f.read()
-    except:  # Too broad!
+    except Exception:  # Too broad!
         return None
 
 
@@ -20,7 +25,7 @@ def bad_process_data(data):
     try:
         result = int(data) * 2
         return result
-    except:
+    except Exception:
         pass  # Silent failure
 
 
@@ -29,7 +34,7 @@ def bad_number_checker(value):
     try:
         int(value)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -165,12 +170,6 @@ def process_user_data(data: dict) -> dict:
 
 
 # ✅ GOOD: Retry logic with exponential backoff
-import time
-from typing import Callable, TypeVar, Any
-
-T = TypeVar("T")
-
-
 def retry_with_backoff(
     func: Callable[..., T],
     max_retries: int = 3,

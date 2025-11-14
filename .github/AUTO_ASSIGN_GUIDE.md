@@ -106,7 +106,7 @@ Good luck! 💪
 
 This issue is already assigned to: @otheruser
 
-Only one person can be assigned to an issue at a time. 
+Only one person can be assigned to an issue at a time.
 If you'd like to collaborate, please comment on the issue instead! 💬
 ```
 
@@ -152,12 +152,12 @@ The issue is now available for others to claim! 🎯
 
 ## 📊 **Benefits**
 
-✅ **Self-service** - Contributors can claim issues themselves  
-✅ **Fair** - First come, first served  
-✅ **Transparent** - Everyone can see who's working on what  
-✅ **Simple** - Just comment `/assign`  
-✅ **Flexible** - Can unassign if needed  
-✅ **No spam** - Only one person per issue  
+✅ **Self-service** - Contributors can claim issues themselves
+✅ **Fair** - First come, first served
+✅ **Transparent** - Everyone can see who's working on what
+✅ **Simple** - Just comment `/assign`
+✅ **Flexible** - Can unassign if needed
+✅ **No spam** - Only one person per issue
 
 ---
 

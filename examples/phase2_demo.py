@@ -7,7 +7,6 @@ Shows off all Phase 2 analyzers in action!
 
 from refactron import Refactron
 from refactron.core.config import RefactronConfig
-from pathlib import Path
 
 
 def demo_security_analyzer():
@@ -75,7 +74,7 @@ def main():
     def helper():
         import time  # Import inside function - circular dependency pattern!
         return time.time()
-    
+
     print("Hello from", sys.argv[0])
     return helper()
 """
@@ -123,7 +122,7 @@ def empty_placeholder():  # Empty function!
 def redundant_check(x):
     if True:  # Always true!
         return "always"
-    
+
     if x == True:  # Redundant comparison!
         return "redundant"
 
@@ -172,7 +171,7 @@ def unsafe_process(data: Any) -> Any:  # Uses Any - defeats type checking!
 
 class DataProcessor:
     value = 42  # Missing attribute type!
-    
+
     def method(self, x):  # Missing parameter and return types!
         return x * 2
 """
@@ -214,7 +213,7 @@ def process_data(data):  # Missing type hints!
     if True:  # Always true!
         result = eval(data)  # Security issue!
         return result  # Missing return type!
-    
+
 def unused_helper():  # Never called!
     pass  # Empty function!
 """

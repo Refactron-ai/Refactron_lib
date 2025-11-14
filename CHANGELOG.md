@@ -248,4 +248,3 @@ Security-related changes and fixes
 ---
 
 **Keep this changelog up to date with every release!**
-
