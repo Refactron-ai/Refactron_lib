@@ -32,6 +32,7 @@ Refactron is a powerful Python library designed to eliminate technical debt, mod
 - **Type Hints** - Identify missing or incomplete type annotations
 - **Dead Code** - Detect unused functions, variables, and unreachable code
 - **Dependencies** - Find circular imports, wildcard imports, deprecated modules
+- **Custom Rules** - Define your own analysis rules using YAML-based DSL ✨ **NEW**
 
 ### 🔧 **Intelligent Refactoring**
 - **Extract Constants** - Replace magic numbers with named constants
@@ -40,6 +41,13 @@ Refactron is a powerful Python library designed to eliminate technical debt, mod
 - **Add Docstrings** - Generate contextual documentation automatically
 - **Before/After Previews** - See exactly what will change
 - **Risk Scoring** - Know how safe each refactoring is (0.0 = perfectly safe, 1.0 = high risk)
+
+### 🎨 **Custom Rule Engine** ✨ **NEW**
+- **YAML-based DSL** - Define custom rules without writing code
+- **Pattern Matching** - Support for AST patterns, regex, and more
+- **13+ Templates** - Pre-built rules for common scenarios
+- **Flexible Constraints** - Enforce function length, parameter limits, and more
+- **File Filtering** - Include/exclude patterns for fine-grained control
 
 ### 📊 **Rich Reporting**
 - Multiple formats: Text, JSON, HTML
@@ -72,6 +80,42 @@ result = refactron.refactor("path/to/your/code.py", preview=True)
 result.show_diff()
 result.apply()
 ```
+
+### Custom Rules Usage ✨ **NEW**
+
+```python
+from refactron.rules import CustomRuleAnalyzer, generate_example_ruleset
+from refactron.core.config import RefactronConfig
+
+# Create analyzer with custom rules
+config = RefactronConfig()
+analyzer = CustomRuleAnalyzer(config, rules_file=Path(".refactron-rules.yaml"))
+
+# Or generate example ruleset
+ruleset = generate_example_ruleset()
+with open(".refactron-rules.yaml", "w") as f:
+    yaml.dump(ruleset, f)
+
+# Analyze with custom rules
+issues = analyzer.analyze(Path("myfile.py"), source_code)
+```
+
+**Example custom rule:**
+```yaml
+version: 1
+rules:
+  - name: "no-print"
+    description: "Disallow print in production"
+    severity: "warning"
+    pattern:
+      type: "function_call"
+      name: "print"
+    exclude:
+      - "**/test_*.py"
+    message: "Use logging instead of print"
+```
+
+See [Custom Rules Guide](docs/CUSTOM_RULES.md) for full documentation!
 
 ### CLI Usage
 
@@ -146,12 +190,14 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 - [Quick Reference](docs/QUICK_REFERENCE.md) - Command cheatsheet and common patterns
 - [Tutorial](docs/TUTORIAL.md) - Step-by-step guide with examples
 - [Quick Start (Contributors)](CONTRIBUTING_QUICKSTART.md) - Start contributing in 5 minutes
+- [Custom Rules Guide](docs/CUSTOM_RULES.md) - Define your own analysis rules ✨ **NEW**
 
 ### 📖 Core Documentation
 - [Getting Started (Dev)](GETTING_STARTED_DEV.md) - Development setup
 - [Architecture](ARCHITECTURE.md) - Technical design and internals
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute
 - [Security Policy](SECURITY.md) - Vulnerability reporting
+- [False Positive Reduction](docs/FALSE_POSITIVE_REDUCTION.md) - Security analyzer features
 - [False Positive Reduction](docs/FALSE_POSITIVE_REDUCTION.md) - Security analyzer features for reducing false positives
 
 ### 📊 Project Information
@@ -187,11 +233,11 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 - [x] Type hint analysis
 - [x] Comprehensive test suite (87 tests, 89% coverage)
 
-**Phase 3: Intelligence & Automation** 🚧 **NEXT**
+**Phase 3: Intelligence & Automation** 🚧 **IN PROGRESS**
 - [ ] AI-powered pattern recognition
 - [ ] Auto-fix capabilities
 - [ ] Multi-file refactoring
-- [ ] Custom rule engine
+- [x] Custom rule engine ✅ **COMPLETE**
 - [ ] Performance profiling
 
 **Phase 4: Integration & Scale** 📋 **PLANNED**

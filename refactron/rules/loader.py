@@ -2,7 +2,7 @@
 
 import re
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import yaml
 
@@ -123,9 +123,7 @@ class RuleLoader:
         # Validate pattern
         pattern = rule.pattern
         if pattern.type.value == "function_call" and not pattern.name:
-            raise RuleValidationError(
-                f"Rule '{rule.name}': function_call pattern requires a name"
-            )
+            raise RuleValidationError(f"Rule '{rule.name}': function_call pattern requires a name")
 
         if pattern.type.value == "regex" and not pattern.regex:
             raise RuleValidationError(f"Rule '{rule.name}': regex pattern requires a regex field")
@@ -135,16 +133,12 @@ class RuleLoader:
             try:
                 re.compile(pattern.regex)
             except re.error as e:
-                raise RuleValidationError(
-                    f"Rule '{rule.name}': invalid regex pattern: {e}"
-                )
+                raise RuleValidationError(f"Rule '{rule.name}': invalid regex pattern: {e}")
 
         # Validate exclude/include patterns
         for pattern_str in rule.exclude + rule.include:
             if not pattern_str:
-                raise RuleValidationError(
-                    f"Rule '{rule.name}': empty pattern in exclude/include"
-                )
+                raise RuleValidationError(f"Rule '{rule.name}': empty pattern in exclude/include")
 
     def get_rules(self) -> List[CustomRule]:
         """

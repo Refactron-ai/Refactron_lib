@@ -1,12 +1,11 @@
 """Pattern matching engine for custom rules."""
 
 import ast
-import fnmatch
 import re
 from pathlib import Path
 from typing import List, Optional
 
-from refactron.rules.models import CustomRule, PatternConfig, PatternType
+from refactron.rules.models import CustomRule, PatternType
 
 
 class PatternMatch:
@@ -47,9 +46,7 @@ class PatternMatcher:
         """Initialize the pattern matcher."""
         pass
 
-    def match(
-        self, rule: CustomRule, file_path: Path, source_code: str
-    ) -> List[PatternMatch]:
+    def match(self, rule: CustomRule, file_path: Path, source_code: str) -> List[PatternMatch]:
         """
         Match a rule against source code.
 

@@ -1,7 +1,7 @@
 """Custom rule analyzer."""
 
 from pathlib import Path
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.core.config import RefactronConfig
@@ -9,6 +9,9 @@ from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
 from refactron.rules.loader import RuleLoader, RuleValidationError
 from refactron.rules.matcher import PatternMatcher
 from refactron.rules.models import CustomRule, RuleSeverity
+
+if TYPE_CHECKING:
+    from refactron.rules.matcher import PatternMatch
 
 
 class CustomRuleAnalyzer(BaseAnalyzer):
