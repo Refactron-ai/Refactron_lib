@@ -292,20 +292,44 @@ class PatternMatcher:
             return matches
 
         try:
-            pattern = re.compile(rule.pattern.regex)
+            pattern = re.compile(rule.pattern.regex, re.MULTILINE)
         except re.error:
             return matches
 
-        lines = source_code.split("\n")
-        for line_num, line in enumerate(lines, 1):
-            for match in pattern.finditer(line):
-                pattern_match = PatternMatch(
-                    rule=rule,
-                    line_number=line_num,
-                    column=match.start(),
-                    code_snippet=match.group(),
-                )
-                matches.append(pattern_match)
+        # Precompute line start indices for efficient line number calculation
+        line_start_indices = [0]
+        for match in re.finditer(r"\n", source_code):
+            line_start_indices.append(match.end())
+
+        def get_line_number(pos: int) -> int:
+            """Binary search for the line number given a character position."""
+            left, right = 0, len(line_start_indices) - 1
+            while left <= right:
+                mid = (left + right) // 2
+                if mid + 1 < len(line_start_indices):
+                    if line_start_indices[mid] <= pos < line_start_indices[mid + 1]:
+                        return mid + 1  # line numbers are 1-based
+                else:
+                    if pos >= line_start_indices[mid]:
+                        return mid + 1
+                if pos < line_start_indices[mid]:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            return len(line_start_indices)
+
+        # Match against entire source code at once for better performance
+        for match in pattern.finditer(source_code):
+            start_pos = match.start()
+            line_number = get_line_number(start_pos)
+            column = start_pos - line_start_indices[line_number - 1]
+            pattern_match = PatternMatch(
+                rule=rule,
+                line_number=line_number,
+                column=column,
+                code_snippet=match.group(),
+            )
+            matches.append(pattern_match)
 
         return matches
 

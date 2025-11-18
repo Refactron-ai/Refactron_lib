@@ -198,7 +198,6 @@ See `examples/DEMO_USAGE.md` for detailed walkthroughs!
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute
 - [Security Policy](SECURITY.md) - Vulnerability reporting
 - [False Positive Reduction](docs/FALSE_POSITIVE_REDUCTION.md) - Security analyzer features
-- [False Positive Reduction](docs/FALSE_POSITIVE_REDUCTION.md) - Security analyzer features for reducing false positives
 
 ### 📊 Project Information
 - [Case Study](CASE_STUDY.md) - Real-world testing results

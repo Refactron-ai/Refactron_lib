@@ -1,5 +1,6 @@
 """Custom rule analyzer."""
 
+import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, List
 
@@ -12,6 +13,8 @@ from refactron.rules.models import CustomRule, RuleSeverity
 
 if TYPE_CHECKING:
     from refactron.rules.matcher import PatternMatch
+
+logger = logging.getLogger(__name__)
 
 
 class CustomRuleAnalyzer(BaseAnalyzer):
@@ -41,7 +44,7 @@ class CustomRuleAnalyzer(BaseAnalyzer):
                 self.custom_rules = ruleset.rules
             except RuleValidationError as e:
                 # Log error but don't fail - just skip custom rules
-                print(f"Warning: Failed to load custom rules: {e}")
+                logger.warning(f"Failed to load custom rules: {e}")
 
     def load_rules(self, rules_file: Path) -> None:
         """

@@ -64,7 +64,7 @@ rules:
     severity: "warning"
     pattern:
       type: "regex"
-      regex: "(import pdb|pdb\\.set_trace|breakpoint\\(\\))"
+      regex: "(import pdb|pdb\\\\.set_trace|breakpoint\\\\(\\\\))"
     exclude:
       - "**/test_*.py"
       - "**/tests/**"

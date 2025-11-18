@@ -38,6 +38,13 @@ class RuleLoader:
         if not file_path.exists():
             raise RuleValidationError(f"Rule file not found: {file_path}")
 
+        # Limit file size to 1 MB (1048576 bytes) to prevent memory exhaustion attacks
+        max_size_bytes = 1048576
+        if file_path.stat().st_size > max_size_bytes:
+            raise RuleValidationError(
+                f"Rule file too large (max {max_size_bytes} bytes): {file_path}"
+            )
+
         try:
             with open(file_path, "r") as f:
                 data = yaml.safe_load(f)

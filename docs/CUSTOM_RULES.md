@@ -283,7 +283,7 @@ rules:
     severity: "critical"
     pattern:
       type: "regex"
-      regex: "subprocess\\.(call|run|Popen).*shell=True"
+      regex: "subprocess\\\\.(call|run|Popen).*shell=True"
     message: "Using shell=True can lead to shell injection"
     suggestion: "Pass command as a list instead"
 ```
@@ -461,6 +461,6 @@ For issues or questions about custom rules:
 
 ## Next Steps
 
-- Review the [Rule Templates](templates.md) documentation
-- See [Pattern Matching](patterns.md) for advanced pattern usage
-- Check [Integration Guide](integration.md) for CI/CD setup
+- Review the example file: `.refactron-rules.example.yaml`
+- See the test file: `tests/test_custom_rules.py` for advanced usage
+- Check the demo: `examples/custom_rules_demo.py` for interactive examples
