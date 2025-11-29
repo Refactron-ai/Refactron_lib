@@ -1,0 +1,72 @@
+# Example Custom Rules for Refactron
+# This file demonstrates how to define custom analysis rules
+
+version: 1
+
+rules:
+  # Security Rules
+  - name: "no-print-in-production"
+    description: "Disallow print() statements in production code"
+    severity: "warning"
+    pattern:
+      type: "function_call"
+      name: "print"
+    exclude:
+      - "**/test_*.py"
+      - "**/tests/**"
+      - "**/*_test.py"
+      - "**/examples/**"
+    message: "Avoid using print() in production code"
+    suggestion: "Use logging instead: logger.info(...)"
+
+  - name: "no-eval"
+    description: "Disallow eval() due to security risks"
+    severity: "critical"
+    pattern:
+      type: "function_call"
+      name: "eval"
+    message: "Use of eval() is a security risk"
+    suggestion: "Consider safer alternatives like ast.literal_eval() for literals"
+
+  # Code Quality Rules
+  - name: "max-function-length"
+    description: "Functions should be less than 50 lines"
+    severity: "warning"
+    pattern:
+      type: "function_def"
+      constraints:
+        lines: "> 50"
+    message: "Function is too long ({{lines}} lines)"
+    suggestion: "Consider extracting methods to improve readability"
+
+  - name: "max-function-params"
+    description: "Functions should have less than 5 parameters"
+    severity: "warning"
+    pattern:
+      type: "function_def"
+      constraints:
+        params: "> 5"
+    message: "Function has too many parameters"
+    suggestion: "Consider using a configuration object or dataclass"
+
+  # Best Practices
+  - name: "no-bare-except"
+    description: "Disallow bare except clauses"
+    severity: "warning"
+    pattern:
+      type: "regex"
+      regex: "except\\s*:"
+    message: "Bare except clause catches all exceptions including system exits"
+    suggestion: "Catch specific exceptions: except ValueError:"
+
+  - name: "no-debug-statements"
+    description: "Disallow debug statements in production"
+    severity: "warning"
+    pattern:
+      type: "regex"
+      regex: "(import pdb|pdb\\\\.set_trace|breakpoint\\\\(\\\\))"
+    exclude:
+      - "**/test_*.py"
+      - "**/tests/**"
+    message: "Debug statement found in code"
+    suggestion: "Remove debug statements before committing"
