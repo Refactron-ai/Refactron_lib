@@ -1,5 +1,6 @@
 """Tests for advanced risk assessment module."""
 
+import ast
 from pathlib import Path
 import tempfile
 import pytest
@@ -219,7 +220,7 @@ def simple():
     return 42
 """
         
-        risk_low = assessor._calculate_complexity_risk(simple_code)
+        risk_low = assessor._calculate_complexity_risk(simple_code, affected_lines=None)
         
         # Complex code with many control structures
         complex_code = """
@@ -237,7 +238,7 @@ def complex():
                     pass
 """
         
-        risk_high = assessor._calculate_complexity_risk(complex_code)
+        risk_high = assessor._calculate_complexity_risk(complex_code, affected_lines=None)
         
         # More complexity should mean higher risk
         assert risk_high > risk_low
@@ -294,7 +295,6 @@ def func3():
     pass
 """
         
-        import ast
         tree = ast.parse(code)
         
         # Lines affecting only func1 (lines 1-2)
@@ -322,7 +322,6 @@ class MyClass:
         pass
 """
         
-        import ast
         tree = ast.parse(code)
         
         count = assessor._count_total_functions(tree)
