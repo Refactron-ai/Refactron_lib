@@ -5,11 +5,16 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 from refactron.core.models import RefactoringOperation
+from refactron.core.risk_assessment import ChangeType, RiskAssessor
 from refactron.refactorers.base_refactorer import BaseRefactorer
 
 
 class MagicNumberRefactorer(BaseRefactorer):
     """Suggests extracting magic numbers into named constants."""
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.risk_assessor = RiskAssessor()
 
     @property
     def operation_type(self) -> str:
@@ -120,6 +125,19 @@ class MagicNumberRefactorer(BaseRefactorer):
 
         new_code = "\n".join(constant_defs) + "\n\n" + new_func_code
 
+        # Calculate advanced risk score
+        affected_lines = list(range(func_node.lineno, func_node.end_lineno + 1)) if hasattr(func_node, "end_lineno") else [func_node.lineno]
+        risk_score, risk_factors = self.risk_assessor.calculate_risk_score(
+            file_path=file_path,
+            source_code="\n".join(lines),
+            change_type=ChangeType.EXTRACTION,
+            affected_lines=affected_lines,
+            operation_description=f"Extract magic numbers to constants in '{func_name}'",
+        )
+        
+        # Store affected functions in risk factors
+        risk_factors.affected_functions = [func_name]
+
         return RefactoringOperation(
             operation_type=self.operation_type,
             file_path=file_path,
@@ -127,11 +145,15 @@ class MagicNumberRefactorer(BaseRefactorer):
             description=f"Extract magic numbers to named constants in '{func_name}'",
             old_code=old_code,
             new_code=new_code,
-            risk_score=0.1,  # Very safe refactoring
+            risk_score=risk_score,
             reasoning=f"Extracting {len(constants)} magic numbers to named constants "
             f"improves code readability and maintainability. "
             f"Constants can be reused and their meaning is clear.",
-            metadata={"constants": list(constants.items()), "function_name": func_name},
+            metadata={
+                "constants": list(constants.items()),
+                "function_name": func_name,
+                "risk_factors": risk_factors.to_dict(),
+            },
         )
 
     def _generate_constant_name(self, value: float) -> str:

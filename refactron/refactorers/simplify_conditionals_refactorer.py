@@ -5,11 +5,16 @@ from pathlib import Path
 from typing import List, Union
 
 from refactron.core.models import RefactoringOperation
+from refactron.core.risk_assessment import ChangeType, RiskAssessor
 from refactron.refactorers.base_refactorer import BaseRefactorer
 
 
 class SimplifyConditionalsRefactorer(BaseRefactorer):
     """Suggests simplifying deeply nested conditionals."""
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.risk_assessor = RiskAssessor()
 
     @property
     def operation_type(self) -> str:
@@ -75,6 +80,19 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
         # Generate simplified version using early returns
         new_code = self._generate_simplified_version(func_node, old_code)
 
+        # Calculate advanced risk score - logic changes are moderate to high risk
+        affected_lines = list(range(func_node.lineno, func_node.end_lineno + 1)) if hasattr(func_node, "end_lineno") else [func_node.lineno]
+        risk_score, risk_factors = self.risk_assessor.calculate_risk_score(
+            file_path=file_path,
+            source_code="\n".join(lines),
+            change_type=ChangeType.LOGIC_CHANGE,  # This changes control flow
+            affected_lines=affected_lines,
+            operation_description=f"Simplify conditionals in '{func_node.name}'",
+        )
+        
+        # Store affected functions in risk factors
+        risk_factors.affected_functions = [func_node.name]
+
         return RefactoringOperation(
             operation_type=self.operation_type,
             file_path=file_path,
@@ -84,14 +102,18 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
             ),
             old_code=old_code,
             new_code=new_code,
-            risk_score=0.3,  # Moderate risk - changes control flow
+            risk_score=risk_score,
             reasoning=(
                 f"This function has {depth} levels of nesting. "
                 f"Using early returns (guard clauses) reduces nesting and "
                 f"improves readability. Each condition is checked upfront, "
                 f"making the logic easier to follow."
             ),
-            metadata={"original_depth": depth, "function_name": func_node.name},
+            metadata={
+                "original_depth": depth,
+                "function_name": func_node.name,
+                "risk_factors": risk_factors.to_dict(),
+            },
         )
 
     def _generate_simplified_version(

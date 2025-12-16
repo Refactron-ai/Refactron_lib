@@ -5,11 +5,16 @@ from pathlib import Path
 from typing import List, Union
 
 from refactron.core.models import RefactoringOperation
+from refactron.core.risk_assessment import ChangeType, RiskAssessor
 from refactron.refactorers.base_refactorer import BaseRefactorer
 
 
 class AddDocstringRefactorer(BaseRefactorer):
     """Suggests adding docstrings to undocumented functions and classes."""
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.risk_assessor = RiskAssessor()
 
     @property
     def operation_type(self) -> str:
@@ -67,6 +72,20 @@ class AddDocstringRefactorer(BaseRefactorer):
         # Generate version with docstring
         new_code = self._generate_with_docstring(node, lines)
 
+        # Calculate advanced risk score - adding docstrings is very safe
+        affected_lines = list(range(node.lineno, node.end_lineno + 1)) if hasattr(node, "end_lineno") else [node.lineno]
+        risk_score, risk_factors = self.risk_assessor.calculate_risk_score(
+            file_path=file_path,
+            source_code="\n".join(lines),
+            change_type=ChangeType.RENAMING,  # Safest type, just documentation
+            affected_lines=affected_lines,
+            operation_description=f"Add docstring to '{node.name}'",
+        )
+        
+        # Override to ensure very low risk for docstrings
+        risk_score = min(risk_score, 0.1)  # Cap at 0.1 since it's just documentation
+        risk_factors.affected_functions = [node.name]
+
         return RefactoringOperation(
             operation_type=self.operation_type,
             file_path=file_path,
@@ -74,12 +93,16 @@ class AddDocstringRefactorer(BaseRefactorer):
             description=f"Add docstring to {entity_type.lower()} '{node.name}'",
             old_code=old_code,
             new_code=new_code,
-            risk_score=0.0,  # Very safe - only adding documentation
+            risk_score=risk_score,
             reasoning=f"Adding a docstring improves code documentation and helps other "
             f"developers understand what this {entity_type.lower()} does. "
             f"Good docstrings include a brief description, parameters (Args), "
             f"and return values (Returns).",
-            metadata={"entity_type": entity_type, "entity_name": node.name},
+            metadata={
+                "entity_type": entity_type,
+                "entity_name": node.name,
+                "risk_factors": risk_factors.to_dict(),
+            },
         )
 
     def _generate_with_docstring(
