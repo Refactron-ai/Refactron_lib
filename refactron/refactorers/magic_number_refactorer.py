@@ -126,7 +126,11 @@ class MagicNumberRefactorer(BaseRefactorer):
         new_code = "\n".join(constant_defs) + "\n\n" + new_func_code
 
         # Calculate advanced risk score
-        affected_lines = list(range(func_node.lineno, func_node.end_lineno + 1)) if hasattr(func_node, "end_lineno") else [func_node.lineno]
+        affected_lines = (
+            list(range(func_node.lineno, func_node.end_lineno + 1))
+            if hasattr(func_node, "end_lineno")
+            else [func_node.lineno]
+        )
         risk_score, risk_factors = self.risk_assessor.calculate_risk_score(
             file_path=file_path,
             source_code="\n".join(lines),
@@ -134,7 +138,7 @@ class MagicNumberRefactorer(BaseRefactorer):
             affected_lines=affected_lines,
             operation_description=f"Extract magic numbers to constants in '{func_name}'",
         )
-        
+
         # Store affected functions in risk factors
         risk_factors.affected_functions = [func_name]
 

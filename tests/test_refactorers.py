@@ -41,7 +41,7 @@ def calculate_discount(price):
         # Without tests, it can be moderate risk
         assert op.risk_score < 0.7  # Should be safe to moderate
         assert "THRESHOLD" in op.new_code or "DISCOUNT" in op.new_code
-        
+
         # Check that risk factors are included
         assert "risk_factors" in op.metadata
 
@@ -174,7 +174,7 @@ def calculate_total(price, tax):
         assert "docstring" in op.description.lower()
         # With advanced risk assessment, docstrings are still very safe (capped at 0.1)
         assert op.risk_score <= 0.1  # Very safe - just documentation
-        
+
         # Check that risk factors are included
         assert "risk_factors" in op.metadata
         assert "'''" in op.new_code

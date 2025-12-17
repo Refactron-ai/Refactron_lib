@@ -148,7 +148,7 @@ def _print_refactor_messages(summary: dict, preview: bool) -> None:
 def _print_operation_with_risk(operation) -> None:
     """Print refactoring operation with color-coded risk visualization."""
     from rich.panel import Panel
-    
+
     # Determine risk level and color
     risk_score = operation.risk_score
     if risk_score < 0.3:
@@ -166,13 +166,13 @@ def _print_operation_with_risk(operation) -> None:
     else:
         risk_color = "bright_red"
         risk_label = "🔴 CRITICAL RISK"
-    
+
     # Build content
     content = f"[bold]{operation.operation_type}[/bold]\n"
     content += f"Location: {operation.file_path}:{operation.line_number}\n"
     content += f"Risk: [{risk_color}]{risk_score:.2f} - {risk_label}[/{risk_color}]\n"
     content += f"\n{operation.description}"
-    
+
     # Add risk factors if available
     if "risk_factors" in operation.metadata:
         risk_factors = operation.metadata["risk_factors"]
@@ -182,12 +182,12 @@ def _print_operation_with_risk(operation) -> None:
         content += f"  • Test Coverage: {risk_factors.get('test_coverage_risk', 0):.2f}\n"
         content += f"  • Dependencies: {risk_factors.get('dependency_risk', 0):.2f}\n"
         content += f"  • Complexity: {risk_factors.get('complexity_risk', 0):.2f}"
-        
-        if risk_factors.get('test_file_exists'):
+
+        if risk_factors.get("test_file_exists"):
             content += "\n\n✓ Test file exists"
         else:
             content += "\n\n⚠ No test file found - higher risk"
-    
+
     panel = Panel(content, border_style=risk_color, expand=False)
     console.print(panel)
 

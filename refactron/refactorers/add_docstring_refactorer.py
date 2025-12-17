@@ -76,7 +76,11 @@ class AddDocstringRefactorer(BaseRefactorer):
         new_code = self._generate_with_docstring(node, lines)
 
         # Calculate advanced risk score - adding docstrings is very safe
-        affected_lines = list(range(node.lineno, node.end_lineno + 1)) if hasattr(node, "end_lineno") else [node.lineno]
+        affected_lines = (
+            list(range(node.lineno, node.end_lineno + 1))
+            if hasattr(node, "end_lineno")
+            else [node.lineno]
+        )
         risk_score, risk_factors = self.risk_assessor.calculate_risk_score(
             file_path=file_path,
             source_code="\n".join(lines),
@@ -84,7 +88,7 @@ class AddDocstringRefactorer(BaseRefactorer):
             affected_lines=affected_lines,
             operation_description=f"Add docstring to '{node.name}'",
         )
-        
+
         # Override to ensure very low risk for docstrings
         risk_score = min(risk_score, self.MAX_DOCSTRING_RISK)
         risk_factors.affected_functions = [node.name]

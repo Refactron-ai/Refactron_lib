@@ -81,7 +81,11 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
         new_code = self._generate_simplified_version(func_node, old_code)
 
         # Calculate advanced risk score - logic changes are moderate to high risk
-        affected_lines = list(range(func_node.lineno, func_node.end_lineno + 1)) if hasattr(func_node, "end_lineno") else [func_node.lineno]
+        affected_lines = (
+            list(range(func_node.lineno, func_node.end_lineno + 1))
+            if hasattr(func_node, "end_lineno")
+            else [func_node.lineno]
+        )
         risk_score, risk_factors = self.risk_assessor.calculate_risk_score(
             file_path=file_path,
             source_code="\n".join(lines),
@@ -89,7 +93,7 @@ class SimplifyConditionalsRefactorer(BaseRefactorer):
             affected_lines=affected_lines,
             operation_description=f"Simplify conditionals in '{func_node.name}'",
         )
-        
+
         # Store affected functions in risk factors
         risk_factors.affected_functions = [func_node.name]
 
