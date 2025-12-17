@@ -374,22 +374,67 @@ class RiskAssessor:
                 if py_file == file_path:
                     continue
 
-                try:
-                    content = py_file.read_text()
-                    # Simple check for imports
-                    if file_path.stem in content:
-                        impact["importing_files"].append(
-                            str(py_file.relative_to(self.project_root))
-                        )
+            # Limit the number of files scanned to avoid excessive I/O on large projects.
+            max_files = getattr(self, "max_dependency_scan_files", 1000)
+            scanned_files = 0
+            module_name = file_path.stem
 
-                    # Check for function calls if specified
-                    if function_name and f"{function_name}(" in content:
-                        impact["calling_functions"].append(
-                            str(py_file.relative_to(self.project_root))
-                        )
+            for py_file in self.project_root.rglob("*.py"):
+                if scanned_files >= max_files:
+                    break
 
-                except Exception:
+                if py_file == file_path:
                     continue
+
+                scanned_files += 1
+
+                try:
+                    content = py_file.read_text(encoding="utf-8", errors="ignore")
+                except (OSError, UnicodeDecodeError):
+                    # Skip files that can't be read
+                    continue
+
+                try:
+                    tree = ast.parse(content)
+                except SyntaxError:
+                    # Skip files that can't be parsed
+                    continue
+
+                imports_module = False
+                calls_function = False
+
+                for node in ast.walk(tree):
+                    # Detect imports of the target module
+                    if isinstance(node, ast.Import):
+                        for alias in node.names:
+                            if alias.name.split(".")[-1] == module_name:
+                                imports_module = True
+                                break
+                    elif isinstance(node, ast.ImportFrom):
+                        if node.module and node.module.split(".")[-1] == module_name:
+                            imports_module = True
+
+                    # Detect calls to the target function, if provided
+                    if function_name and isinstance(node, ast.Call):
+                        func = node.func
+                        func_name: Optional[str] = None
+                        if isinstance(func, ast.Name):
+                            func_name = func.id
+                        elif isinstance(func, ast.Attribute):
+                            func_name = func.attr
+
+                        if func_name == function_name:
+                            calls_function = True
+
+                    # Stop walking early if we've found everything we care about
+                    if imports_module and (not function_name or calls_function):
+                        break
+
+                if imports_module:
+                    impact["importing_files"].append(str(py_file.relative_to(self.project_root)))
+
+                if calls_function:
+                    impact["calling_functions"].append(str(py_file.relative_to(self.project_root)))
 
         # Find dependent test files
         test_file = self._find_test_file(file_path)
