@@ -63,6 +63,7 @@ class RiskFactors:
 class RiskAssessor:
     """Advanced risk assessment for refactoring operations."""
 
+    # Change type risk weights
     CHANGE_TYPE_WEIGHTS = {
         ChangeType.RENAMING: 0.1,
         ChangeType.EXTRACTION: 0.3,
@@ -70,6 +71,38 @@ class RiskAssessor:
         ChangeType.API_CHANGE: 0.7,
         ChangeType.LOGIC_CHANGE: 0.8,
     }
+
+    # Impact scope weights
+    LINE_IMPACT_WEIGHT = 0.3
+    FUNCTION_IMPACT_WEIGHT = 0.7
+
+    # Test coverage thresholds and risk values
+    TEST_COVERAGE_GOOD_THRESHOLD = 0.5  # Test size >= 50% of source
+    TEST_COVERAGE_MODERATE_THRESHOLD = 0.2  # Test size >= 20% of source
+    TEST_COVERAGE_GOOD_RISK = 0.1
+    TEST_COVERAGE_MODERATE_RISK = 0.3
+    TEST_COVERAGE_MINIMAL_RISK = 0.6
+    TEST_COVERAGE_NONE_RISK = 0.8
+    TEST_COVERAGE_UNKNOWN_RISK = 0.5
+
+    # Dependency risk thresholds and values
+    DEPENDENCY_THRESHOLD_LOW = 5
+    DEPENDENCY_THRESHOLD_MEDIUM = 15
+    DEPENDENCY_THRESHOLD_HIGH = 30
+    DEPENDENCY_RISK_LOW = 0.1
+    DEPENDENCY_RISK_MEDIUM = 0.3
+    DEPENDENCY_RISK_HIGH = 0.5
+    DEPENDENCY_RISK_VERY_HIGH = 0.7
+    DEPENDENCY_CALL_WEIGHT = 0.1  # Weight for function calls vs imports
+
+    # Complexity risk constants
+    MAX_COMPLEXITY_THRESHOLD = 50.0  # Control flow statements for very complex code
+
+    # Risk level thresholds
+    RISK_THRESHOLD_SAFE = 0.3
+    RISK_THRESHOLD_LOW = 0.5
+    RISK_THRESHOLD_MODERATE = 0.7
+    RISK_THRESHOLD_HIGH = 0.9
 
     def __init__(self, project_root: Optional[Path] = None):
         """Initialize risk assessor.
@@ -86,7 +119,7 @@ class RiskAssessor:
         change_type: ChangeType,
         affected_lines: Optional[List[int]] = None,
         operation_description: str = "",
-    ) -> tuple[float, RiskFactors]:
+    ) -> Tuple[float, RiskFactors]:
         """Calculate comprehensive risk score for a refactoring operation.
 
         Args:
@@ -111,6 +144,9 @@ class RiskAssessor:
             file_path, source_code, affected_lines
         )
         risk_factors.complexity_risk = self._calculate_complexity_risk(source_code, affected_lines)
+
+        # Populate test file metadata
+        risk_factors.test_file_exists = self._find_test_file(file_path) is not None
 
         # Calculate weighted overall risk score
         overall_risk = self._calculate_weighted_risk(risk_factors)
@@ -143,13 +179,11 @@ class RiskAssessor:
                 if total_funcs > 0:
                     func_percentage = len(affected_funcs) / total_funcs
                     # Weight function impact higher than line impact
-                    impact = (affected_percentage * 0.3) + (func_percentage * 0.7)
-                else:
-                    LINE_IMPACT_WEIGHT = 0.3
-                    FUNCTION_IMPACT_WEIGHT = 0.7
-                    impact = (affected_percentage * LINE_IMPACT_WEIGHT) + (
-                        func_percentage * FUNCTION_IMPACT_WEIGHT
+                    impact = (affected_percentage * self.LINE_IMPACT_WEIGHT) + (
+                        func_percentage * self.FUNCTION_IMPACT_WEIGHT
                     )
+                else:
+                    impact = affected_percentage
 
                 return min(impact, 1.0)
             else:
@@ -198,20 +232,20 @@ class RiskAssessor:
                 test_size = test_file.stat().st_size
                 source_size = file_path.stat().st_size
 
-                if test_size >= source_size * 0.5:
+                if test_size >= source_size * self.TEST_COVERAGE_GOOD_THRESHOLD:
                     # Good test coverage
-                    return 0.1
-                elif test_size >= source_size * 0.2:
+                    return self.TEST_COVERAGE_GOOD_RISK
+                elif test_size >= source_size * self.TEST_COVERAGE_MODERATE_THRESHOLD:
                     # Moderate test coverage
-                    return 0.3
+                    return self.TEST_COVERAGE_MODERATE_RISK
                 else:
                     # Minimal tests
-                    return 0.6
+                    return self.TEST_COVERAGE_MINIMAL_RISK
             except Exception:
-                return 0.5
+                return self.TEST_COVERAGE_UNKNOWN_RISK
         else:
             # No test file found - higher risk
-            return 0.8
+            return self.TEST_COVERAGE_NONE_RISK
 
     def _find_test_file(self, file_path: Path) -> Optional[Path]:
         """Find corresponding test file for a source file."""
@@ -261,16 +295,16 @@ class RiskAssessor:
 
             # Calculate dependency risk based on counts
             # More dependencies = higher risk
-            total_deps = import_count + (call_count * 0.1)  # Weight imports more
+            total_deps = import_count + (call_count * self.DEPENDENCY_CALL_WEIGHT)
 
-            if total_deps < 5:
-                return 0.1
-            elif total_deps < 15:
-                return 0.3
-            elif total_deps < 30:
-                return 0.5
+            if total_deps < self.DEPENDENCY_THRESHOLD_LOW:
+                return self.DEPENDENCY_RISK_LOW
+            elif total_deps < self.DEPENDENCY_THRESHOLD_MEDIUM:
+                return self.DEPENDENCY_RISK_MEDIUM
+            elif total_deps < self.DEPENDENCY_THRESHOLD_HIGH:
+                return self.DEPENDENCY_RISK_HIGH
             else:
-                return 0.7
+                return self.DEPENDENCY_RISK_VERY_HIGH
 
         except SyntaxError:
             return 0.5  # Unknown, assume moderate risk
@@ -301,8 +335,7 @@ class RiskAssessor:
                     complexity_score += 1
 
             # Normalize to 0-1 range
-            # Assume 50+ control flow statements is very complex
-            normalized = min(complexity_score / 50.0, 1.0)
+            normalized = min(complexity_score / self.MAX_COMPLEXITY_THRESHOLD, 1.0)
 
             return normalized
 
@@ -340,13 +373,13 @@ class RiskAssessor:
 
     def get_risk_level(self, risk_score: float) -> RiskLevel:
         """Get risk level category from score."""
-        if risk_score < 0.3:
+        if risk_score < self.RISK_THRESHOLD_SAFE:
             return RiskLevel.SAFE
-        elif risk_score < 0.5:
+        elif risk_score < self.RISK_THRESHOLD_LOW:
             return RiskLevel.LOW
-        elif risk_score < 0.7:
+        elif risk_score < self.RISK_THRESHOLD_MODERATE:
             return RiskLevel.MODERATE
-        elif risk_score < 0.9:
+        elif risk_score < self.RISK_THRESHOLD_HIGH:
             return RiskLevel.HIGH
         else:
             return RiskLevel.CRITICAL

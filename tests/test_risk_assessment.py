@@ -4,8 +4,6 @@ import ast
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from refactron.core.risk_assessment import (
     ChangeType,
     RiskAssessor,
