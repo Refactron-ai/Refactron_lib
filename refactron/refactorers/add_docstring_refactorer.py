@@ -12,6 +12,9 @@ from refactron.refactorers.base_refactorer import BaseRefactorer
 class AddDocstringRefactorer(BaseRefactorer):
     """Suggests adding docstrings to undocumented functions and classes."""
 
+    # Maximum risk score for docstring additions (just documentation, very safe)
+    MAX_DOCSTRING_RISK = 0.1
+
     def __init__(self, config):
         super().__init__(config)
         self.risk_assessor = RiskAssessor()
@@ -83,7 +86,7 @@ class AddDocstringRefactorer(BaseRefactorer):
         )
         
         # Override to ensure very low risk for docstrings
-        risk_score = min(risk_score, 0.1)  # Cap at 0.1 since it's just documentation
+        risk_score = min(risk_score, self.MAX_DOCSTRING_RISK)
         risk_factors.affected_functions = [node.name]
 
         return RefactoringOperation(

@@ -336,19 +336,24 @@ class MyClass:
             source_file = tmppath / "module.py"
             source_file.write_text("def my_function(): pass")
             
-            # Create file that imports it
+            # Create file that imports and calls the function
             dependent_file = tmppath / "dependent.py"
-            dependent_file.write_text("from module import my_function")
+            dependent_file.write_text("from module import my_function\nresult = my_function()")
             
             # Create test file
             test_file = tmppath / "test_module.py"
-            test_file.write_text("from module import my_function")
+            test_file.write_text("from module import my_function\nmy_function()")
             
             assessor = RiskAssessor(project_root=tmppath)
             impact = assessor.analyze_dependency_impact(source_file, "my_function")
             
-            # Should find dependent files
-            assert len(impact["importing_files"]) > 0 or len(impact["calling_functions"]) > 0 or len(impact["dependent_tests"]) > 0
+            # Should find dependent files in specific categories based on test setup
+            # We created dependent.py which imports the module
+            assert len(impact["importing_files"]) > 0, "Should find importing files"
+            # We created test_module.py which should be detected as a test
+            assert len(impact["dependent_tests"]) > 0, "Should find dependent test files"
+            # Calling functions should find the dependent file that uses my_function
+            assert len(impact["calling_functions"]) > 0, "Should find calling functions"
 
     def test_find_test_file(self):
         """Test finding corresponding test files."""
