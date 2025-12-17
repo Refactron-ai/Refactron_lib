@@ -145,7 +145,11 @@ class RiskAssessor:
                     # Weight function impact higher than line impact
                     impact = (affected_percentage * 0.3) + (func_percentage * 0.7)
                 else:
-                    impact = affected_percentage
+                    LINE_IMPACT_WEIGHT = 0.3
+                    FUNCTION_IMPACT_WEIGHT = 0.7
+                    impact = (affected_percentage * LINE_IMPACT_WEIGHT) + (
+                        func_percentage * FUNCTION_IMPACT_WEIGHT
+                    )
 
                 return min(impact, 1.0)
             else:
