@@ -306,7 +306,8 @@ class RiskAssessor:
 
             return normalized
 
-        except SyntaxError:
+            MAX_COMPLEXITY_THRESHOLD = 50.0
+            normalized = min(complexity_score / MAX_COMPLEXITY_THRESHOLD, 1.0)
             return 0.5  # Unknown, assume moderate risk
 
     def _calculate_weighted_risk(self, risk_factors: RiskFactors) -> float:
