@@ -104,6 +104,24 @@ class RiskAssessor:
     RISK_THRESHOLD_MODERATE = 0.7
     RISK_THRESHOLD_HIGH = 0.9
 
+    # Risk level display labels
+    RISK_DISPLAY_LABELS = {
+        RiskLevel.SAFE: "✓ SAFE",
+        RiskLevel.LOW: "⚡ LOW",
+        RiskLevel.MODERATE: "⚠ MODERATE",
+        RiskLevel.HIGH: "❌ HIGH",
+        RiskLevel.CRITICAL: "🔴 CRITICAL",
+    }
+
+    # Risk level colors for CLI display
+    RISK_DISPLAY_COLORS = {
+        RiskLevel.SAFE: "green",
+        RiskLevel.LOW: "blue",
+        RiskLevel.MODERATE: "yellow",
+        RiskLevel.HIGH: "red",
+        RiskLevel.CRITICAL: "bright_red",
+    }
+
     def __init__(self, project_root: Optional[Path] = None):
         """Initialize risk assessor.
 
@@ -339,8 +357,7 @@ class RiskAssessor:
 
             return normalized
 
-            MAX_COMPLEXITY_THRESHOLD = 50.0
-            normalized = min(complexity_score / MAX_COMPLEXITY_THRESHOLD, 1.0)
+        except SyntaxError:
             return 0.5  # Unknown, assume moderate risk
 
     def _calculate_weighted_risk(self, risk_factors: RiskFactors) -> float:
@@ -383,6 +400,30 @@ class RiskAssessor:
             return RiskLevel.HIGH
         else:
             return RiskLevel.CRITICAL
+
+    def get_risk_display_label(self, risk_score: float) -> str:
+        """Get display label for risk score.
+
+        Args:
+            risk_score: Risk score between 0.0 and 1.0
+
+        Returns:
+            Display label with icon (e.g., "✓ SAFE", "⚠ MODERATE")
+        """
+        risk_level = self.get_risk_level(risk_score)
+        return self.RISK_DISPLAY_LABELS[risk_level]
+
+    def get_risk_display_color(self, risk_score: float) -> str:
+        """Get display color for risk score (for CLI).
+
+        Args:
+            risk_score: Risk score between 0.0 and 1.0
+
+        Returns:
+            Color name for CLI display (e.g., "green", "yellow")
+        """
+        risk_level = self.get_risk_level(risk_score)
+        return self.RISK_DISPLAY_COLORS[risk_level]
 
     def analyze_dependency_impact(
         self, file_path: Path, function_name: Optional[str] = None

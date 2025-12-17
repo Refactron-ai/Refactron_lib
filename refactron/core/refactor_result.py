@@ -108,16 +108,10 @@ class RefactorResult:
 
     def _get_risk_icon(self, risk_score: float) -> str:
         """Get visual indicator for risk level."""
-        if risk_score < 0.3:
-            return "✓ SAFE"
-        elif risk_score < 0.5:
-            return "⚡ LOW"
-        elif risk_score < 0.7:
-            return "⚠ MODERATE"
-        elif risk_score < 0.9:
-            return "❌ HIGH"
-        else:
-            return "🔴 CRITICAL"
+        from refactron.core.risk_assessment import RiskAssessor
+
+        assessor = RiskAssessor()
+        return assessor.get_risk_display_label(risk_score)
 
     def apply(self) -> bool:
         """Apply the refactoring operations (placeholder)."""
