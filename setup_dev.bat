@@ -60,28 +60,6 @@ if exist "requirements-dev.txt" (
 REM Install pre-commit hooks
 echo.
 echo 🔧 Setting up pre-commit hooks...
-REM Check if pre-commit exists (either as command or pip package)
-where pre-commit >nul 2>&1
-if not errorlevel 1 (
-    set PRE_COMMIT_EXISTS=1
-) else (
-    python -m pip show pre-commit >nul 2>&1
-    if not errorlevel 1 (
-        set PRE_COMMIT_EXISTS=1
-    ) else (
-        set PRE_COMMIT_EXISTS=0
-    )
-)
-
-if "%PRE_COMMIT_EXISTS%"=="0" (
-    echo ⚠️  pre-commit not found. Installing...
-    python -m pip install pre-commit --quiet
-    if errorlevel 1 (
-        echo ❌ Error: Failed to install pre-commit
-        exit /b 1
-    )
-)
-
 pre-commit install
 if errorlevel 1 (
     echo ❌ Error: Failed to install pre-commit hooks
