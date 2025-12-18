@@ -73,7 +73,7 @@ if not errorlevel 1 (
     )
 )
 
-if %PRE_COMMIT_EXISTS%==0 (
+if "%PRE_COMMIT_EXISTS%"=="0" (
     echo ⚠️  pre-commit not found. Installing...
     python -m pip install pre-commit --quiet
     if errorlevel 1 (
