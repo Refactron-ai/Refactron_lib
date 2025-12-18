@@ -45,23 +45,13 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Install the package in editable mode with dev dependencies
+REM Install the package in editable mode with dev and docs dependencies
 echo.
 echo 📥 Installing Refactron in development mode...
-python -m pip install -e ".[dev]" --quiet
+python -m pip install -e ".[dev,docs]" --quiet
 if errorlevel 1 (
     echo ❌ Error: Failed to install Refactron in development mode
     exit /b 1
-)
-
-REM Install additional dev dependencies if requirements-dev.txt exists
-if exist "requirements-dev.txt" (
-    echo 📥 Installing additional development dependencies...
-    python -m pip install -r requirements-dev.txt --quiet
-    if errorlevel 1 (
-        echo ❌ Error: Failed to install development dependencies
-        exit /b 1
-    )
 )
 
 REM Install pre-commit hooks

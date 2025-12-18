@@ -44,16 +44,10 @@ echo ""
 echo "⬆️  Upgrading pip..."
 pip install --upgrade pip --quiet
 
-# Install the package in editable mode with dev dependencies
+# Install the package in editable mode with dev and docs dependencies
 echo ""
 echo "📥 Installing Refactron in development mode..."
-pip install -e ".[dev]" --quiet
-
-# Install additional dev dependencies if requirements-dev.txt exists
-if [ -f "requirements-dev.txt" ]; then
-    echo "📥 Installing additional development dependencies..."
-    pip install -r requirements-dev.txt --quiet
-fi
+pip install -e ".[dev,docs]" --quiet
 
 # Install pre-commit hooks
 echo ""
