@@ -73,15 +73,8 @@ fi
 # Install pre-commit hooks
 echo ""
 echo "🔧 Setting up pre-commit hooks..."
-if command -v pre-commit &> /dev/null || pip show pre-commit &> /dev/null; then
-    pre-commit install
-    echo "✅ Pre-commit hooks installed"
-else
-    echo "⚠️  pre-commit not found. Installing..."
-    pip install pre-commit --quiet
-    pre-commit install
-    echo "✅ Pre-commit hooks installed"
-fi
+pre-commit install
+echo "✅ Pre-commit hooks installed"
 
 # Verify installation
 echo ""
