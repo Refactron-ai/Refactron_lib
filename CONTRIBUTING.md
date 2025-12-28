@@ -190,7 +190,7 @@ git push origin feature/my-improvement
    ```bash
    # Format with black
    black refactron tests
-   
+
    # Sort imports
    isort refactron tests
    ```
