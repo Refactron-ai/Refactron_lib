@@ -54,17 +54,16 @@ pip install -e ".[dev]" --quiet
 #   - Core development tools (pytest, black, mypy, flake8, isort, etc.) are installed
 #     via the [dev] extra in pyproject.toml (see the pip install -e ".[dev]" above).
 #   - To avoid redundant installations and version conflicts, we only use
-#     requirements-dev.txt for *extra* tools such as documentation dependencies.
+#     requirements-dev.txt for *extra* tools such as documentation dependencies and pre-commit.
 if [ -f "requirements-dev.txt" ]; then
     echo "📥 Installing additional documentation/development dependencies from requirements-dev.txt..."
 
-    # Extract Sphinx-related requirements (e.g., sphinx, sphinx-rtd-theme) from
-    # requirements-dev.txt and install only those. This avoids re-installing tools
-    # that are already provided by the [dev] extra.
-    DOC_REQUIREMENTS=$(grep -E '^[[:space:]]*sphinx' requirements-dev.txt || true)
+    # Extract Sphinx-related and pre-commit requirements from requirements-dev.txt.
+    # This avoids re-installing tools that are already provided by the [dev] extra.
+    EXTRA_REQUIREMENTS=$(grep -E '^[[:space:]]*(sphinx|pre-commit)' requirements-dev.txt || true)
 
-    if [ -n "$DOC_REQUIREMENTS" ]; then
-        echo "$DOC_REQUIREMENTS" | xargs -n1 pip install --quiet
+    if [ -n "$EXTRA_REQUIREMENTS" ]; then
+        echo "$EXTRA_REQUIREMENTS" | xargs -n1 pip install --quiet
     else
         echo "ℹ️  No additional documentation dependencies detected in requirements-dev.txt; skipping."
     fi
@@ -73,8 +72,15 @@ fi
 # Install pre-commit hooks
 echo ""
 echo "🔧 Setting up pre-commit hooks..."
-pre-commit install
-echo "✅ Pre-commit hooks installed"
+if command -v pre-commit &> /dev/null; then
+    pre-commit install
+    echo "✅ Pre-commit hooks installed"
+else
+    echo "❌ Error: pre-commit is not installed in this environment."
+    echo "Please install it (e.g., inside the virtual environment) and re-run this script:"
+    echo "  pip install pre-commit"
+    exit 1
+fi
 
 # Verify installation
 echo ""
@@ -125,4 +131,3 @@ echo "💡 To activate the environment in the future, run:"
 echo "   source venv/bin/activate"
 echo ""
 echo "Happy coding! 🚀"
-
