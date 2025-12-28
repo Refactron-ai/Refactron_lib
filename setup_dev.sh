@@ -65,7 +65,7 @@ if [ -f "requirements-dev.txt" ]; then
     if [ -n "$EXTRA_REQUIREMENTS" ]; then
         echo "$EXTRA_REQUIREMENTS" | xargs -n1 pip install --quiet
     else
-        echo "ℹ️  No additional documentation dependencies detected in requirements-dev.txt; skipping."
+        echo "ℹ️  No additional documentation or pre-commit dependencies detected in requirements-dev.txt; skipping."
     fi
 fi
 
