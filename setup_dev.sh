@@ -77,7 +77,8 @@ if command -v pre-commit &> /dev/null; then
     echo "✅ Pre-commit hooks installed"
 else
     echo "❌ Error: pre-commit is not installed in this environment."
-    echo "Please install it (e.g., inside the virtual environment) and re-run this script:"
+    echo "This should have been installed from requirements-dev.txt."
+    echo "Please ensure pre-commit is listed in requirements-dev.txt or install it manually:"
     echo "  pip install pre-commit"
     exit 1
 fi
