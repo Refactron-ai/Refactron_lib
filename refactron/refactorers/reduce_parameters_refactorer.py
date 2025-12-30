@@ -5,11 +5,16 @@ from pathlib import Path
 from typing import List, Union
 
 from refactron.core.models import RefactoringOperation
+from refactron.core.risk_assessment import ChangeType, RiskAssessor
 from refactron.refactorers.base_refactorer import BaseRefactorer
 
 
 class ReduceParametersRefactorer(BaseRefactorer):
     """Suggests using configuration objects for functions with many parameters."""
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.risk_assessor = RiskAssessor()
 
     @property
     def operation_type(self) -> str:
@@ -65,6 +70,23 @@ class ReduceParametersRefactorer(BaseRefactorer):
         # Generate refactored version with config object
         new_code = self._generate_with_config_object(func_node, old_code)
 
+        # Calculate advanced risk score - API changes are higher risk
+        affected_lines = (
+            list(range(func_node.lineno, func_node.end_lineno + 1))
+            if hasattr(func_node, "end_lineno")
+            else [func_node.lineno]
+        )
+        risk_score, risk_factors = self.risk_assessor.calculate_risk_score(
+            file_path=file_path,
+            source_code="\n".join(lines),
+            change_type=ChangeType.API_CHANGE,  # This is an API change
+            affected_lines=affected_lines,
+            operation_description=f"Replace parameters with config object in '{func_node.name}'",
+        )
+
+        # Store affected functions in risk factors
+        risk_factors.affected_functions = [func_node.name]
+
         return RefactoringOperation(
             operation_type=self.operation_type,
             file_path=file_path,
@@ -75,7 +97,7 @@ class ReduceParametersRefactorer(BaseRefactorer):
             ),
             old_code=old_code,
             new_code=new_code,
-            risk_score=0.4,  # Moderate risk - API change
+            risk_score=risk_score,
             reasoning=(
                 f"This function has {param_count} parameters (limit: "
                 f"{self.config.max_parameters}). "
@@ -87,6 +109,7 @@ class ReduceParametersRefactorer(BaseRefactorer):
                 "parameter_count": param_count,
                 "function_name": func_node.name,
                 "parameters": [arg.arg for arg in func_node.args.args],
+                "risk_factors": risk_factors.to_dict(),
             },
         )
 

@@ -145,6 +145,43 @@ def _print_refactor_messages(summary: dict, preview: bool) -> None:
         console.print("\n[green]✅ Refactoring completed! Don't forget to test your code.[/green]")
 
 
+def _print_operation_with_risk(operation) -> None:
+    """Print refactoring operation with color-coded risk visualization."""
+    from rich.panel import Panel
+
+    from refactron.core.risk_assessment import RiskAssessor
+
+    # Determine risk level and color using centralized logic
+    assessor = RiskAssessor()
+    risk_score = operation.risk_score
+    risk_color = assessor.get_risk_display_color(risk_score)
+    risk_label = assessor.get_risk_display_label(risk_score)
+
+    # Build content
+    content = f"[bold]{operation.operation_type}[/bold]\n"
+    content += f"Location: {operation.file_path}:{operation.line_number}\n"
+    content += f"Risk: [{risk_color}]{risk_score:.2f} - {risk_label}[/{risk_color}]\n"
+    content += f"\n{operation.description}"
+
+    # Add risk factors if available
+    if "risk_factors" in operation.metadata:
+        risk_factors = operation.metadata["risk_factors"]
+        content += "\n\n[bold]Risk Breakdown:[/bold]\n"
+        content += f"  • Impact Scope: {risk_factors.get('impact_scope', 0):.2f}\n"
+        content += f"  • Change Type: {risk_factors.get('change_type_risk', 0):.2f}\n"
+        content += f"  • Test Coverage: {risk_factors.get('test_coverage_risk', 0):.2f}\n"
+        content += f"  • Dependencies: {risk_factors.get('dependency_risk', 0):.2f}\n"
+        content += f"  • Complexity: {risk_factors.get('complexity_risk', 0):.2f}"
+
+        if risk_factors.get("test_file_exists"):
+            content += "\n\n✓ Test file exists"
+        else:
+            content += "\n\n⚠ No test file found - higher risk"
+
+    panel = Panel(content, border_style=risk_color, expand=False)
+    console.print(panel)
+
+
 @click.group()
 @click.version_option(version="1.0.1")
 def main() -> None:

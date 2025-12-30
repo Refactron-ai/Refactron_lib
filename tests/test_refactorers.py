@@ -37,8 +37,13 @@ def calculate_discount(price):
         # Should suggest extracting constants
         op = operations[0]
         assert "constant" in op.description.lower()
-        assert op.risk_score < 0.3  # Should be safe
+        # Risk score is now calculated using advanced assessment
+        # Without tests, it can be moderate risk
+        assert op.risk_score < 0.7  # Should be safe to moderate
         assert "THRESHOLD" in op.new_code or "DISCOUNT" in op.new_code
+
+        # Check that risk factors are included
+        assert "risk_factors" in op.metadata
 
     def test_ignores_common_numbers(self):
         config = RefactronConfig()
@@ -167,7 +172,11 @@ def calculate_total(price, tax):
 
         op = operations[0]
         assert "docstring" in op.description.lower()
-        assert op.risk_score == 0.0  # Perfectly safe
+        # With advanced risk assessment, docstrings are still very safe (capped at 0.1)
+        assert op.risk_score <= 0.1  # Very safe - just documentation
+
+        # Check that risk factors are included
+        assert "risk_factors" in op.metadata
         assert "'''" in op.new_code
         assert "Args:" in op.new_code
         assert "Returns:" in op.new_code

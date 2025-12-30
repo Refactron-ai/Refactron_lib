@@ -39,7 +39,7 @@ class RefactorResult:
         return [op for op in self.operations if op.operation_type == operation_type]
 
     def show_diff(self) -> str:
-        """Show a diff of all operations."""
+        """Show a diff of all operations with detailed risk assessment."""
         lines = []
         lines.append("=" * 80)
         lines.append("REFACTORING PREVIEW")
@@ -54,7 +54,39 @@ class RefactorResult:
             lines.append("-" * 80)
             lines.append(f"Operation {i}: {op.operation_type}")
             lines.append(f"Location: {op.file_path}:{op.line_number}")
-            lines.append(f"Risk Score: {op.risk_score:.2f}")
+
+            # Show risk with visual indicator
+            risk_icon = self._get_risk_icon(op.risk_score)
+            lines.append(f"Risk Score: {op.risk_score:.2f} {risk_icon}")
+
+            # Show detailed risk factors if available
+            if "risk_factors" in op.metadata:
+                lines.append("")
+                lines.append("  Risk Breakdown:")
+                risk_factors = op.metadata["risk_factors"]
+                lines.append(f"    • Impact Scope: {risk_factors.get('impact_scope', 0):.2f}")
+                lines.append(
+                    f"    • Change Type Risk: {risk_factors.get('change_type_risk', 0):.2f}"
+                )
+                lines.append(
+                    f"    • Test Coverage Risk: {risk_factors.get('test_coverage_risk', 0):.2f}"
+                )
+                lines.append(f"    • Dependency Risk: {risk_factors.get('dependency_risk', 0):.2f}")
+                lines.append(f"    • Complexity Risk: {risk_factors.get('complexity_risk', 0):.2f}")
+
+                # Show affected components
+                if risk_factors.get("affected_functions"):
+                    lines.append(
+                        f"    • Affected Functions: {', '.join(risk_factors['affected_functions'])}"
+                    )
+
+                # Show test coverage status
+                if risk_factors.get("test_file_exists"):
+                    lines.append("    • Test Coverage: ✓ Test file exists")
+                else:
+                    lines.append("    • Test Coverage: ⚠ No test file found")
+
+            lines.append("")
             lines.append(f"Description: {op.description}")
 
             if op.reasoning:
@@ -73,6 +105,13 @@ class RefactorResult:
 
         lines.append("=" * 80)
         return "\n".join(lines)
+
+    def _get_risk_icon(self, risk_score: float) -> str:
+        """Get visual indicator for risk level."""
+        from refactron.core.risk_assessment import RiskAssessor
+
+        assessor = RiskAssessor()
+        return assessor.get_risk_display_label(risk_score)
 
     def apply(self) -> bool:
         """Apply the refactoring operations (placeholder)."""
