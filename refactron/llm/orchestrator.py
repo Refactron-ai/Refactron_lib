@@ -308,6 +308,9 @@ class LLMOrchestrator:
             while unique_id in issues_data:
                 suffix += 1
                 unique_id = f"{issue_id}_{suffix}"
+                logger.warning(
+                    f"Issue ID collision detected for '{issue_id}', using '{unique_id}'"
+                )
 
             issues_data[unique_id] = {
                 "rule_id": getattr(issue, "rule_id", None),
