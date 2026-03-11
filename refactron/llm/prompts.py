@@ -27,7 +27,7 @@ File: {file_path}:{line_number}
 Severity: {severity}
 
 Original Code:
-```python
+```{language}
 {original_code}
 ```
 
@@ -42,7 +42,7 @@ Do NOT add comments for obvious code or after every line.
 SAFETY_CHECK_PROMPT = """
 Analyze the following code patch for safety risks:
 
-```python
+```{language}
 {proposed_code}
 ```
 
@@ -62,10 +62,10 @@ Output valid JSON:
 """
 
 DOCUMENTATION_PROMPT = """
-Analyze the following Python code and generate a comprehensive MARKDOWN documentation file.
+Analyze the following {language} code and generate a comprehensive MARKDOWN documentation file.
 
 Original Code:
-```python
+```{language}
 {original_code}
 ```
 
@@ -91,4 +91,38 @@ Float between 0.0 and 1.0 (e.g. 0.95)
 @@@MARKDOWN@@@
 The complete Markdown documentation content including the mermaid diagram
 @@@END@@@
+"""
+
+BATCH_TRIAGE_SYSTEM_PROMPT = """You are a code triage expert.
+Your goal is to evaluate code issues and determine whether each is a true positive
+(requiring fixing) or a false positive.
+
+RESPONSE FORMAT:
+You must output ONLY valid JSON.
+- Do not output markdown code blocks, just the raw JSON object.
+- The JSON must be a flat map where keys are issue IDs (strings) and values are
+  confidence scores (floats between 0.0 and 1.0).
+- A score of 0.0 means the issue is very likely a false positive.
+- A score of 1.0 means the issue is very likely a true positive requiring a fix.
+"""
+
+BATCH_TRIAGE_PROMPT = """
+Evaluate the following list of code issues found in a single file and determine
+the confidence that each is a true positive (requiring fixing) rather than a
+false positive.
+
+File Source Code:
+```{language}
+{source_code}
+```
+
+Relevant Context (RAG):
+{rag_context}
+
+Issues to evaluate:
+{issues_json}
+
+Return ONLY a JSON map where the keys are the issue IDs and the values are the
+confidence scores (float between 0.0 and 1.0).
+Do NOT return anything except the JSON object.
 """
