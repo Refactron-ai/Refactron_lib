@@ -6,6 +6,8 @@ import time
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
+from refactron.analysis.cfg.builder import CFGBuilder
+from refactron.analysis.taint import TaintAnalyzer
 from refactron.analyzers.base_analyzer import BaseAnalyzer
 from refactron.analyzers.code_smell_analyzer import CodeSmellAnalyzer
 from refactron.analyzers.complexity_analyzer import ComplexityAnalyzer
@@ -22,7 +24,7 @@ from refactron.core.incremental import IncrementalAnalysisTracker
 from refactron.core.logging_config import setup_logging
 from refactron.core.memory_profiler import MemoryProfiler
 from refactron.core.metrics import get_metrics_collector
-from refactron.core.models import FileMetrics, RefactoringOperation
+from refactron.core.models import AnalysisSkipWarning, FileMetrics, RefactoringOperation
 from refactron.core.parallel import ParallelProcessor
 from refactron.core.prometheus_metrics import start_metrics_server
 from refactron.core.refactor_result import RefactorResult
@@ -267,7 +269,9 @@ class Refactron:
                 file_path: Path,
             ) -> Tuple[Optional[FileMetrics], Optional[FileAnalysisError]]:
                 try:
-                    file_metrics = self._analyze_file(file_path)
+                    file_metrics, skip_warn = self._analyze_file(file_path)
+                    if skip_warn is not None:
+                        result.semantic_skip_warnings.append(skip_warn)
 
                     # Update incremental tracker
                     if self.incremental_tracker.enabled:
@@ -306,9 +310,11 @@ class Refactron:
             # Sequential processing
             for file_path in files:
                 try:
-                    file_metrics = self._analyze_file(file_path)
+                    file_metrics, skip_warn = self._analyze_file(file_path)
                     result.file_metrics.append(file_metrics)
                     result.total_issues += file_metrics.issue_count
+                    if skip_warn is not None:
+                        result.semantic_skip_warnings.append(skip_warn)
 
                     # Update incremental tracker
                     if self.incremental_tracker.enabled:
@@ -334,6 +340,17 @@ class Refactron:
                             recovery_suggestion=recovery_msg,
                         )
                     )
+
+        # Compute semantic skip summary if skip_rate > 10%
+        total_analyzed = len(result.file_metrics)
+        skipped_count = len(result.semantic_skip_warnings)
+        if total_analyzed > 0 and skipped_count / total_analyzed > 0.10:
+            result.semantic_skip_summary = (
+                f"⚠ Semantic analysis (taint) was skipped for {skipped_count} of "
+                f"{total_analyzed} files ({skipped_count / total_analyzed * 100:.0f}%). "
+                "Check logs for details. Common causes: unsupported syntax or very large files."
+            )
+            logger.warning(result.semantic_skip_summary)
 
         # Save incremental state
         if self.incremental_tracker.enabled:
@@ -363,7 +380,30 @@ class Refactron:
 
         return result
 
-    def _analyze_file(self, file_path: Path) -> FileMetrics:
+    def _run_semantic_analysis(
+        self, file_path: Path, source_code: str
+    ) -> "tuple[list, Optional[AnalysisSkipWarning]]":
+        """Run TaintAnalyzer on *source_code* with full exception isolation.
+
+        Returns:
+            (vulnerabilities, None) on success, or ([], AnalysisSkipWarning) on any failure.
+            The caller is guaranteed this method never raises.
+        """
+        try:
+            cfg = CFGBuilder().build_from_source(source_code)
+            ta = TaintAnalyzer(cfg)
+            vulnerabilities = ta.analyze()
+            return vulnerabilities, None
+        except Exception as e:
+            short_reason = f"{type(e).__name__}: {e}"
+            logger.debug("Semantic analysis (taint) skipped for %s: %s", file_path, short_reason)
+            return [], AnalysisSkipWarning(
+                file_path=file_path,
+                analyzer_name="taint",
+                reason=short_reason,
+            )
+
+    def _analyze_file(self, file_path: Path) -> "tuple[FileMetrics, Optional[AnalysisSkipWarning]]":
         """Analyze a single file.
 
         Args:
@@ -469,6 +509,9 @@ class Refactron:
                     )
                 # Don't raise - allow other analyzers to run
 
+        # Run semantic analysis (TaintAnalyzer) with full exception isolation
+        _, skip_warning = self._run_semantic_analysis(file_path, source_code)
+
         # Record file analysis metrics
         if self.metrics_collector and self.config.metrics_detailed:
             analysis_time_ms = (time.time() - start_time) * 1000
@@ -481,7 +524,7 @@ class Refactron:
                 success=True,
             )
 
-        return metrics
+        return metrics, skip_warning
 
     def refactor(
         self,

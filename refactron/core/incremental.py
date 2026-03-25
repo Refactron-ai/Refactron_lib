@@ -1,5 +1,6 @@
 """Incremental analysis tracking for performance optimization."""
 
+import hashlib
 import json
 import logging
 import threading
@@ -38,8 +39,9 @@ class IncrementalAnalysisTracker:
         else:
             self.state_file = Path(state_file)
 
-        # State tracking: file_path -> (mtime, size, hash)
-        self._state: Dict[str, Dict[str, float]] = {}
+        # State tracking: file_path -> {mtime, size, sha256}
+        # sha256 is the authoritative change signal; mtime/size are fast pre-checks only.
+        self._state: Dict[str, Dict[str, object]] = {}
 
         # Thread lock for safe concurrent access
         self._lock = threading.Lock()
@@ -100,18 +102,36 @@ class IncrementalAnalysisTracker:
             logger.warning(f"Failed to get stats for {file_path}: {e}")
             return True  # Assume changed if we can't get stats
 
-        # Check if file is new or changed
+        # Check if file is new
         if file_path_str not in self._state:
             logger.debug(f"New file detected: {file_path}")
             return True
 
         previous = self._state[file_path_str]
-        previous_mtime = previous.get("mtime", 0)
         previous_size = previous.get("size", 0)
 
-        # File changed if mtime or size is different
-        if current_mtime != previous_mtime or current_size != previous_size:
-            logger.debug(f"Changed file detected: {file_path}")
+        # Fast pre-check: size difference means content definitely changed
+        if current_size != previous_size:
+            logger.debug(f"Changed file detected (size mismatch): {file_path}")
+            return True
+
+        # Authoritative check: compare SHA-256 hashes when available
+        stored_hash = previous.get("sha256")
+        if stored_hash:
+            try:
+                current_hash = hashlib.sha256(file_path.read_bytes()).hexdigest()
+                if current_hash != stored_hash:
+                    logger.debug(f"Changed file detected (hash mismatch): {file_path}")
+                    return True
+                return False  # Same size AND same hash → unchanged
+            except Exception as e:
+                logger.warning(f"Failed to hash {file_path} for change detection: {e}")
+                # Fall through to mtime comparison on hash failure
+
+        # Legacy fallback: no hash stored — use mtime (pre-SHA-256 state entries)
+        previous_mtime = previous.get("mtime", 0)
+        if current_mtime != previous_mtime:
+            logger.debug(f"Changed file detected (mtime mismatch, no hash): {file_path}")
             return True
 
         return False
@@ -157,10 +177,12 @@ class IncrementalAnalysisTracker:
 
         try:
             stat = file_path.stat()
+            content_hash = hashlib.sha256(file_path.read_bytes()).hexdigest()
             with self._lock:
                 self._state[file_path_str] = {
                     "mtime": stat.st_mtime,
                     "size": stat.st_size,
+                    "sha256": content_hash,
                 }
         except Exception as e:
             logger.warning(f"Failed to update state for {file_path}: {e}")

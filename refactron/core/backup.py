@@ -7,6 +7,7 @@ Provides functionality to:
 - Rollback capability to restore original files
 """
 
+import hashlib
 import json
 import logging
 import re
@@ -116,6 +117,8 @@ class BackupManager:
         backup_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(file_path, backup_path)
 
+        file_sha256 = hashlib.sha256(backup_path.read_bytes()).hexdigest()
+
         for session in self._index["sessions"]:
             if session["id"] == session_id:
                 session["files"].append(
@@ -124,6 +127,7 @@ class BackupManager:
                         "backup": str(backup_path),
                         "relative_path": str(relative_path),
                         "size": file_path.stat().st_size,
+                        "sha256": file_sha256,
                     }
                 )
                 break
@@ -180,11 +184,22 @@ class BackupManager:
         if session is None:
             return 0, []
 
+        # Validate backup integrity before restoring anything
+        _, corrupt_paths = self.validate_backup_integrity(session["id"])
+        corrupt_set = set(corrupt_paths)
+
         restored_count = 0
         failed_files = []
         for file_info in session["files"]:
             backup_path = Path(file_info["backup"])
             original_path = Path(file_info["original"])
+
+            if str(original_path) in corrupt_set:
+                logger.warning(
+                    f"Skipping restore of {original_path}: backup failed integrity check"
+                )
+                failed_files.append(str(original_path))
+                continue
 
             if backup_path.exists():
                 original_path.parent.mkdir(parents=True, exist_ok=True)
@@ -219,6 +234,54 @@ class BackupManager:
             if session["id"] == session_id:
                 return session  # type: ignore[no-any-return]
         return None
+
+    def validate_backup_integrity(self, session_id: str) -> Tuple[List[str], List[str]]:
+        """Verify that every backup file in a session matches its recorded SHA-256.
+
+        Args:
+            session_id: Session ID to validate.
+
+        Returns:
+            Tuple of (valid_original_paths, corrupt_original_paths).
+            A path is "corrupt" if its backup file is missing or its hash doesn't match.
+        """
+        session = self.get_session(session_id)
+        if session is None:
+            return [], []
+
+        valid: List[str] = []
+        corrupt: List[str] = []
+
+        for file_info in session["files"]:
+            original_path = file_info["original"]
+            backup_path = Path(file_info["backup"])
+            stored_hash = file_info.get("sha256")
+
+            if not backup_path.exists():
+                logger.warning(f"Backup file missing for integrity check: {backup_path}")
+                corrupt.append(original_path)
+                continue
+
+            if stored_hash is None:
+                # Legacy backup without hash — treat as valid (best-effort)
+                valid.append(original_path)
+                continue
+
+            try:
+                current_hash = hashlib.sha256(backup_path.read_bytes()).hexdigest()
+                if current_hash == stored_hash:
+                    valid.append(original_path)
+                else:
+                    logger.warning(
+                        f"Backup integrity failure for {original_path}: "
+                        f"expected {stored_hash[:8]}…, got {current_hash[:8]}…"
+                    )
+                    corrupt.append(original_path)
+            except Exception as e:
+                logger.warning(f"Failed to verify backup for {original_path}: {e}")
+                corrupt.append(original_path)
+
+        return valid, corrupt
 
     def clear_session(self, session_id: str) -> bool:
         """

@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from refactron.core.models import CodeIssue, FileMetrics, IssueLevel
+from refactron.core.models import AnalysisSkipWarning, CodeIssue, FileMetrics, IssueLevel
 
 
 @dataclass
@@ -25,6 +25,8 @@ class AnalysisResult:
     total_files: int = 0
     total_issues: int = 0
     failed_files: List[FileAnalysisError] = field(default_factory=list)
+    semantic_skip_warnings: List[AnalysisSkipWarning] = field(default_factory=list)
+    semantic_skip_summary: Optional[str] = None
 
     @property
     def files_analyzed_successfully(self) -> int:

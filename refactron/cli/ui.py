@@ -7,7 +7,8 @@ import platform
 import random
 import sys
 import time
-from typing import TYPE_CHECKING, Any, Optional
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any, List, Optional, Set, Tuple
 
 import click
 from rich import box
@@ -16,12 +17,14 @@ from rich.console import Console
 from rich.live import Live
 from rich.panel import Panel
 from rich.prompt import IntPrompt, Prompt
+from rich.rule import Rule
 from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
 from refactron import __version__
 from refactron.core.analysis_result import AnalysisResult
+from refactron.core.models import IssueLevel
 from refactron.core.refactor_result import RefactorResult
 
 if TYPE_CHECKING:
@@ -160,22 +163,372 @@ def _print_status_messages(summary: dict) -> None:
         )
 
 
-def _print_detailed_issues(result: AnalysisResult) -> None:
-    """Print detailed issues list."""
-    console.print("[primary bold]Detailed Issues:[/primary bold]\n")
+def _relative_path(file_path: Any) -> str:
+    """Convert an absolute path to a relative one (from cwd), or just the filename."""
+    from pathlib import Path as _Path
 
-    for issue in result.all_issues:
-        style = (
-            "error"
-            if issue.level.value in ("critical", "error")
-            else "warning" if issue.level.value == "warning" else "info"
+    try:
+        return str(_Path(file_path).relative_to(_Path.cwd()))
+    except ValueError:
+        return _Path(file_path).name
+
+
+def _severity_style(level_name: str) -> str:
+    """Map severity name to a Rich style string."""
+    return {
+        "critical": "bold red",
+        "error": "red",
+        "warning": "bold yellow",
+        "info": "cyan",
+    }.get(level_name, "dim")
+
+
+_SEVERITY_ORDER = [
+    ("critical", IssueLevel.CRITICAL),
+    ("error", IssueLevel.ERROR),
+    ("warning", IssueLevel.WARNING),
+    ("info", IssueLevel.INFO),
+]
+
+# ─── Key constants ───────────────────────────────────────────────────
+
+KEY_UP = "\x1b[A"
+KEY_DOWN = "\x1b[B"
+KEY_ENTER = "\r"
+
+# Type alias: list of (level_name, issues_list) tuples
+TuiGroups = List[Tuple[str, list]]
+
+
+@dataclass
+class TuiState:
+    """Immutable-ish state for the TUI issue viewer."""
+
+    groups: TuiGroups
+    screen: str = "summary"  # "summary" or "group"
+    cursor: int = 0
+    current_group: int = 0
+    expanded: Set[Tuple[int, int]] = field(default_factory=set)
+    quit: bool = False
+
+
+def _build_tui_groups(result: AnalysisResult) -> TuiGroups:
+    """Build ordered list of (level_name, issues) for non-empty severity groups."""
+    groups: TuiGroups = []
+    for name, level in _SEVERITY_ORDER:
+        issues = result.issues_by_level(level)
+        if issues:
+            groups.append((name, issues))
+    return groups
+
+
+def _handle_key(state: TuiState, key: str) -> TuiState:
+    """Pure state transition: given current state + key, return new state."""
+    if key == "q":
+        return TuiState(
+            groups=state.groups,
+            screen=state.screen,
+            cursor=state.cursor,
+            current_group=state.current_group,
+            expanded=state.expanded,
+            quit=True,
         )
-        level_label = f"[{issue.level.value.upper()}]"
 
-        console.print(f"[{style}]{level_label} {issue}[/{style}]")
-        if issue.suggestion:
-            console.print(f"   [secondary]Tip: {issue.suggestion}[/secondary]")
-        console.print()
+    if state.screen == "summary":
+        return _handle_summary_key(state, key)
+    elif state.screen == "group":
+        return _handle_group_key(state, key)
+
+    return state
+
+
+def _handle_summary_key(state: TuiState, key: str) -> TuiState:
+    """Handle key press on the summary screen."""
+    max_idx = len(state.groups) - 1
+
+    if key == KEY_DOWN:
+        new_cursor = min(state.cursor + 1, max_idx)
+        return TuiState(
+            groups=state.groups,
+            screen="summary",
+            cursor=new_cursor,
+            current_group=state.current_group,
+            expanded=state.expanded,
+        )
+    elif key == KEY_UP:
+        new_cursor = max(state.cursor - 1, 0)
+        return TuiState(
+            groups=state.groups,
+            screen="summary",
+            cursor=new_cursor,
+            current_group=state.current_group,
+            expanded=state.expanded,
+        )
+    elif key == KEY_ENTER:
+        return TuiState(
+            groups=state.groups,
+            screen="group",
+            cursor=0,
+            current_group=state.cursor,
+            expanded=state.expanded,
+        )
+
+    return state
+
+
+def _handle_group_key(state: TuiState, key: str) -> TuiState:
+    """Handle key press on a group detail screen."""
+    _, issues = state.groups[state.current_group]
+    max_idx = len(issues) - 1
+
+    if key == KEY_DOWN:
+        new_cursor = min(state.cursor + 1, max_idx)
+        return TuiState(
+            groups=state.groups,
+            screen="group",
+            cursor=new_cursor,
+            current_group=state.current_group,
+            expanded=state.expanded,
+        )
+    elif key == KEY_UP:
+        new_cursor = max(state.cursor - 1, 0)
+        return TuiState(
+            groups=state.groups,
+            screen="group",
+            cursor=new_cursor,
+            current_group=state.current_group,
+            expanded=state.expanded,
+        )
+    elif key == KEY_ENTER:
+        toggle_key = (state.current_group, state.cursor)
+        new_expanded = set(state.expanded)
+        if toggle_key in new_expanded:
+            new_expanded.discard(toggle_key)
+        else:
+            new_expanded.add(toggle_key)
+        return TuiState(
+            groups=state.groups,
+            screen="group",
+            cursor=state.cursor,
+            current_group=state.current_group,
+            expanded=new_expanded,
+        )
+    elif key == "b":
+        return TuiState(
+            groups=state.groups,
+            screen="summary",
+            cursor=state.current_group,
+            current_group=state.current_group,
+            expanded=state.expanded,
+        )
+    elif key == "n":
+        if state.current_group < len(state.groups) - 1:
+            return TuiState(
+                groups=state.groups,
+                screen="group",
+                cursor=0,
+                current_group=state.current_group + 1,
+                expanded=state.expanded,
+            )
+        return state
+    elif key == "p":
+        if state.current_group > 0:
+            return TuiState(
+                groups=state.groups,
+                screen="group",
+                cursor=0,
+                current_group=state.current_group - 1,
+                expanded=state.expanded,
+            )
+        return state
+
+    return state
+
+
+def _read_key() -> str:
+    """Read a single keypress from stdin, handling escape sequences for arrow keys."""
+    import termios
+    import tty
+
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        ch = sys.stdin.read(1)
+        if ch == "\x1b":
+            ch2 = sys.stdin.read(1)
+            if ch2 == "[":
+                ch3 = sys.stdin.read(1)
+                return "\x1b[" + ch3
+            return ch + ch2
+        if ch == "\n":
+            return KEY_ENTER
+        return ch
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+
+def _render_tui_summary(state: TuiState, target_path: Any) -> Text:
+    """Render the summary screen as a Rich Text object."""
+    from pathlib import Path as _Path
+
+    target = _Path(target_path)
+    label = target.name if target.is_file() else str(_relative_path(target))
+
+    total = sum(len(issues) for _, issues in state.groups)
+
+    output = Text()
+    output.append(f"\n  {total} issues", style="bold")
+    output.append(" found in ", style="")
+    output.append(f"{label}\n\n", style="bold")
+
+    for idx, (level_name, issues) in enumerate(state.groups):
+        style = _severity_style(level_name)
+        is_selected = idx == state.cursor
+        prefix = "  > " if is_selected else "    "
+        row_style = "bold " + style if is_selected else style
+
+        count = len(issues)
+        suffix = ""
+        if level_name == "critical" and count > 0:
+            suffix = "  <-- needs attention"
+
+        line = f"{prefix}{level_name.upper():<12} {count:>4}{suffix}\n"
+        output.append(line, style=row_style)
+
+    output.append("\n  ")
+    output.append("↑↓", style="bold")
+    output.append(" Navigate   ", style="dim")
+    output.append("Enter", style="bold")
+    output.append(" Select   ", style="dim")
+    output.append("q", style="bold")
+    output.append(" Quit\n", style="dim")
+    return output
+
+
+def _render_tui_group(state: TuiState) -> Text:
+    """Render a severity group detail screen as a Rich Text object."""
+    level_name, issues = state.groups[state.current_group]
+    style = _severity_style(level_name)
+
+    output = Text()
+    output.append(f"\n  ── {level_name.upper()} ({len(issues)}) ", style=style)
+    output.append("─" * 40 + "\n\n", style="dim")
+
+    for idx, issue in enumerate(issues):
+        is_selected = idx == state.cursor
+        is_expanded = (state.current_group, idx) in state.expanded
+        prefix = "  > " if is_selected else "    "
+        rel = _relative_path(issue.file_path)
+
+        # Issue line
+        issue_style = "bold " + style if is_selected else style
+        output.append(f"{prefix}{rel}:{issue.line_number}", style=issue_style)
+        output.append(f"  {issue.message}\n", style="")
+
+        if is_expanded:
+            snippet = _read_code_context(issue.file_path, issue.line_number, context=1)
+            if snippet:
+                for line_no, line_text in snippet:
+                    marker = ">" if line_no == issue.line_number else " "
+                    output.append(f"      {marker} {line_no:>4}| {line_text}\n", style="dim")
+            if issue.suggestion:
+                output.append(f"      Tip: {issue.suggestion}\n", style="dim")
+            output.append("\n")
+
+    # Navigation bar
+    output.append("\n  ")
+    output.append("↑↓", style="bold")
+    output.append(" Navigate   ", style="dim")
+    output.append("Enter", style="bold")
+    output.append(" Expand/Collapse   ", style="dim")
+    output.append("b", style="bold")
+    output.append(" Back   ", style="dim")
+    if state.current_group < len(state.groups) - 1:
+        next_name = state.groups[state.current_group + 1][0].upper()
+        output.append("n", style="bold")
+        output.append(f" Next ({next_name})   ", style="dim")
+    if state.current_group > 0:
+        prev_name = state.groups[state.current_group - 1][0].upper()
+        output.append("p", style="bold")
+        output.append(f" Prev ({prev_name})   ", style="dim")
+    output.append("q", style="bold")
+    output.append(" Quit\n", style="dim")
+
+    return output
+
+
+def _read_code_context(file_path: Any, line_number: int, context: int = 1) -> Optional[list]:
+    """Read a few lines around *line_number* from the source file.
+
+    Returns a list of ``(lineno, text)`` tuples, or ``None`` on failure.
+    """
+    from pathlib import Path as _Path
+
+    try:
+        lines = _Path(file_path).read_text(encoding="utf-8").splitlines()
+        start = max(0, line_number - 1 - context)
+        end = min(len(lines), line_number + context)
+        return [(i + 1, lines[i]) for i in range(start, end)]
+    except Exception:
+        return None
+
+
+def _print_single_issue(issue: Any, show_code: bool = False) -> None:
+    """Print one issue with optional code context."""
+    rel = _relative_path(issue.file_path)
+    style = _severity_style(issue.level.value)
+
+    console.print(f"  [{style}]{rel}:{issue.line_number}[/{style}]  {issue.message}")
+
+    if show_code:
+        snippet = _read_code_context(issue.file_path, issue.line_number, context=1)
+        if snippet:
+            for line_no, line_text in snippet:
+                marker = ">" if line_no == issue.line_number else " "
+                console.print(f"  [dim]  {marker} {line_no:>4}[/dim]| {line_text}")
+
+    if issue.suggestion:
+        console.print(f"  [dim]  Tip: {issue.suggestion}[/dim]")
+
+    console.print()
+
+
+def _print_severity_group(level_name: str, issues: list) -> None:
+    """Print all issues for one severity group."""
+    style = _severity_style(level_name)
+    show_code = level_name in ("critical", "error", "warning")
+
+    console.print()
+    console.print(Rule(f" {level_name.upper()} ({len(issues)}) ", style=style))
+    console.print()
+
+    for issue in issues:
+        _print_single_issue(issue, show_code=show_code)
+
+
+def _group_issues(result: AnalysisResult) -> dict:
+    """Group issues by severity level. Returns {name: [issues]} for non-empty groups."""
+    groups: dict = {}
+    for name, level in _SEVERITY_ORDER:
+        issues = result.issues_by_level(level)
+        if issues:
+            groups[name] = issues
+    return groups
+
+
+# ─── Non-interactive output (CI/CD, piped) ────────────────────────────────
+
+
+def _print_detailed_issues(result: AnalysisResult) -> None:
+    """Print issues grouped by severity (non-interactive mode)."""
+    groups = _group_issues(result)
+    if not groups:
+        return
+
+    for level_name in ["critical", "error", "warning", "info"]:
+        if level_name in groups:
+            _print_severity_group(level_name, groups[level_name])
 
 
 def _print_helpful_tips(summary: dict, detailed: bool) -> None:
@@ -185,8 +538,72 @@ def _print_helpful_tips(summary: dict, detailed: bool) -> None:
 
     if summary["total_issues"] > 5:
         console.print(
-            "[secondary]Tip: Run 'refactron refactor --preview' to see suggested fixes[/secondary]"
+            "[secondary]Tip: Run 'refactron autofix <target> --dry-run'"
+            " to preview fixes[/secondary]"
         )
+
+
+# ─── Interactive viewer ───────────────────────────────────────────────────
+
+
+def _erase_lines(n: int) -> None:
+    """Move cursor up *n* lines and clear everything below."""
+    if n > 0:
+        sys.stdout.write(f"\x1b[{n}A\x1b[J")
+        sys.stdout.flush()
+
+
+def _interactive_issue_viewer(result: AnalysisResult, target_path: Any) -> None:
+    """Interactive TUI issue browser with arrow key navigation (TTY only).
+
+    Uses termios raw mode for key capture and manual cursor erasure for
+    flicker-free re-rendering.  Arrow keys navigate, Enter expands/collapses,
+    q quits.
+    """
+    groups = _build_tui_groups(result)
+
+    if not groups:
+        console.print(
+            Panel(
+                "[success]Excellent! No issues found.[/success]",
+                box=box.ROUNDED,
+                border_style="success",
+            )
+        )
+        return
+
+    state = TuiState(groups=groups)
+    last_height = 0
+
+    try:
+        while not state.quit:
+            # Erase previous frame
+            _erase_lines(last_height)
+
+            # Build renderable
+            if state.screen == "summary":
+                renderable = _render_tui_summary(state, target_path)
+            else:
+                renderable = _render_tui_group(state)
+
+            # Capture to count lines, then write to terminal
+            with console.capture() as cap:
+                console.print(renderable, highlight=False)
+            output = cap.get()
+            last_height = output.count("\n")
+            sys.stdout.write(output)
+            sys.stdout.flush()
+
+            # Wait for keypress
+            key = _read_key()
+            state = _handle_key(state, key)
+
+        # Erase the TUI on quit, leave a clean summary
+        _erase_lines(last_height)
+        total = sum(len(iss) for _, iss in groups)
+        console.print(f"  [dim]{total} issues found. Done.[/dim]")
+    except (KeyboardInterrupt, EOFError):
+        _erase_lines(last_height)
 
 
 def _print_refactor_filters(types: tuple) -> None:

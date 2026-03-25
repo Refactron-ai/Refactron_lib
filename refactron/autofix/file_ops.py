@@ -2,12 +2,42 @@
 File operations for auto-fix system with backup and rollback support.
 """
 
+import difflib
 import json
 import shutil
 import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+
+def generate_diff(original: str, modified: str, filename: str = "<file>") -> str:
+    """
+    Generate a unified diff between two code strings.
+
+    Args:
+        original: The original file content.
+        modified: The modified file content.
+        filename: Filename shown in the diff header.
+
+    Returns:
+        Unified diff string, or empty string when there are no differences.
+    """
+    if original == modified:
+        return ""
+
+    original_lines = original.splitlines(keepends=True)
+    modified_lines = modified.splitlines(keepends=True)
+
+    diff_lines = list(
+        difflib.unified_diff(
+            original_lines,
+            modified_lines,
+            fromfile=f"a/{filename}",
+            tofile=f"b/{filename}",
+        )
+    )
+    return "".join(diff_lines)
 
 
 class FileOperations:

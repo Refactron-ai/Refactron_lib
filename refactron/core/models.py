@@ -86,6 +86,23 @@ class FileMetrics:
 
 
 @dataclass
+class AnalysisSkipWarning:
+    """Emitted when a semantic analyzer is skipped for a file due to an unexpected error.
+
+    This is NOT a hard failure — regular analyzers still run.
+    The warning is surfaced to the user so they know the file was not
+    fully checked by the semantic analysis layer.
+    """
+
+    file_path: Path
+    analyzer_name: str  # e.g. "taint", "data_flow"
+    reason: str  # Human-readable exception summary (never a full stack trace)
+
+    def __str__(self) -> str:
+        return f"⚠ {self.analyzer_name} skipped {self.file_path} — {self.reason}"
+
+
+@dataclass
 class RefactoringOperation:
     """Represents a refactoring operation to be applied."""
 

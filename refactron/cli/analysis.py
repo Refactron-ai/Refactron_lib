@@ -3,6 +3,8 @@ Refactron CLI - Analysis Module.
 Commands for analyzing code, generating reports, and metrics.
 """
 
+import logging
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -14,6 +16,7 @@ from refactron.cli.ui import (
     _auth_banner,
     _create_summary_table,
     _interactive_file_selector,
+    _interactive_issue_viewer,
     _print_detailed_issues,
     _print_file_count,
     _print_helpful_tips,
@@ -82,6 +85,18 @@ from refactron.rag.retriever import ContextRetriever
         "overrides the selected profile."
     ),
 )
+@click.option(
+    "--no-cache",
+    is_flag=True,
+    default=False,
+    help="Disable incremental analysis cache — re-analyze all files from scratch",
+)
+@click.option(
+    "--no-interactive",
+    is_flag=True,
+    default=False,
+    help="Disable interactive mode — dump all issues (for CI/CD or piped output)",
+)
 def analyze(
     target: Optional[str],
     config: Optional[str],
@@ -92,6 +107,8 @@ def analyze(
     show_metrics: bool,
     profile: Optional[str],
     environment: Optional[str],
+    no_cache: bool,
+    no_interactive: bool,
 ) -> None:
     """
     Analyze code for issues and technical debt.
@@ -141,10 +158,13 @@ def analyze(
     # Override config with CLI options
     if log_level:
         cfg.log_level = log_level
+        logging.getLogger("refactron").setLevel(getattr(logging, log_level.upper()))
     if log_format:
         cfg.log_format = log_format
     if metrics is not None:
         cfg.enable_metrics = metrics
+    if no_cache:
+        cfg.enable_incremental_analysis = False
 
     _print_file_count(target_path)
 
@@ -160,15 +180,21 @@ def analyze(
 
     # Display results
     summary = result.summary()
-    console.print(_create_summary_table(summary))
-    console.print()
+    use_interactive = sys.stdout.isatty() and not no_interactive
 
-    _print_status_messages(summary)
+    if use_interactive:
+        _interactive_issue_viewer(result, target_path)
+    else:
+        # Non-interactive: grouped dump for CI/CD or piped output
+        console.print(_create_summary_table(summary))
+        console.print()
 
-    if detailed and result.all_issues:
-        _print_detailed_issues(result)
+        _print_status_messages(summary)
 
-    _print_helpful_tips(summary, detailed)
+        if detailed and result.all_issues:
+            _print_detailed_issues(result)
+
+        _print_helpful_tips(summary, detailed)
 
     # Show metrics if requested
     if show_metrics and cfg.enable_metrics:

@@ -5,7 +5,9 @@ This engine uses AST analysis and pattern matching to apply safe
 automatic fixes without requiring expensive AI APIs.
 """
 
-from typing import Dict
+import tempfile
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 from refactron.autofix.models import FixResult, FixRiskLevel
 from refactron.core.models import CodeIssue
@@ -137,6 +139,61 @@ class AutoFixEngine:
                 results[idx] = FixResult(success=False, reason="No fixer available")
 
         return results
+
+    def fix_file(
+        self,
+        file_path: Path,
+        issues: List[CodeIssue],
+        dry_run: bool = True,
+    ) -> Tuple[str, Optional[str]]:
+        """
+        Apply all fixable issues to a file.
+
+        In dry_run=True mode the file is never touched; the fixed code and a
+        unified diff are returned for display only.  In dry_run=False mode the
+        fixed content is written atomically (temp-file → os.replace).
+
+        Args:
+            file_path: Path to the Python file to fix.
+            issues: List of CodeIssue objects to attempt to fix.
+            dry_run: When True, no bytes are written to disk.
+
+        Returns:
+            Tuple of (fixed_code, diff).  diff is None/empty when no changes
+            were made; otherwise it is a unified-diff string.
+        """
+        from refactron.autofix.file_ops import generate_diff
+
+        code = file_path.read_text(encoding="utf-8")
+        current_code = code
+
+        for issue in issues:
+            if not self.can_fix(issue):
+                continue
+            result = self.fix(issue, current_code, preview=False)
+            if result.success and result.fixed is not None:
+                current_code = result.fixed
+
+        diff = generate_diff(code, current_code, file_path.name)
+
+        if not dry_run and current_code != code:
+            # Atomic write: temp file in same directory → os.replace
+            tmp_fd, tmp_path = tempfile.mkstemp(
+                dir=file_path.parent,
+                prefix=f".{file_path.name}.",
+                suffix=".tmp",
+            )
+            try:
+                with open(tmp_fd, "w", encoding="utf-8") as fh:
+                    fh.write(current_code)
+                Path(tmp_path).replace(file_path)
+            finally:
+                try:
+                    Path(tmp_path).unlink(missing_ok=True)
+                except Exception:
+                    pass
+
+        return current_code, diff if diff else None
 
 
 class BaseFixer:

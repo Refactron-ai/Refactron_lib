@@ -78,11 +78,23 @@ def _validate_api_key(
 def _setup_logging(verbose: bool = False) -> None:
     """Setup logging configuration."""
     level = logging.DEBUG if verbose else logging.INFO
+
+    # Remove duplicate handlers that accumulate when basicConfig is called
+    # multiple times (e.g. from tests or repeated CLI invocations).
+    root = logging.getLogger()
+    root.handlers.clear()
+
     logging.basicConfig(
         level=level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
+        force=True,
     )
+
+    # Suppress refactron internal logs during CLI (INFO/DEBUG are diagnostics, not user output).
+    # Users can override with --log-level DEBUG/INFO.
+    if not verbose:
+        logging.getLogger("refactron").setLevel(logging.WARNING)
 
     # Suppress noisy third-party libraries
     if not verbose:

@@ -243,6 +243,12 @@ def refactor(
     help="Preview fixes or apply them",
 )
 @click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Show a unified diff of what would change — writes nothing to disk",
+)
+@click.option(
     "--safety-level",
     "-s",
     type=click.Choice(["safe", "low", "moderate", "high"], case_sensitive=False),
@@ -255,6 +261,7 @@ def autofix(
     profile: Optional[str],
     environment: Optional[str],
     preview: bool,
+    dry_run: bool,
     safety_level: str,
 ) -> None:
     """
@@ -287,8 +294,9 @@ def autofix(
     # Initialize auto-fix engine
     engine = AutoFixEngine(safety_level=safety)
 
-    if preview:
-        console.print("[warning]Preview mode: No changes will be applied[/warning]\n")
+    # --dry-run implies preview (no writes)
+    if dry_run or preview:
+        console.print("[warning]Dry-run mode: No changes will be written to disk[/warning]\n")
     else:
         console.print("[success]Apply mode: Changes will be written to files[/success]\n")
 
