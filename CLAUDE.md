@@ -82,13 +82,25 @@ refactron
 | 3 | `--dry-run` flag for `refactron autofix`; `generate_diff()` in `autofix/file_ops.py`; `AutoFixEngine.fix_file()` | ✅ Done |
 | 4 | Test fixture files in `tests/fixtures/` (6 files, 8 fixture validation tests) | ✅ Done |
 | 5 | Phase 1 gate: 758 tests green, self-analysis 96 files/0 crashes, added `--no-cache` flag to `analyze` | ✅ Done |
-| 6–15 | Verification Engine (`refactron/verification/`) | Pending |
+| 6-7 | VerificationResult/CheckResult data contracts, BaseCheck ABC, VerificationEngine skeleton | ✅ Done |
+| 8 | SyntaxVerifier (Check 1): ast.parse, CST roundtrip, dangerous calls, import count | ✅ Done |
+| 9 | ImportIntegrityVerifier (Check 2): removed imports, dotted access, new import resolution | ✅ Done |
+| 10 | TestSuiteGate (Check 3): reverse import graph, swap-and-restore, subprocess pytest | ✅ Done |
+| 11-12 | Wire into AutoFixEngine.fix_file(verify=True), --verify CLI flag, report.py | ✅ Done |
+| 13-15 | Full fixture validation, Phase 2 gate check (827 tests green) | ✅ Done |
 
 **Key new APIs (Day 1–3):**
 - `AnalysisSkipWarning` dataclass in `core/models.py` — surfaced on `AnalysisResult.semantic_skip_warnings`
 - `BackupManager.validate_backup_integrity(session_id)` → `(valid_paths, corrupt_paths)`
 - `generate_diff(original, modified, filename)` in `autofix/file_ops.py` — returns unified diff string
-- `AutoFixEngine.fix_file(file_path, issues, dry_run=True)` → `(fixed_code, diff_or_None)`
+- `AutoFixEngine.fix_file(file_path, issues, dry_run=True, verify=False)` → `(fixed_code, diff_or_None)`
+
+**Key new APIs (Phase 2 — Verification Engine):**
+- `VerificationEngine(project_root).verify(original, transformed, file_path)` → `VerificationResult`
+- `CheckResult` / `VerificationResult` — frozen dataclasses in `verification/result.py`
+- `BaseCheck` ABC in `verification/engine.py` — 3 implementations: `SyntaxVerifier`, `ImportIntegrityVerifier`, `TestSuiteGate`
+- `format_verification_result(result, console)` — Rich CLI output in `verification/report.py`
+- `--verify` flag on `refactron autofix` — runs verification pipeline before applying fixes
 
 **CLI output overhaul:**
 - `refactron analyze` now shows an **interactive issue viewer** (TTY) with severity-grouped navigation (`[1-4]` to drill in, `[n/p/b/q]` to navigate)
