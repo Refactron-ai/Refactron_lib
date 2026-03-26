@@ -145,6 +145,7 @@ class AutoFixEngine:
         file_path: Path,
         issues: List[CodeIssue],
         dry_run: bool = True,
+        verify: bool = False,
     ) -> Tuple[str, Optional[str]]:
         """
         Apply all fixable issues to a file.
@@ -153,10 +154,15 @@ class AutoFixEngine:
         unified diff are returned for display only.  In dry_run=False mode the
         fixed content is written atomically (temp-file → os.replace).
 
+        When verify=True the VerificationEngine is invoked after generating
+        the diff.  If verification blocks the transform, (original_code, None)
+        is returned and no bytes are written.
+
         Args:
             file_path: Path to the Python file to fix.
             issues: List of CodeIssue objects to attempt to fix.
             dry_run: When True, no bytes are written to disk.
+            verify: When True, run VerificationEngine before writing.
 
         Returns:
             Tuple of (fixed_code, diff).  diff is None/empty when no changes
@@ -175,6 +181,19 @@ class AutoFixEngine:
                 current_code = result.fixed
 
         diff = generate_diff(code, current_code, file_path.name)
+
+        # Verification gate
+        if verify and current_code != code:
+            import logging
+
+            from refactron.verification import VerificationEngine
+
+            logger = logging.getLogger(__name__)
+            ve = VerificationEngine(project_root=file_path.parent)
+            vr = ve.verify(code, current_code, file_path)
+            if not vr.safe_to_apply:
+                logger.warning("Verification blocked %s: %s", file_path, vr.blocking_reason)
+                return code, None
 
         if not dry_run and current_code != code:
             # Atomic write: temp file in same directory → os.replace

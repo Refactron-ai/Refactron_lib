@@ -15,6 +15,7 @@ from refactron.verification.result import CheckResult
 class TestSuiteGate(BaseCheck):
     """Runs pytest on test files that import the changed module."""
 
+    __test__ = False  # Prevent pytest from collecting this as a test class
     name = "test_gate"
 
     def __init__(self, project_root: Optional[Path] = None):
