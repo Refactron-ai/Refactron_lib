@@ -255,6 +255,12 @@ def refactor(
     default="safe",
     help="Maximum risk level for automatic fixes",
 )
+@click.option(
+    "--verify",
+    is_flag=True,
+    default=False,
+    help="Run verification checks (syntax, imports, tests) before applying fixes",
+)
 def autofix(
     target: str,
     config: Optional[str],
@@ -263,6 +269,7 @@ def autofix(
     preview: bool,
     dry_run: bool,
     safety_level: str,
+    verify: bool,
 ) -> None:
     """
     Automatically fix code issues (Phase 3 feature).
