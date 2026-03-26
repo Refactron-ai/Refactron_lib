@@ -29,7 +29,18 @@ class VerificationEngine:
         checks: Optional[List[BaseCheck]] = None,
     ):
         self.project_root = project_root
-        self.checks: List[BaseCheck] = checks if checks is not None else []
+        if checks is not None:
+            self.checks = checks
+        else:
+            from refactron.verification.checks.imports import ImportIntegrityVerifier
+            from refactron.verification.checks.syntax import SyntaxVerifier
+            from refactron.verification.checks.test_gate import TestSuiteGate
+
+            self.checks: List[BaseCheck] = [
+                SyntaxVerifier(),
+                ImportIntegrityVerifier(),
+                TestSuiteGate(project_root=project_root),
+            ]
 
     def verify(self, original: str, transformed: str, file_path: Path) -> VerificationResult:
         """Run all checks in order, short-circuiting on first failure."""

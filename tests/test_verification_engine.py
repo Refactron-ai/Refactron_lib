@@ -108,3 +108,28 @@ class TestVerificationEngine:
         assert result.passed is False
         assert result.safe_to_apply is False
         assert "boom" in (result.blocking_reason or "")
+
+
+class TestVerificationEngineWithRealChecks:
+    """Tests using the real SyntaxVerifier and ImportIntegrityVerifier."""
+
+    def test_default_engine_has_three_checks(self):
+        engine = VerificationEngine(project_root=Path("/tmp"))
+        assert len(engine.checks) == 3
+        names = [c.name for c in engine.checks]
+        assert names == ["syntax", "import_integrity", "test_gate"]
+
+    def test_clean_code_passes_all(self):
+        engine = VerificationEngine(project_root=Path("/tmp"))
+        code = "import os\n\nos.getcwd()\n"
+        result = engine.verify(code, code, Path("/tmp/test.py"))
+        assert result.safe_to_apply is True
+
+    def test_syntax_error_short_circuits(self):
+        engine = VerificationEngine(project_root=Path("/tmp"))
+        original = "x = 1\n"
+        broken = "x = (\n"
+        result = engine.verify(original, broken, Path("/tmp/test.py"))
+        assert result.safe_to_apply is False
+        assert "syntax" in result.checks_failed
+        assert any("import_integrity" in s[0] for s in result.skipped_checks)
