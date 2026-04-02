@@ -151,7 +151,7 @@ class TaintAnalyzer:
             else:
                 targets = [stmt.target]
 
-            value = stmt.value  # type: ignore[union-attr]
+            value = stmt.value  # type: ignore[union-attr, attr-defined]
             is_tainted = self._is_expression_tainted(value, current_taint)  # type: ignore[arg-type]
 
             for target in targets:
