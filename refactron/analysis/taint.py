@@ -137,9 +137,7 @@ class TaintAnalyzer:
 
         return vulnerabilities
 
-    def _propagate_taint(
-        self, stmt: ast.AST, current_taint: Set[str]
-    ) -> Tuple[Set[str], Set[str]]:
+    def _propagate_taint(self, stmt: ast.AST, current_taint: Set[str]) -> Tuple[Set[str], Set[str]]:
         """
         Analyze a statement and return (newly_tainted_vars, cleansed_vars).
         """

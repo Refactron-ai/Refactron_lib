@@ -64,9 +64,7 @@ class DataFlowAnalyzer:
                             node_kill.add(var_name)
                             # And generates a new definition at this node
                             # Filter out any previous gen for the same var in this block
-                            node_gen = {
-                                (v, d) for v, d in node_gen if v != var_name
-                            }
+                            node_gen = {(v, d) for v, d in node_gen if v != var_name}
                             node_gen.add((var_name, node.id))
 
             gen[node.id] = node_gen
