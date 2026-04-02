@@ -6,21 +6,9 @@ No TTY/termios required — all state transitions are pure functions.
 
 from pathlib import Path
 
-from refactron.cli.ui import (
-    KEY_DOWN,
-    KEY_ENTER,
-    KEY_UP,
-    TuiState,
-    _build_tui_groups,
-    _handle_key,
-)
+from refactron.cli.ui import KEY_DOWN, KEY_ENTER, KEY_UP, TuiState, _build_tui_groups, _handle_key
 from refactron.core.analysis_result import AnalysisResult
-from refactron.core.models import (
-    CodeIssue,
-    FileMetrics,
-    IssueCategory,
-    IssueLevel,
-)
+from refactron.core.models import CodeIssue, FileMetrics, IssueCategory, IssueLevel
 
 # ── Helpers ──────────────────────────────────────────────────────────
 
