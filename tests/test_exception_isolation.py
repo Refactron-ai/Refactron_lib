@@ -11,8 +11,6 @@ Tests verify that:
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
 from refactron import Refactron
 from refactron.core.models import AnalysisSkipWarning  # noqa: F401 (import drives the test fail)
 
@@ -88,7 +86,6 @@ def test_skip_rate_under_threshold_has_no_summary(tmp_path):
         _write_py(tmp_path, f"file_{i}.py", f"x = {i}\n")
 
     call_count = {"n": 0}
-    original_analyze = None
 
     def maybe_crash(*args, **kwargs):
         call_count["n"] += 1

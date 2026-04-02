@@ -4,10 +4,10 @@ Tracks data flow from untrusted sources to sensitive sinks.
 """
 
 import ast
+from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, NamedTuple, Optional, Set
+from typing import Dict, List, NamedTuple, Set, Tuple
 
-from .cfg.builder import CFGBuilder
 from .cfg.node import CFGNode
 from .data_flow import DataFlowAnalyzer
 
@@ -89,10 +89,6 @@ class TaintAnalyzer:
         # taint_set[n] = set of tainted variable names at start of block n
         tainted_vars: Dict[int, Set[str]] = defaultdict(set)
 
-        # Worklist for blocks
-        worklist = [self.cfg_entry]
-        visited_config = set()  # (node_id, frozenset(tainted_in))
-
         vulnerabilities = []
 
         # Simple iterative fixed-point might not be enough if we want path sensitivity
@@ -141,7 +137,9 @@ class TaintAnalyzer:
 
         return vulnerabilities
 
-    def _propagate_taint(self, stmt: ast.AST, current_taint: Set[str]) -> tuple[Set[str], Set[str]]:
+    def _propagate_taint(
+        self, stmt: ast.AST, current_taint: Set[str]
+    ) -> Tuple[Set[str], Set[str]]:
         """
         Analyze a statement and return (newly_tainted_vars, cleansed_vars).
         """
@@ -155,8 +153,8 @@ class TaintAnalyzer:
             else:
                 targets = [stmt.target]
 
-            value = stmt.value
-            is_tainted = self._is_expression_tainted(value, current_taint)
+            value = stmt.value  # type: ignore[union-attr]
+            is_tainted = self._is_expression_tainted(value, current_taint)  # type: ignore[arg-type]
 
             for target in targets:
                 if isinstance(target, ast.Name):
@@ -252,7 +250,10 @@ class TaintAnalyzer:
                                     node_id=node_id,
                                     line_number=getattr(node, "lineno", 0),
                                     variable=var_name,
-                                    message=f"Tainted data from untrusted source reaches sensitive sink '{func_name}' via '{var_name}'",
+                                    message=(
+                                        f"Tainted data from untrusted source reaches"
+                                        f" sensitive sink '{func_name}' via '{var_name}'"
+                                    ),
                                 )
                             )
         return vuls
@@ -272,6 +273,3 @@ class TaintAnalyzer:
         elif isinstance(node.value, ast.Attribute):
             return f"{self._get_attribute_name(node.value)}.{node.attr}"
         return node.attr
-
-
-from collections import defaultdict

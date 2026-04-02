@@ -382,7 +382,7 @@ class Refactron:
 
     def _run_semantic_analysis(
         self, file_path: Path, source_code: str
-    ) -> "tuple[list, Optional[AnalysisSkipWarning]]":
+    ) -> Tuple[list, Optional["AnalysisSkipWarning"]]:
         """Run TaintAnalyzer on *source_code* with full exception isolation.
 
         Returns:
@@ -403,7 +403,9 @@ class Refactron:
                 reason=short_reason,
             )
 
-    def _analyze_file(self, file_path: Path) -> "tuple[FileMetrics, Optional[AnalysisSkipWarning]]":
+    def _analyze_file(
+        self, file_path: Path
+    ) -> Tuple["FileMetrics", Optional["AnalysisSkipWarning"]]:
         """Analyze a single file.
 
         Args:

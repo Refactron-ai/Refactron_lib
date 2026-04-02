@@ -10,10 +10,7 @@ Tests verify that:
 
 import hashlib
 import os
-import time
 from pathlib import Path
-
-import pytest
 
 from refactron.core.backup import BackupManager
 from refactron.core.incremental import IncrementalAnalysisTracker

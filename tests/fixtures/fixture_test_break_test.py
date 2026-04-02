@@ -12,7 +12,7 @@ from pathlib import Path
 # Ensure the fixtures directory is importable
 sys.path.insert(0, str(Path(__file__).parent))
 
-from fixture_test_break import calculate_total
+from fixture_test_break import calculate_total  # noqa: E402
 
 
 def test_basic_total():

@@ -4,20 +4,20 @@ Converts Python AST into a Control Flow Graph.
 """
 
 import ast
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Tuple
 
 from .node import CFGNode, EdgeType
 
 
 class CFGBuilder:
-    def __init__(self):
+    def __init__(self) -> None:
         self.nodes: List[CFGNode] = []
         self.current_id = 0
         self.current_block: Optional[CFGNode] = None
 
         # Stack for managing control flow targets
         # loop_stack stores (break_target, continue_target)
-        self.loop_stack: List[tuple[CFGNode, CFGNode]] = []
+        self.loop_stack: List[Tuple[CFGNode, CFGNode]] = []
 
     def _new_block(self) -> CFGNode:
         """Create a new basic block."""
@@ -48,18 +48,18 @@ class CFGBuilder:
 
         return entry_block
 
-    def _process_statements(self, statements: List[ast.stmt]):
+    def _process_statements(self, statements: List[ast.stmt]) -> None:
         """Process a list of statements sequentially."""
         for stmt in statements:
             self._visit(stmt)
 
-    def _visit(self, node: ast.AST):
+    def _visit(self, node: ast.AST) -> None:
         """Dispatch visitor method."""
         method_name = f"_visit_{node.__class__.__name__}"
         visitor = getattr(self, method_name, self._visit_generic)
         visitor(node)
 
-    def _visit_generic(self, node: ast.AST):
+    def _visit_generic(self, node: ast.AST) -> None:
         """Default visitor for simple statements."""
         if self.current_block is None:
             # Unreachable code or detached block
@@ -67,7 +67,7 @@ class CFGBuilder:
 
         self.current_block.statements.append(node)
 
-    def _visit_If(self, node: ast.If):
+    def _visit_If(self, node: ast.If) -> None:
         """Handle if statements."""
         if self.current_block is None:
             return
@@ -103,7 +103,7 @@ class CFGBuilder:
 
         self.current_block = join_block
 
-    def _visit_For(self, node: ast.For):
+    def _visit_For(self, node: ast.For) -> None:
         """Handle for loops."""
         if self.current_block is None:
             return
@@ -149,7 +149,7 @@ class CFGBuilder:
         self.loop_stack.pop()
         self.current_block = loop_exit
 
-    def _visit_While(self, node: ast.While):
+    def _visit_While(self, node: ast.While) -> None:
         """Handle while loops."""
         if self.current_block is None:
             return
@@ -187,7 +187,7 @@ class CFGBuilder:
         self.loop_stack.pop()
         self.current_block = loop_exit
 
-    def _visit_Break(self, node: ast.Break):
+    def _visit_Break(self, node: ast.Break) -> None:
         """Handle break statement."""
         if self.current_block is None:
             return
@@ -200,7 +200,7 @@ class CFGBuilder:
         # Code after break is unreachable in this block
         self.current_block = None
 
-    def _visit_Continue(self, node: ast.Continue):
+    def _visit_Continue(self, node: ast.Continue) -> None:
         """Handle continue statement."""
         if self.current_block is None:
             return
@@ -212,7 +212,7 @@ class CFGBuilder:
 
         self.current_block = None
 
-    def _visit_Return(self, node: ast.Return):
+    def _visit_Return(self, node: ast.Return) -> None:
         """Handle return statement."""
         if self.current_block is None:
             return
@@ -221,7 +221,7 @@ class CFGBuilder:
         # In a full implementation, this connects to the Exit block of the function
         self.current_block = None
 
-    def _visit_Raise(self, node: ast.Raise):
+    def _visit_Raise(self, node: ast.Raise) -> None:
         """Handle raise statement."""
         if self.current_block is None:
             return

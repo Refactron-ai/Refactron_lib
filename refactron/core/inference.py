@@ -3,7 +3,7 @@ Inference engine wrapping astroid for semantic analysis.
 Provides capabilities to infer types, values, and resolve symbols.
 """
 
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 import astroid
 from astroid import nodes
@@ -56,7 +56,7 @@ class InferenceEngine:
         if isinstance(obj, nodes.Const):
             return type(obj.value).__name__
         if isinstance(obj, nodes.ClassDef):
-            return obj.name
+            return str(obj.name)
         if isinstance(obj, nodes.FunctionDef):
             return "function"
         if isinstance(obj, nodes.Module):
@@ -64,7 +64,7 @@ class InferenceEngine:
         if obj is astroid.Uninferable:
             return "Uninferred"
 
-        return getattr(obj, "name", str(type(obj)))
+        return str(getattr(obj, "name", str(type(obj))))
 
     @staticmethod
     def is_subtype_of(node: nodes.NodeNG, type_name: str) -> bool:

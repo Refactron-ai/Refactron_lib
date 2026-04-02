@@ -6,8 +6,6 @@ No TTY/termios required — all state transitions are pure functions.
 
 from pathlib import Path
 
-import pytest
-
 from refactron.cli.ui import (
     KEY_DOWN,
     KEY_ENTER,

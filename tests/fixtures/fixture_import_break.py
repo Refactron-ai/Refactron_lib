@@ -9,7 +9,7 @@ and try to remove it.
 """
 
 import collections
-import sys  # intentionally unused — safe to remove (DEP001)
+import sys  # intentionally unused — safe to remove (DEP001)  # noqa: F401
 
 
 def ordered_merge(mapping_a, mapping_b):

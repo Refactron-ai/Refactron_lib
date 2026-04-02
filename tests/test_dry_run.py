@@ -11,8 +11,6 @@ Tests verify that:
 
 from pathlib import Path
 
-import pytest
-
 from refactron.autofix.engine import AutoFixEngine
 from refactron.autofix.file_ops import generate_diff
 from refactron.autofix.models import FixRiskLevel

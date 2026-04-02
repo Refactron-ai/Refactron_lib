@@ -5,10 +5,10 @@ Maps classes, functions, variables, and their relationships across the codebase.
 
 import json
 import logging
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional
 
 from refactron.core.inference import InferenceEngine
 
@@ -62,7 +62,7 @@ class SymbolTable:
     # Map: global_name -> Symbol (for easy cross-file lookup of exports)
     exports: Dict[str, Symbol] = field(default_factory=dict)
 
-    def add_symbol(self, symbol: Symbol):
+    def add_symbol(self, symbol: Symbol) -> None:
         """Add a symbol to the table."""
         if symbol.file_path not in self.symbols:
             self.symbols[symbol.file_path] = {}
@@ -136,7 +136,7 @@ class SymbolTableBuilder:
 
         return self.symbol_table
 
-    def _analyze_file(self, file_path: Path):
+    def _analyze_file(self, file_path: Path) -> None:
         """Analyze a single file and populate symbols."""
         try:
             # We use astroid for better inference capabilities later
@@ -148,7 +148,7 @@ class SymbolTableBuilder:
         except Exception as e:
             logger.warning(f"Failed to build symbol table for {file_path}: {e}")
 
-    def _visit_node(self, node, file_path: str, scope: str):
+    def _visit_node(self, node: Any, file_path: str, scope: str) -> None:
         """Recursive node visitor."""
         import astroid.nodes as nodes
 
@@ -186,7 +186,7 @@ class SymbolTableBuilder:
             # Try to infer type
             try:
                 symbol.inferred_type = self.inference_engine.get_node_type_name(node)
-            except:
+            except Exception:
                 pass
 
             self.symbol_table.add_symbol(symbol)
@@ -196,7 +196,7 @@ class SymbolTableBuilder:
             for child in node.get_children():
                 self._visit_node(child, file_path, new_scope)
 
-    def _save_cache(self):
+    def _save_cache(self) -> None:
         """Save symbol table to cache."""
         if not self.cache_dir:
             return

@@ -10,7 +10,7 @@ Issues present:
   - DEP001: unused import ``math``
 """
 
-import math  # intentionally unused — DEP001 trigger
+import math  # intentionally unused — DEP001 trigger  # noqa: F401
 
 
 def calculate_total(items, tax_rate=0.1):

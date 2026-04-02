@@ -5,10 +5,9 @@ Implements standard data flow analyses like Reaching Definitions.
 
 import ast
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Set
+from typing import Dict, List, Set, Tuple
 
-from .cfg.builder import CFGBuilder
-from .cfg.node import CFGNode, EdgeType
+from .cfg.node import CFGNode
 
 
 class DataFlowAnalyzer:
@@ -32,7 +31,7 @@ class DataFlowAnalyzer:
                     queue.append(succ)
         return sorted(nodes, key=lambda n: n.id)
 
-    def compute_reaching_definitions(self) -> Dict[int, Set[tuple[str, int]]]:
+    def compute_reaching_definitions(self) -> Dict[int, Set[Tuple[str, int]]]:
         """
         Compute Reaching Definitions for each block.
         Returns a map: node_id -> set of (variable_name, definition_node_id)
@@ -41,12 +40,12 @@ class DataFlowAnalyzer:
         # specialized sets for gen/kill
         # gen[n]: definitions generated in block n
         # kill[n]: definitions killed in block n
-        gen: Dict[int, Set[tuple[str, int]]] = defaultdict(set)
+        gen: Dict[int, Set[Tuple[str, int]]] = defaultdict(set)
         kill: Dict[int, Set[str]] = defaultdict(set)
 
         # 1. Initialize Gen/Kill sets for each block
         for node in self.nodes:
-            node_gen = set()
+            node_gen: Set[Tuple[str, int]] = set()
             node_kill = set()
 
             # Iterate statements to find assignments
@@ -64,8 +63,10 @@ class DataFlowAnalyzer:
                             # This definition kills previous definitions of 'var_name'
                             node_kill.add(var_name)
                             # And generates a new definition at this node
-                            # We filter out any previous gen for the same var in this block (local kill)
-                            node_gen = {(v, d) for v, d in node_gen if v != var_name}
+                            # Filter out any previous gen for the same var in this block
+                            node_gen = {
+                                (v, d) for v, d in node_gen if v != var_name
+                            }
                             node_gen.add((var_name, node.id))
 
             gen[node.id] = node_gen
@@ -75,8 +76,8 @@ class DataFlowAnalyzer:
         # in_set[n] = union(out_set[p] for p in predecessors)
         # out_set[n] = gen[n] union (in_set[n] - kill[n])
 
-        in_sets: Dict[int, Set[tuple[str, int]]] = defaultdict(set)
-        out_sets: Dict[int, Set[tuple[str, int]]] = defaultdict(set)
+        in_sets: Dict[int, Set[Tuple[str, int]]] = defaultdict(set)
+        out_sets: Dict[int, Set[Tuple[str, int]]] = defaultdict(set)
 
         changed = True
         while changed:
