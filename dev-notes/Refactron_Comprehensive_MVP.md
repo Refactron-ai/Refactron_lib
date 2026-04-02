@@ -889,7 +889,7 @@ the product.
   Bandit           \~          ❌          ❌             ❌           ✅
 
   **Refactron      ✅          ✅          **✅**         ❌           ✅
-  v1.1.0**                                                             
+  v1.1.0**
   ---------------- ----------- ----------- -------------- ------------ -----------
 
 +-----------------------------------------------------------------------+
@@ -939,7 +939,7 @@ conversation about Refactron.
 
   ***These are not competing. Claude  ***A developer can use both in the
   Code = active pairing. Refactron =  same workflow without conflict.***
-  autonomous safety enforcement.***   
+  autonomous safety enforcement.***
   ----------------------------------- -----------------------------------
 
 **Part 6 --- Post-MVP Backlog (Priority Order)**
@@ -952,54 +952,54 @@ has the most impact, not on what is most interesting to build.
   **\#**   **Feature**          **Why This Order**        **Success Signal**      **v**
 
   **1**    **Harden             Skip rate data from real  *Skip rate drops below  **v1.2**
-           TaintAnalyzer +      users will show which AST 5% on real repos*       
-           DataFlowAnalyzer**   patterns to fix. Build                            
-                                this based on evidence,                           
-                                not guesses.                                      
+           TaintAnalyzer +      users will show which AST 5% on real repos*
+           DataFlowAnalyzer**   patterns to fix. Build
+                                this based on evidence,
+                                not guesses.
 
   **2**    **Semantic           Deepest verification      *Blocks 1 transform     **v1.2**
-           Equivalence Check    layer. Only viable after  that test gate missed*  
-           (Check 4)**          Test Suite Gate is proven                         
-                                solid across real                                 
-                                codebases.                                        
+           Equivalence Check    layer. Only viable after  that test gate missed*
+           (Check 4)**          Test Suite Gate is proven
+                                solid across real
+                                codebases.
 
   **3**    **LLM Suggestions    Intelligence on top of    *80%+ suggestion        **v1.3**
-           (Groq, hardened)**   proven safety. Never the  approval rate in user   
-                                other way. LLM = advisor, testing*                
-                                never operator.                                   
+           (Groq, hardened)**   proven safety. Never the  approval rate in user
+                                other way. LLM = advisor, testing*
+                                never operator.
 
   **4**    **RAG Context        Reduces LLM               *Measurable suggestion  **v1.3**
-           (ChromaDB,           hallucinations 60--80%.   quality improvement*    
-           project-aware)**     Only valuable once the                            
-                                LLM layer is stable.                              
+           (ChromaDB,           hallucinations 60--80%.   quality improvement*
+           project-aware)**     Only valuable once the
+                                LLM layer is stable.
 
   **5**    **SARIF Output**     Single biggest enterprise *Passes GitHub Advanced **v1.4**
-                                CI/CD unlock. GitHub      Security validation*    
-                                Advanced Security, Azure                          
-                                DevOps, GitLab all                                
-                                consume it.                                       
+                                CI/CD unlock. GitHub      Security validation*
+                                Advanced Security, Azure
+                                DevOps, GitLab all
+                                consume it.
 
   **6**    **Pattern Learning   Needs real user           *Measurable noise       **v1.5**
-           Engine**             accept/reject data to     reduction after 30      
-                                produce anything. Useless days*                   
-                                before you have users.                            
+           Engine**             accept/reject data to     reduction after 30
+                                produce anything. Useless days*
+                                before you have users.
 
   **7**    **refactron init     Quality of life ---       *Time-to-first-output   **v1.5**
-           Command**            auto-detect framework,    under 90 seconds*       
-                                build RAG index, write                            
-                                config. Not needed to                             
-                                prove core value.                                 
+           Command**            auto-detect framework,    under 90 seconds*
+                                build RAG index, write
+                                config. Not needed to
+                                prove core value.
 
   **8**    **Type Consistency   Optional verification     *Zero new false         **v1.5**
-           (mypy, Check 5)**    layer. Configurable,      positives on real       
-                                default off. Catches type codebases*              
-                                regressions from                                  
-                                refactors.                                        
+           (mypy, Check 5)**    layer. Configurable,      positives on real
+                                default off. Catches type codebases*
+                                regressions from
+                                refactors.
 
   **9**    **VSCode Extension** Only after CLI is         *500+ installs in first **v2.0**
-                                perfect. Extension is CLI month*                  
-                                under the hood. Builds on                         
-                                all the above.                                    
+                                perfect. Extension is CLI month*
+                                under the hood. Builds on
+                                all the above.
   -------- -------------------- ------------------------- ----------------------- ----------
 
 **Part 7 --- Non-Negotiables and Today\'s Actions**
