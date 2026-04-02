@@ -29,6 +29,7 @@ class VerificationEngine:
         checks: Optional[List[BaseCheck]] = None,
     ):
         self.project_root = project_root
+        self.checks: List[BaseCheck]
         if checks is not None:
             self.checks = checks
         else:
@@ -36,7 +37,7 @@ class VerificationEngine:
             from refactron.verification.checks.syntax import SyntaxVerifier
             from refactron.verification.checks.test_gate import TestSuiteGate
 
-            self.checks: List[BaseCheck] = [
+            self.checks = [
                 SyntaxVerifier(),
                 ImportIntegrityVerifier(),
                 TestSuiteGate(project_root=project_root),
@@ -106,4 +107,4 @@ class VerificationEngine:
         passed = [r.confidence for r in results if r.passed]
         if not passed:
             return 0.0
-        return math.prod(passed) ** (1.0 / len(passed))
+        return float(math.prod(passed) ** (1.0 / len(passed)))

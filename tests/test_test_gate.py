@@ -1,7 +1,5 @@
 """Unit tests for TestSuiteGate (Check 3)."""
 
-import os
-import shutil
 from pathlib import Path
 
 import pytest

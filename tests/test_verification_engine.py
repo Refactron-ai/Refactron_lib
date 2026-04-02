@@ -2,10 +2,8 @@
 
 from pathlib import Path
 
-import pytest
-
 from refactron.verification.engine import BaseCheck, VerificationEngine
-from refactron.verification.result import CheckResult, VerificationResult
+from refactron.verification.result import CheckResult
 
 
 class _PassingCheck(BaseCheck):
