@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 from refactron.autofix.engine import AutoFixEngine
 from refactron.autofix.models import FixRiskLevel
 from refactron.core.backup import BackupManager
+from refactron.core.config import RefactronConfig
 from refactron.core.models import CodeIssue, IssueCategory, IssueLevel
 from refactron.core.pipeline_session import (
     FixQueueItem,
@@ -20,7 +21,6 @@ from refactron.core.pipeline_session import (
     SessionState,
     SessionStore,
 )
-from refactron.core.config import RefactronConfig
 from refactron.core.refactron import Refactron
 
 logger = logging.getLogger(__name__)

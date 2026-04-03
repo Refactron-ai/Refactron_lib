@@ -337,9 +337,7 @@ def autofix(
             _pipeline_session = _pipeline.analyze(_target_path)
             _pipeline.store.set_current(_pipeline_session.session_id)
             if _pipeline._last_result:
-                _all_issues = [
-                    i for fm in _pipeline._last_result.file_metrics for i in fm.issues
-                ]
+                _all_issues = [i for fm in _pipeline._last_result.file_metrics for i in fm.issues]
                 _pipeline.queue_issues(_pipeline_session, _all_issues)
 
     _total_issues = _pipeline_session.total_issues
@@ -393,7 +391,10 @@ def autofix(
     if dry_run:
         _diff_items = [i for i in _pipeline_session.fix_queue if i.diff]
         if not _diff_items:
-            console.print("\n[dim]Dry-run: no diffs generated (fixers may not support these issue types)[/dim]")
+            console.print(
+                "\n[dim]Dry-run: no diffs generated "
+                "(fixers may not support these issue types)[/dim]"
+            )
         else:
             console.print(f"\n[bold]Dry-run preview ({len(_diff_items)} changes)[/bold]")
             for _item in _diff_items:
@@ -551,8 +552,7 @@ def rollback(
         _store.clear_current()
 
         console.print(
-            f"[green]Rolled back {_restored_count} file(s) from session "
-            f"{_resolved_id}[/green]"
+            f"[green]Rolled back {_restored_count} file(s) from session " f"{_resolved_id}[/green]"
         )
         for _f in _failed:
             console.print(f"[red]  Failed to restore: {_f}[/red]")
