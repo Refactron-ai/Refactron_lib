@@ -103,6 +103,8 @@ from refactron.rag.retriever import ContextRetriever
     type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO"], case_sensitive=False),
     default=None,
     help="Auto-queue issues at this level and above for fixing after analysis.",
+)
+@click.option(
     "--format",
     "output_format",
     type=click.Choice(["text", "json"], case_sensitive=False),
