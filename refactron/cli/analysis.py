@@ -97,6 +97,20 @@ from refactron.rag.retriever import ContextRetriever
     default=False,
     help="Disable interactive mode — dump all issues (for CI/CD or piped output)",
 )
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["text", "json"], case_sensitive=False),
+    default="text",
+    help="Output format: text (default) or json (for CI/CD scripts)",
+)
+@click.option(
+    "--fail-on",
+    "fail_on",
+    type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO"], case_sensitive=False),
+    default=None,
+    help="Exit 1 if any issues at this level or above exist (for CI quality gates)",
+)
 def analyze(
     target: Optional[str],
     config: Optional[str],
@@ -109,6 +123,8 @@ def analyze(
     environment: Optional[str],
     no_cache: bool,
     no_interactive: bool,
+    output_format: str = "text",
+    fail_on: Optional[str] = None,
 ) -> None:
     """
     Analyze code for issues and technical debt.
@@ -118,9 +134,10 @@ def analyze(
     # Setup logging
     _setup_logging()
 
-    console.print()
-    _auth_banner("Analysis")
-    console.print()
+    if output_format != "json":
+        console.print()
+        _auth_banner("Analysis")
+        console.print()
 
     # Determine target path - use workspace if not provided
     if not target:
@@ -166,20 +183,50 @@ def analyze(
     if no_cache:
         cfg.enable_incremental_analysis = False
 
-    _print_file_count(target_path)
+    if output_format != "json":
+        _print_file_count(target_path)
 
     # Run analysis
     try:
-        with console.status("[primary]Analyzing code...[/primary]"):
+        if output_format != "json":
+            with console.status("[primary]Analyzing code...[/primary]"):
+                refactron = Refactron(cfg)
+                result = refactron.analyze(target)
+        else:
             refactron = Refactron(cfg)
             result = refactron.analyze(target)
     except Exception as e:
-        console.print(f"[red]Analysis failed: {e}[/red]")
-        console.print("[dim]Tip: Check if all files have valid Python syntax[/dim]")
+        if output_format == "json":
+            import json as _json_err
+
+            click.echo(_json_err.dumps({"error": str(e)}))
+        else:
+            console.print(f"[red]Analysis failed: {e}[/red]")
+            console.print("[dim]Tip: Check if all files have valid Python syntax[/dim]")
         raise SystemExit(1)
 
     # Display results
     summary = result.summary()
+
+    # JSON format — output raw JSON and exit immediately
+    if output_format == "json":
+        import json as _json
+
+        issues_data = [
+            {
+                "level": issue.level.value.upper(),
+                "category": issue.category.value,
+                "message": issue.message,
+                "file": str(issue.file_path),
+                "line": issue.line_number,
+                "column": issue.column,
+            }
+            for issue in result.all_issues
+        ]
+        payload = {**summary, "issues": issues_data}
+        click.echo(_json.dumps(payload, indent=2))
+        raise SystemExit(1 if summary["critical"] > 0 else 0)
+
     use_interactive = sys.stdout.isatty() and not no_interactive
 
     if use_interactive:
@@ -211,9 +258,19 @@ def analyze(
         )
         console.print(f"  Success rate: {metrics_summary.get('success_rate_percent', 0):.1f}%")
 
-    # Exit with error code if critical issues found
-    if summary["critical"] > 0:
-        raise SystemExit(1)
+    # Exit with error code based on --fail-on threshold
+    _LEVEL_RANK = {"INFO": 0, "WARNING": 1, "ERROR": 2, "CRITICAL": 3}
+    _SUMMARY_KEY = {"INFO": "info", "WARNING": "warnings", "ERROR": "errors", "CRITICAL": "critical"}
+
+    if fail_on:
+        threshold = _LEVEL_RANK[fail_on.upper()]
+        should_fail = any(
+            summary[_SUMMARY_KEY[lvl]] > 0
+            for lvl, rank in _LEVEL_RANK.items()
+            if rank >= threshold
+        )
+        if should_fail:
+            raise SystemExit(1)
 
 
 @click.command()
