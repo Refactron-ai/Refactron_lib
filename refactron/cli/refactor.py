@@ -209,7 +209,7 @@ def refactor(
 
 
 @click.command()
-@click.argument("target", type=click.Path(exists=True))
+@click.argument("target", type=click.Path(exists=True), required=False)
 @click.option(
     "--config",
     "-c",
@@ -261,8 +261,17 @@ def refactor(
     default=False,
     help="Run verification checks (syntax, imports, tests) before applying fixes",
 )
+@click.option(
+    "--session",
+    "session_id",
+    default=None,
+    help=(
+        "Pipeline session ID from a previous 'refactron analyze' run. "
+        "If omitted, re-analyzes the target."
+    ),
+)
 def autofix(
-    target: str,
+    target: Optional[str],
     config: Optional[str],
     profile: Optional[str],
     environment: Optional[str],
@@ -270,6 +279,7 @@ def autofix(
     dry_run: bool,
     safety_level: str,
     verify: bool,
+    session_id: Optional[str] = None,
 ) -> None:
     """
     Automatically fix code issues (Phase 3 feature).
@@ -283,6 +293,66 @@ def autofix(
     console.print()
     _auth_banner("Auto-fix")
     console.print()
+
+    # ── Session-aware pipeline ────────────────────────────────────────
+    from refactron.core.pipeline import RefactronPipeline
+
+    _target_path = Path(target) if target else Path.cwd()
+    _project_root = _target_path if _target_path.is_dir() else _target_path.parent
+    _pipeline = RefactronPipeline(project_root=_project_root)
+
+    if session_id:
+        _pipeline_session = _pipeline.store.load(session_id)
+        if _pipeline_session is None:
+            console.print(f"[red]Session not found: {session_id}[/red]")
+            raise SystemExit(1)
+        _queued = len([i for i in _pipeline_session.fix_queue if i.status.value == "pending"])
+        console.print(
+            f"[dim]Loaded session {session_id} · {_queued} items queued[/dim]"
+        )
+    else:
+        if not target:
+            console.print("[red]Provide --session <id> or a target path.[/red]")
+            raise SystemExit(1)
+        console.print("[dim]No session — running fresh analysis...[/dim]")
+        _pipeline_session = _pipeline.analyze(_target_path)
+        if _pipeline._last_result:
+            _all_issues = [
+                i for fm in _pipeline._last_result.file_metrics for i in fm.issues
+            ]
+            _pipeline.queue_issues(_pipeline_session, _all_issues)
+
+    _pipeline.apply(
+        _pipeline_session,
+        dry_run=dry_run,
+        verify=verify,
+    )
+
+    _applied = len(_pipeline_session.applied_fixes)
+    _blocked = len(_pipeline_session.blocked_fixes)
+    _skipped = len([i for i in _pipeline_session.fix_queue if i.status.value == "skipped"])
+
+    if dry_run:
+        console.print("\n[bold]Dry-run complete[/bold]")
+        for _item in _pipeline_session.fix_queue:
+            if _item.diff:
+                console.print(
+                    f"\n  [cyan]{_item.file_path}:{_item.line_number}[/cyan] {_item.message}"
+                )
+                console.print(_item.diff)
+    else:
+        console.print(f"\n[bold green]Applied:[/bold green]  {_applied}")
+        if _blocked:
+            console.print(f"[bold red]Blocked:[/bold red]  {_blocked}")
+        if _skipped:
+            console.print(f"[dim]Skipped:  {_skipped}[/dim]")
+        console.print(f"\n[dim]Session: {_pipeline_session.session_id}[/dim]")
+        if _applied > 0:
+            console.print(
+                f"[dim]To undo: refactron rollback --session "
+                f"{_pipeline_session.session_id}[/dim]"
+            )
+    return
 
     # Setup
     target_path = _validate_path(target)
