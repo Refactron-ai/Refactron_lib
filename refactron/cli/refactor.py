@@ -429,12 +429,19 @@ def autofix(
     default=False,
     help="Clear all backup sessions",
 )
+@click.option(
+    "--pipeline-session",
+    "pipeline_session_id",
+    default=None,
+    help="Roll back a specific pipeline session (from refactron status --list)",
+)
 def rollback(
     session_id: Optional[str],
     session: Optional[str],
     use_git: bool,
     list_sessions: bool,
     clear: bool,
+    pipeline_session_id: Optional[str] = None,
 ) -> None:
     """
     Rollback refactoring changes to restore original files.
@@ -451,6 +458,36 @@ def rollback(
       refactron rollback --use-git    # Use Git rollback
       refactron rollback --clear      # Clear all backups
     """
+    if pipeline_session_id:
+        from refactron.core.backup import BackupManager
+        from refactron.core.pipeline_session import SessionState, SessionStore
+
+        _store = SessionStore(root_dir=Path.cwd())
+        _pipeline_session = _store.load(pipeline_session_id)
+        if _pipeline_session is None:
+            console.print(f"[red]Session not found: {pipeline_session_id}[/red]")
+            raise SystemExit(1)
+        if not _pipeline_session.applied_fixes:
+            console.print("[yellow]No applied fixes in this session to roll back.[/yellow]")
+            return
+        if not _pipeline_session.backup_session_id:
+            console.print("[red]Session has no backup ID — cannot roll back.[/red]")
+            raise SystemExit(1)
+
+        _bm = BackupManager(root_dir=Path.cwd())
+        _restored_count, _failed = _bm.rollback_session(_pipeline_session.backup_session_id)
+
+        _pipeline_session.state = SessionState.ROLLED_BACK
+        _store.save(_pipeline_session)
+
+        console.print(
+            f"[green]Rolled back {_restored_count} file(s) from session "
+            f"{pipeline_session_id}[/green]"
+        )
+        for _f in _failed:
+            console.print(f"[red]  Failed to restore: {_f}[/red]")
+        return
+
     # Support both argument and option for session
     target_session = session_id or session
     console.print("\n🔄 [bold blue]Refactron Rollback[/bold blue]\n")
