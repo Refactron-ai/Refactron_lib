@@ -22,15 +22,44 @@ class TestPipelineSession:
         assert session.blocked_fixes == []
 
     def test_session_to_dict_roundtrip(self, tmp_path):
+        item = FixQueueItem(
+            issue_id="i001",
+            file_path="/tmp/foo.py",
+            line_number=5,
+            level="CRITICAL",
+            message="test",
+            fixer_name="SomeFixer",
+            status=FixStatus.APPLIED,
+            diff="--- a\n+++ b",
+            block_reason=None,
+            backup_path="/tmp/backup/foo.py",
+        )
         session = PipelineSession(
             session_id="sess_001",
             target=str(tmp_path),
             created_at="2026-04-03T18:00:00",
+            total_files=3,
+            total_issues=7,
+            issues_by_level={"CRITICAL": 2, "WARNING": 5},
+            fix_queue=[item],
+            backup_session_id="backup_abc",
+            finished_at="2026-04-03T18:05:00",
         )
         d = session.to_dict()
         restored = PipelineSession.from_dict(d)
         assert restored.session_id == session.session_id
-        assert restored.state == session.state
+        assert restored.target == session.target
+        assert restored.created_at == session.created_at
+        assert restored.total_files == 3
+        assert restored.issues_by_level == {"CRITICAL": 2, "WARNING": 5}
+        assert restored.backup_session_id == "backup_abc"
+        assert restored.finished_at == "2026-04-03T18:05:00"
+        assert len(restored.fix_queue) == 1
+        restored_item = restored.fix_queue[0]
+        assert restored_item.issue_id == "i001"
+        assert restored_item.status == FixStatus.APPLIED
+        assert restored_item.diff == "--- a\n+++ b"
+        assert restored_item.backup_path == "/tmp/backup/foo.py"
 
     def test_queue_item_pending_by_default(self):
         item = FixQueueItem(

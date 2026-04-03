@@ -8,11 +8,14 @@ in <project_root>/.refactron/sessions/<session_id>.json.
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+_logger = logging.getLogger(__name__)
 
 
 class SessionState(str, Enum):
@@ -151,7 +154,15 @@ class SessionStore:
         path = self._session_path(session_id)
         if not path.exists():
             return None
-        return PipelineSession.from_dict(json.loads(path.read_text(encoding="utf-8")))
+        try:
+            session = PipelineSession.from_dict(json.loads(path.read_text(encoding="utf-8")))
+        except (json.JSONDecodeError, KeyError, ValueError):
+            return None
+        if session.session_id != session_id:
+            _logger.warning(
+                "Session ID mismatch: requested %s, got %s", session_id, session.session_id
+            )
+        return session
 
     def load_latest(self) -> Optional[PipelineSession]:
         if not self.sessions_dir.exists():
@@ -159,15 +170,22 @@ class SessionStore:
         paths = sorted(self.sessions_dir.glob("*.json"))
         if not paths:
             return None
-        return PipelineSession.from_dict(json.loads(paths[-1].read_text(encoding="utf-8")))
+        try:
+            return PipelineSession.from_dict(json.loads(paths[-1].read_text(encoding="utf-8")))
+        except (json.JSONDecodeError, KeyError, ValueError):
+            return None
 
     def list_sessions(self) -> List[PipelineSession]:
         if not self.sessions_dir.exists():
             return []
-        return [
-            PipelineSession.from_dict(json.loads(p.read_text(encoding="utf-8")))
-            for p in sorted(self.sessions_dir.glob("*.json"))
-        ]
+        sessions: List[PipelineSession] = []
+        for p in sorted(self.sessions_dir.glob("*.json")):
+            try:
+                data = json.loads(p.read_text(encoding="utf-8"))
+                sessions.append(PipelineSession.from_dict(data))
+            except (json.JSONDecodeError, KeyError, ValueError):
+                pass
+        return sessions
 
     @staticmethod
     def make_session_id() -> str:
