@@ -20,6 +20,7 @@ from refactron.core.pipeline_session import (
     SessionState,
     SessionStore,
 )
+from refactron.core.config import RefactronConfig
 from refactron.core.refactron import Refactron
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,10 @@ class RefactronPipeline:
 
     def analyze(self, target: Path) -> PipelineSession:
         """Run analysis on target, create and save a PipelineSession."""
-        r = Refactron()
+        cfg = RefactronConfig()
+        # Always disable incremental analysis — CLI users expect full results every run.
+        cfg.enable_incremental_analysis = False
+        r = Refactron(cfg)
         result = r.analyze(target)
         self._last_result = result
 

@@ -188,8 +188,10 @@ def analyze(
         cfg.log_format = log_format
     if metrics is not None:
         cfg.enable_metrics = metrics
-    if no_cache:
-        cfg.enable_incremental_analysis = False
+    # Always disable incremental analysis in CLI — users expect `analyze` to
+    # always return all issues, not skip unchanged files silently.
+    # (Incremental filtering is an optimization for the programmatic API only.)
+    cfg.enable_incremental_analysis = False
 
     if output_format != "json":
         _print_file_count(target_path)
