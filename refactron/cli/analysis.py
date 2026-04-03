@@ -310,6 +310,7 @@ def analyze(
         )
 
     _pipeline.store.save(_pipeline_session)
+    _pipeline.store.set_current(_session_id)
 
     console.print(f"\n[dim]Session: {_session_id}[/dim]")
     if fix_on:

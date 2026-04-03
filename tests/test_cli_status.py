@@ -25,6 +25,7 @@ class TestStatusCommand:
         session = _make_session(tmp_path)
         runner = CliRunner()
         with patch("refactron.cli.status.SessionStore") as mock_store_cls:
+            mock_store_cls.return_value.load_current.return_value = session
             mock_store_cls.return_value.load_latest.return_value = session
             result = runner.invoke(status, ["--project-root", str(tmp_path)])
         assert result.exit_code == 0
@@ -45,6 +46,7 @@ class TestStatusCommand:
     def test_status_no_session_shows_message(self, tmp_path):
         runner = CliRunner()
         with patch("refactron.cli.status.SessionStore") as mock_store_cls:
+            mock_store_cls.return_value.load_current.return_value = None
             mock_store_cls.return_value.load_latest.return_value = None
             result = runner.invoke(status, ["--project-root", str(tmp_path)])
         assert result.exit_code == 0

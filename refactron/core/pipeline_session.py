@@ -188,6 +188,36 @@ class SessionStore:
                 pass
         return sessions
 
+    # ------------------------------------------------------------------
+    # Current session pointer  (.refactron/current)
+    # ------------------------------------------------------------------
+
+    @property
+    def _current_ptr(self) -> Path:
+        return self.root_dir / ".refactron" / "current"
+
+    def set_current(self, session_id: str) -> None:
+        """Write session_id as the active session for this workspace."""
+        self._current_ptr.parent.mkdir(parents=True, exist_ok=True)
+        self._current_ptr.write_text(session_id, encoding="utf-8")
+
+    def get_current_id(self) -> Optional[str]:
+        """Return the active session ID, or None if not set."""
+        if not self._current_ptr.exists():
+            return None
+        sid = self._current_ptr.read_text(encoding="utf-8").strip()
+        return sid if sid else None
+
+    def load_current(self) -> Optional[PipelineSession]:
+        """Load the active session for this workspace."""
+        sid = self.get_current_id()
+        return self.load(sid) if sid else None
+
+    def clear_current(self) -> None:
+        """Remove the current session pointer (e.g. after rollback)."""
+        if self._current_ptr.exists():
+            self._current_ptr.unlink()
+
     @staticmethod
     def make_session_id() -> str:
         now = datetime.now(timezone.utc)

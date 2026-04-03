@@ -61,16 +61,24 @@ def run(
 ) -> None:
     """Run the full Refactron pipeline in one shot.
 
-    \b
-    1. Analyze <target>
-    2. Queue issues at --fix-on level and above
-    3. Apply fixes with verification (unless --dry-run)
-    4. Print summary + session ID for rollback
+    Analyzes TARGET, queues issues at --fix-on level, verifies each fix
+    (syntax + imports + tests), applies safe fixes, and saves a session
+    for rollback. All subsequent commands (autofix, status, rollback)
+    automatically use the active session — no need to pass session IDs.
 
     \b
-    Example:
+    Pipeline steps:
+      1. Analyze <target>
+      2. Queue issues at --fix-on level and above
+      3. Verify each fix (syntax + imports + test suite)
+      4. Apply safe fixes, block unsafe ones
+      5. Save session → .refactron/current
+
+    \b
+    Examples:
         refactron run src/ --fix-on CRITICAL --dry-run
         refactron run src/ --fix-on WARNING --fail-on ERROR
+        refactron run src/ --no-verify              # skip verification
     """
     target_path = Path(target)
     pipeline = RefactronPipeline(
@@ -80,6 +88,7 @@ def run(
     # Step 1: Analyze
     console.print(f"[bold]Analyzing[/bold] {target_path}...")
     session = pipeline.analyze(target_path)
+    pipeline.store.set_current(session.session_id)
     console.print(
         f"  {session.total_files} files · {session.total_issues} issues "
         f"({session.issues_by_level.get('CRITICAL', 0)} critical, "

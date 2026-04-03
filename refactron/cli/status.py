@@ -23,7 +23,17 @@ console = Console()
     help="Project root (where .refactron/ lives)",
 )
 def status(session_id: Optional[str], list_sessions: bool, project_root: str) -> None:
-    """Show the state of a pipeline session."""
+    """Show the state of the active pipeline session.
+
+    Automatically reads the current workspace session (set by 'analyze' or
+    'run'). No session ID required. Use --session to inspect a specific one.
+
+    \b
+    Examples:
+        refactron status                          # active session
+        refactron status --session sess_xyz       # specific session
+        refactron status --list                   # all sessions
+    """
     store = SessionStore(root_dir=Path(project_root))
 
     if list_sessions:
@@ -50,7 +60,11 @@ def status(session_id: Optional[str], list_sessions: bool, project_root: str) ->
         console.print(table)
         return
 
-    session = store.load(session_id) if session_id else store.load_latest()
+    if session_id:
+        session = store.load(session_id)
+    else:
+        # Load active workspace session, fall back to latest
+        session = store.load_current() or store.load_latest()
 
     if session is None:
         console.print(

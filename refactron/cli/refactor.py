@@ -266,8 +266,8 @@ def refactor(
     "session_id",
     default=None,
     help=(
-        "Pipeline session ID from a previous 'refactron analyze' run. "
-        "If omitted, re-analyzes the target."
+        "Override the active workspace session. If omitted, uses the "
+        "session set by the last 'refactron analyze' or 'refactron run'."
     ),
 )
 def autofix(
@@ -281,14 +281,23 @@ def autofix(
     verify: bool,
     session_id: Optional[str] = None,
 ) -> None:
-    """
-    Automatically fix code issues (Phase 3 feature).
+    """Apply fixes from the active pipeline session.
 
-    TARGET: Path to file or directory to fix
+    Automatically reads the current workspace session created by
+    'refactron analyze' or 'refactron run' — no session ID needed.
+    Use --session to target a specific session instead.
 
+    \b
+    Typical workflow:
+        refactron analyze src/ --fix-on CRITICAL   # creates session
+        refactron autofix --dry-run                # preview (uses active session)
+        refactron autofix                          # apply fixes
+        refactron rollback                         # undo if needed
+
+    \b
     Examples:
-      refactron autofix myfile.py --preview
-      refactron autofix myproject/ --apply --safety-level moderate
+        refactron autofix --dry-run
+        refactron autofix --session sess_20260404_120000
     """
     console.print()
     _auth_banner("Auto-fix")
@@ -311,16 +320,30 @@ def autofix(
             f"[dim]Loaded session {session_id} · {_queued} items queued[/dim]"
         )
     else:
-        if not target:
-            console.print("[red]Provide --session <id> or a target path.[/red]")
-            raise SystemExit(1)
-        console.print("[dim]No session — running fresh analysis...[/dim]")
-        _pipeline_session = _pipeline.analyze(_target_path)
-        if _pipeline._last_result:
-            _all_issues = [
-                i for fm in _pipeline._last_result.file_metrics for i in fm.issues
-            ]
-            _pipeline.queue_issues(_pipeline_session, _all_issues)
+        # Try workspace current session first (no --session flag needed)
+        _pipeline_session = _pipeline.store.load_current()
+        if _pipeline_session is not None:
+            _queued = len(
+                [i for i in _pipeline_session.fix_queue if i.status.value == "pending"]
+            )
+            console.print(
+                f"[dim]Resuming session {_pipeline_session.session_id} "
+                f"· {_queued} items queued[/dim]"
+            )
+        else:
+            if not target:
+                console.print(
+                    "[red]No active session. Run 'refactron analyze <target>' first.[/red]"
+                )
+                raise SystemExit(1)
+            console.print("[dim]No session — running fresh analysis...[/dim]")
+            _pipeline_session = _pipeline.analyze(_target_path)
+            _pipeline.store.set_current(_pipeline_session.session_id)
+            if _pipeline._last_result:
+                _all_issues = [
+                    i for fm in _pipeline._last_result.file_metrics for i in fm.issues
+                ]
+                _pipeline.queue_issues(_pipeline_session, _all_issues)
 
     _pipeline.apply(
         _pipeline_session,
@@ -433,7 +456,11 @@ def autofix(
     "--pipeline-session",
     "pipeline_session_id",
     default=None,
-    help="Roll back a specific pipeline session (from refactron status --list)",
+    help=(
+        "Override the active workspace session to roll back. "
+        "If omitted, rolls back the current session automatically. "
+        "Use 'refactron status --list' to see all session IDs."
+    ),
 )
 def rollback(
     session_id: Optional[str],
@@ -458,14 +485,18 @@ def rollback(
       refactron rollback --use-git    # Use Git rollback
       refactron rollback --clear      # Clear all backups
     """
-    if pipeline_session_id:
-        from refactron.core.backup import BackupManager
-        from refactron.core.pipeline_session import SessionState, SessionStore
+    from refactron.core.backup import BackupManager
+    from refactron.core.pipeline_session import SessionState, SessionStore
 
-        _store = SessionStore(root_dir=Path.cwd())
-        _pipeline_session = _store.load(pipeline_session_id)
+    _store = SessionStore(root_dir=Path.cwd())
+
+    # Use explicit ID, else fall back to active workspace session
+    _resolved_id = pipeline_session_id or _store.get_current_id()
+
+    if _resolved_id:
+        _pipeline_session = _store.load(_resolved_id)
         if _pipeline_session is None:
-            console.print(f"[red]Session not found: {pipeline_session_id}[/red]")
+            console.print(f"[red]Session not found: {_resolved_id}[/red]")
             raise SystemExit(1)
         if not _pipeline_session.applied_fixes:
             console.print("[yellow]No applied fixes in this session to roll back.[/yellow]")
@@ -479,10 +510,11 @@ def rollback(
 
         _pipeline_session.state = SessionState.ROLLED_BACK
         _store.save(_pipeline_session)
+        _store.clear_current()
 
         console.print(
             f"[green]Rolled back {_restored_count} file(s) from session "
-            f"{pipeline_session_id}[/green]"
+            f"{_resolved_id}[/green]"
         )
         for _f in _failed:
             console.print(f"[red]  Failed to restore: {_f}[/red]")
