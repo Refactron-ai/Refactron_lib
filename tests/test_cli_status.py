@@ -1,4 +1,5 @@
 """Tests for `refactron status` command."""
+
 from unittest.mock import patch
 
 from click.testing import CliRunner

@@ -1,4 +1,5 @@
 """refactron status — show pipeline session state."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -15,9 +16,7 @@ console = Console()
 
 @click.command()
 @click.option("--session", "session_id", default=None, help="Session ID to inspect")
-@click.option(
-    "--list", "list_sessions", is_flag=True, default=False, help="List all sessions"
-)
+@click.option("--list", "list_sessions", is_flag=True, default=False, help="List all sessions")
 @click.option(
     "--project-root",
     default=".",
@@ -94,10 +93,6 @@ def status(session_id: Optional[str], list_sessions: bool, project_root: str) ->
 
     console.print("\n[bold]Next steps[/bold]")
     if pending:
-        console.print(
-            f"  [dim]refactron autofix --session {session.session_id} --apply[/dim]"
-        )
+        console.print(f"  [dim]refactron autofix --session {session.session_id} --apply[/dim]")
     if applied:
-        console.print(
-            f"  [dim]refactron rollback --session {session.session_id}[/dim]  (to undo)"
-        )
+        console.print(f"  [dim]refactron rollback --session {session.session_id}[/dim]  (to undo)")

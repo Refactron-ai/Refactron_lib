@@ -5,6 +5,7 @@ One session is created per `refactron analyze` invocation and consumed by
 every subsequent command (autofix, status, rollback). Persisted as JSON
 in <project_root>/.refactron/sessions/<session_id>.json.
 """
+
 from __future__ import annotations
 
 import json

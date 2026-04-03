@@ -1,4 +1,5 @@
 """Tests for PipelineSession data model and SessionStore."""
+
 from refactron.core.pipeline_session import (
     FixQueueItem,
     FixStatus,
@@ -88,11 +89,13 @@ class TestSessionStore:
     def test_load_latest(self, tmp_path):
         store = SessionStore(root_dir=tmp_path)
         for sid in ["sess_001", "sess_002"]:
-            store.save(PipelineSession(
-                session_id=sid,
-                target=str(tmp_path),
-                created_at="2026-04-03T18:00:00",
-            ))
+            store.save(
+                PipelineSession(
+                    session_id=sid,
+                    target=str(tmp_path),
+                    created_at="2026-04-03T18:00:00",
+                )
+            )
         latest = store.load_latest()
         assert latest is not None
         assert latest.session_id == "sess_002"
@@ -104,11 +107,13 @@ class TestSessionStore:
     def test_list_sessions(self, tmp_path):
         store = SessionStore(root_dir=tmp_path)
         for sid in ["sess_001", "sess_002", "sess_003"]:
-            store.save(PipelineSession(
-                session_id=sid,
-                target=str(tmp_path),
-                created_at="2026-04-03T18:00:00",
-            ))
+            store.save(
+                PipelineSession(
+                    session_id=sid,
+                    target=str(tmp_path),
+                    created_at="2026-04-03T18:00:00",
+                )
+            )
         sessions = store.list_sessions()
         assert len(sessions) == 3
 

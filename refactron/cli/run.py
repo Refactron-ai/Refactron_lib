@@ -1,4 +1,5 @@
 """refactron run — full one-shot pipeline: analyze → queue → verify → apply."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -104,9 +105,7 @@ def run(
         blocked = len(session.blocked_fixes)
 
         if dry_run:
-            console.print(
-                f"  [yellow]Dry run — {queued} fixes previewed, nothing written[/yellow]"
-            )
+            console.print(f"  [yellow]Dry run — {queued} fixes previewed, nothing written[/yellow]")
         else:
             console.print(f"  [green]Applied: {applied}[/green]")
             if blocked:

@@ -1,6 +1,7 @@
 """
 RefactronPipeline — orchestrates the full analyze → fix → verify → write pipeline.
 """
+
 from __future__ import annotations
 
 import logging
@@ -61,9 +62,7 @@ class RefactronPipeline:
         session_id = SessionStore.make_session_id()
         now = datetime.now(timezone.utc).isoformat()
 
-        issues_by_level: Dict[str, int] = {
-            "CRITICAL": 0, "ERROR": 0, "WARNING": 0, "INFO": 0
-        }
+        issues_by_level: Dict[str, int] = {"CRITICAL": 0, "ERROR": 0, "WARNING": 0, "INFO": 0}
         for fm in result.file_metrics:
             for issue in fm.issues:
                 level_str = _LEVEL_MAP.get(issue.level, "INFO")
@@ -170,9 +169,7 @@ class RefactronPipeline:
                         item.status = FixStatus.APPLIED
                         if backup_session_id:
                             item.backup_path = str(
-                                self.backup_manager.backup_dir
-                                / backup_session_id
-                                / file_path.name
+                                self.backup_manager.backup_dir / backup_session_id / file_path.name
                             )
                         session.applied_fixes.append(item)
             else:
@@ -185,9 +182,7 @@ class RefactronPipeline:
         session.finished_at = datetime.now(timezone.utc).isoformat()
         self.store.save(session)
 
-    def _queue_items_to_issues(
-        self, items: List[FixQueueItem], file_path: Path
-    ) -> List[CodeIssue]:
+    def _queue_items_to_issues(self, items: List[FixQueueItem], file_path: Path) -> List[CodeIssue]:
         return [
             CodeIssue(
                 category=IssueCategory.COMPLEXITY,

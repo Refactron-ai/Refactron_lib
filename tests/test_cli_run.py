@@ -1,4 +1,5 @@
 """Tests for `refactron run` one-shot pipeline command."""
+
 from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
