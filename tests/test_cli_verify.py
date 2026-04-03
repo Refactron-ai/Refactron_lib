@@ -1,6 +1,5 @@
 """Tests for `refactron verify <file> --against <original>` command."""
 
-from pathlib import Path
 from unittest.mock import patch
 
 from click.testing import CliRunner

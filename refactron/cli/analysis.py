@@ -258,19 +258,22 @@ def analyze(
         )
         console.print(f"  Success rate: {metrics_summary.get('success_rate_percent', 0):.1f}%")
 
-    # Exit with error code based on --fail-on threshold
+    # Exit with error code: --fail-on sets threshold, default is CRITICAL
     _LEVEL_RANK = {"INFO": 0, "WARNING": 1, "ERROR": 2, "CRITICAL": 3}
-    _SUMMARY_KEY = {"INFO": "info", "WARNING": "warnings", "ERROR": "errors", "CRITICAL": "critical"}
+    _SUMMARY_KEY = {
+        "INFO": "info",
+        "WARNING": "warnings",
+        "ERROR": "errors",
+        "CRITICAL": "critical",
+    }
 
-    if fail_on:
-        threshold = _LEVEL_RANK[fail_on.upper()]
-        should_fail = any(
-            summary[_SUMMARY_KEY[lvl]] > 0
-            for lvl, rank in _LEVEL_RANK.items()
-            if rank >= threshold
-        )
-        if should_fail:
-            raise SystemExit(1)
+    effective_fail_on = fail_on.upper() if fail_on else "CRITICAL"
+    threshold = _LEVEL_RANK[effective_fail_on]
+    should_fail = any(
+        summary[_SUMMARY_KEY[lvl]] > 0 for lvl, rank in _LEVEL_RANK.items() if rank >= threshold
+    )
+    if should_fail:
+        raise SystemExit(1)
 
 
 @click.command()
