@@ -324,22 +324,10 @@ def autofix(
         if _pipeline_session is None:
             console.print(f"[red]Session not found: {session_id}[/red]")
             raise SystemExit(1)
-        _queued = len([i for i in _pipeline_session.fix_queue if i.status.value == "pending"])
-        console.print(
-            f"[dim]Loaded session {session_id} · {_queued} items queued[/dim]"
-        )
     else:
         # Try workspace current session first (no --session flag needed)
         _pipeline_session = _pipeline.store.load_current()
-        if _pipeline_session is not None:
-            _queued = len(
-                [i for i in _pipeline_session.fix_queue if i.status.value == "pending"]
-            )
-            console.print(
-                f"[dim]Resuming session {_pipeline_session.session_id} "
-                f"· {_queued} items queued[/dim]"
-            )
-        else:
+        if _pipeline_session is None:
             if not target:
                 console.print(
                     "[red]No active session. Run 'refactron analyze <target>' first.[/red]"
@@ -354,6 +342,15 @@ def autofix(
                 ]
                 _pipeline.queue_issues(_pipeline_session, _all_issues)
 
+    _total_issues = _pipeline_session.total_issues
+    _fixable = len([i for i in _pipeline_session.fix_queue if i.status.value == "pending"])
+    _no_fixer = len([i for i in _pipeline_session.fix_queue if i.status.value == "skipped"])
+    console.print(
+        f"[dim]Session {_pipeline_session.session_id} · "
+        f"{_total_issues} issues · {_fixable} have automated fixers · "
+        f"{_no_fixer} no fixer available[/dim]"
+    )
+
     # Filter queue by --fix-on level: mark items below threshold as skipped
     _LEVEL_RANK = {"INFO": 0, "WARNING": 1, "ERROR": 2, "CRITICAL": 3}
     _threshold = _LEVEL_RANK.get(fix_on.upper(), 3)
@@ -365,16 +362,22 @@ def autofix(
                 _item.status = _FixStatus.SKIPPED
 
     _pending_count = len([i for i in _pipeline_session.fix_queue if i.status == _FixStatus.PENDING])
-    console.print(
-        f"[dim]Fixing issues at {fix_on.upper()}+ level "
-        f"({_pending_count} items)[/dim]"
-    )
 
     if _pending_count == 0:
-        console.print(
-            f"[yellow]No fixable issues at {fix_on.upper()} level or above.[/yellow]\n"
-            f"[dim]Try: refactron autofix --fix-on WARNING[/dim]"
-        )
+        if _no_fixer > 0:
+            console.print(
+                f"[yellow]{_no_fixer} issues found but none have automated fixers.[/yellow]\n"
+                f"[dim]Refactron auto-fixers cover: unused imports, magic numbers, "
+                f"docstrings, dead code, type hints, sorting, whitespace, quotes, "
+                f"booleans, f-strings, unused variables, indentation.[/dim]\n"
+                f"[dim]The issues in this session (complexity, code smell) "
+                f"require manual refactoring.[/dim]"
+            )
+        else:
+            console.print(
+                f"[yellow]No fixable issues at {fix_on.upper()} level or above.[/yellow]\n"
+                f"[dim]Try: refactron autofix --fix-on WARNING[/dim]"
+            )
         return
 
     _pipeline.apply(
