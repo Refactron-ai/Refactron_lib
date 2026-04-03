@@ -303,26 +303,18 @@ def analyze(
         },
     )
 
-    if fix_on:
-        _all_issues = [i for fm in result.file_metrics for i in fm.issues]
-        _pipeline.queue_issues(
-            _pipeline_session,
-            _all_issues,
-            min_level=_FIX_LEVEL_MAP[fix_on.upper()],
-        )
+    # Always queue all issues so `autofix` has a full picture.
+    # `autofix --fix-on` controls which level actually gets applied.
+    _all_issues = [i for fm in result.file_metrics for i in fm.issues]
+    _pipeline.queue_issues(_pipeline_session, _all_issues)
 
     _pipeline.store.save(_pipeline_session)
     _pipeline.store.set_current(_session_id)
 
+    _fixable = len([i for i in _pipeline_session.fix_queue if i.status.value == "pending"])
     console.print(f"\n[dim]Session: {_session_id}[/dim]")
-    if fix_on:
-        _queued = len(
-            [i for i in _pipeline_session.fix_queue if i.status.value == "pending"]
-        )
-        console.print(
-            f"[dim]{_queued} issues queued → "
-            f"refactron autofix --session {_session_id}[/dim]"
-        )
+    if _fixable:
+        console.print(f"[dim]{_fixable} fixable issues queued → refactron autofix --dry-run[/dim]")
 
     # Exit with error code: --fail-on sets threshold, default is CRITICAL
     _LEVEL_RANK = {"INFO": 0, "WARNING": 1, "ERROR": 2, "CRITICAL": 3}

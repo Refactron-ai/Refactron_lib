@@ -270,6 +270,14 @@ def refactor(
         "session set by the last 'refactron analyze' or 'refactron run'."
     ),
 )
+@click.option(
+    "--fix-on",
+    "fix_on",
+    type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO"], case_sensitive=False),
+    default="CRITICAL",
+    show_default=True,
+    help="Apply only issues at this severity level and above.",
+)
 def autofix(
     target: Optional[str],
     config: Optional[str],
@@ -280,6 +288,7 @@ def autofix(
     safety_level: str,
     verify: bool,
     session_id: Optional[str] = None,
+    fix_on: str = "CRITICAL",
 ) -> None:
     """Apply fixes from the active pipeline session.
 
@@ -345,6 +354,29 @@ def autofix(
                 ]
                 _pipeline.queue_issues(_pipeline_session, _all_issues)
 
+    # Filter queue by --fix-on level: mark items below threshold as skipped
+    _LEVEL_RANK = {"INFO": 0, "WARNING": 1, "ERROR": 2, "CRITICAL": 3}
+    _threshold = _LEVEL_RANK.get(fix_on.upper(), 3)
+    from refactron.core.pipeline_session import FixStatus as _FixStatus
+
+    for _item in _pipeline_session.fix_queue:
+        if _item.status == _FixStatus.PENDING:
+            if _LEVEL_RANK.get(_item.level.upper(), 0) < _threshold:
+                _item.status = _FixStatus.SKIPPED
+
+    _pending_count = len([i for i in _pipeline_session.fix_queue if i.status == _FixStatus.PENDING])
+    console.print(
+        f"[dim]Fixing issues at {fix_on.upper()}+ level "
+        f"({_pending_count} items)[/dim]"
+    )
+
+    if _pending_count == 0:
+        console.print(
+            f"[yellow]No fixable issues at {fix_on.upper()} level or above.[/yellow]\n"
+            f"[dim]Try: refactron autofix --fix-on WARNING[/dim]"
+        )
+        return
+
     _pipeline.apply(
         _pipeline_session,
         dry_run=dry_run,
@@ -356,9 +388,12 @@ def autofix(
     _skipped = len([i for i in _pipeline_session.fix_queue if i.status.value == "skipped"])
 
     if dry_run:
-        console.print("\n[bold]Dry-run complete[/bold]")
-        for _item in _pipeline_session.fix_queue:
-            if _item.diff:
+        _diff_items = [i for i in _pipeline_session.fix_queue if i.diff]
+        if not _diff_items:
+            console.print("\n[dim]Dry-run: no diffs generated (fixers may not support these issue types)[/dim]")
+        else:
+            console.print(f"\n[bold]Dry-run preview ({len(_diff_items)} changes)[/bold]")
+            for _item in _diff_items:
                 console.print(
                     f"\n  [cyan]{_item.file_path}:{_item.line_number}[/cyan] {_item.message}"
                 )
