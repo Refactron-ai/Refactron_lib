@@ -1,0 +1,49 @@
+---
+title: autofix
+description: Apply fixes for all fixable issues in the active session.
+---
+
+## Usage
+
+```
+autofix [--dry-run] [--verify]
+```
+
+There is **no path argument** in the REPL: autofix always uses the **active** session’s stored issues (from the last `analyze`).
+
+| Flag | Meaning |
+|------|---------|
+| `--dry-run` | Compute transforms and queue results **without** writing files |
+| `--verify` | Run the verification engine before each write (in addition to config `autofix.require_verification`) |
+
+---
+
+## Behavior
+
+1. Loads fixable issues from the active session.
+2. Reconstructs the analysis result and runs the **orchestrator** autofix pipeline (fixers → verification gate → atomic writes → backups when not dry-run).
+3. Updates the session with applied vs blocked fixes and timestamps.
+
+---
+
+## Output
+
+You will see counts for **Applied** and **Blocked**, plus any block reasons (for example verification failure). Session **phase** moves to `fixed` when updates succeed.
+
+---
+
+## Configuration
+
+Global behavior is controlled in `refactron.yaml`:
+
+- `autofix.dry_run` — Default dry-run for automation (REPL flag overrides per run when passed).
+- `autofix.require_verification` — If true, fixes that fail verification are not written.
+
+See [Configuration](/docs-npm/configuration).
+
+---
+
+## See also
+
+- [Verification](/docs-npm/cli/verify)
+- [Verification engine](/docs-npm/concepts/verification)

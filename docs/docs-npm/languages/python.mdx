@@ -1,0 +1,41 @@
+---
+title: Python
+description: Python adapter — analyzers, transforms, and verification.
+---
+
+## Detection
+
+The Python adapter is selected when Python 3 is available (`python3 --version` succeeds) and your project contains `.py` files (among supported adapters, the one with the most matching files wins).
+
+---
+
+## Analysis
+
+Python analysis walks source files and runs the shared analyzer suite: security, complexity, code smell, dead code, type hints, dependencies, and performance. Each issue includes a populated **blast radius** from import and call graphs.
+
+---
+
+## Auto-fixes
+
+Transforms are applied in-memory and then gated by the **verification engine** before write. Python-specific fixers include unused imports, dead code, type hints, f-string safety, trailing whitespace, import sorting, and others registered in the autofix engine.
+
+---
+
+## Verification
+
+- **Syntax** — `ast.parse` via a Python subprocess.
+- **Imports** — Exercises that catch broken imports after a transform.
+- **Tests** — `pytest` for the file or project (see adapter and test-runner implementation for timeouts).
+
+---
+
+## Requirements
+
+- **Python 3.8+** on `PATH` as `python3`.
+- For tests: `pytest` in the environment when the test gate runs.
+
+---
+
+## See also
+
+- [Configuration](/docs-npm/configuration) — Analyzer toggles and thresholds

@@ -1,0 +1,55 @@
+---
+title: Issue browser
+description: Keyboard-driven TUI to navigate issues, preview diffs, fix, and verify.
+---
+
+## Opening the browser
+
+The browser opens automatically after a successful **`analyze`**. You can reopen it anytime with:
+
+```
+issues
+```
+
+Requires an **active** session (from the latest `analyze` or from **`session`** …). If there is no session, the CLI tells you to run `analyze` first.
+
+---
+
+## Layout
+
+- **Header** — Session id, issue counts, fixable count.
+- **List** — One row per issue: index, severity, message, file:line, fix status markers.
+- **Detail** — Selected issue message, suggestion, file path, blast level, fixable flag.
+
+---
+
+## Keys
+
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` or `j` / `k` | Move selection |
+| `d` | Preview diff (dry-run; no write) |
+| `Esc` | Dismiss diff overlay |
+| `a` | Fix selected issue |
+| `A` | Fix all fixable issues |
+| `v` | Verify fixed files |
+| `/` | Filter issues |
+| `g` / `G` | Jump to first / last issue |
+| `q` | Quit browser, return to REPL |
+
+Markers in the list can include fixable (`·`), fixed (`✔`), verified (`✓`), or blocked (`✘`) depending on implementation version.
+
+---
+
+## Tips
+
+- Use **`d`** before **`a`** to confirm the transform on critical paths.
+- After bulk **`A`**, run **`v`** to run verification for fixed files.
+- Quitting with **`q`** does not delete the session; use **`session list`** to resume later.
+
+---
+
+## See also
+
+- [Quickstart](/docs-npm/quickstart) — First-run walkthrough
+- [Blast radius](/docs-npm/concepts/blast-radius)

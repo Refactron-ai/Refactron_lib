@@ -1,0 +1,65 @@
+---
+title: Work Sessions
+description: How Refactron persists analyze → autofix → verify context across REPL commands.
+---
+
+## What is a session?
+
+Every successful `analyze` run creates a **work session**: a snapshot of the analysis (full issue list, blast radius, metadata) stored on disk so you can **autofix**, **verify**, and **diff** without rescanning the tree.
+
+Sessions are identified by a short hex id (for example `a1b2c3`) and progress through phases:
+
+| Phase | Meaning |
+|-------|---------|
+| `analyzed` | Scan finished; issues are available for the issue browser and `autofix` |
+| `fixing` | Reserved for in-progress fix passes |
+| `fixed` | `autofix` completed (applied and blocked counts recorded) |
+| `verified` | `verify` completed (per-file confidence and checks recorded) |
+
+---
+
+## Where sessions live
+
+Sessions are stored as JSON under your project:
+
+```
+.refactron/work-sessions/{session-id}.json
+```
+
+The active session in memory is whichever run of **`analyze`** or **`session`** (with a session id) last activated a session. Commands such as `autofix`, `verify`, `diff`, and `issues` use the **active** session.
+
+---
+
+## Typical workflow
+
+1. **`analyze src/`** — Creates a new session, sets it active, opens the interactive issue browser.
+2. **Fix in the browser** or run **`autofix`** — Updates the same session with fix results (applied vs blocked).
+3. **`verify`** — Runs verification for fixable files and updates the session with pass/block counts.
+4. **`session list`** — Lists saved sessions on disk (newest first).
+5. **`session` + session id** — Loads a previous session and makes it active so you can continue without a new scan (example: `session a1b2c3`).
+
+---
+
+## What is stored
+
+Each session file includes:
+
+- **Analysis** — Target path, file counts, full `CodeIssue[]` list (including blast radius), timestamps.
+- **Fix** (after `autofix`) — Dry-run flag, applied vs blocked fix queue items, optional diffs.
+- **Verify** (after `verify`) — Per-file entries with `safe`, confidence, checks run, and blocking reasons.
+
+This design keeps the REPL responsive: heavy analysis runs once; later steps reuse the stored issues.
+
+---
+
+## Related commands
+
+| Command | Role |
+|---------|------|
+| `status` | Shows the active session (or the latest saved session if none is active) |
+| `issues` | Reopens the issue browser for the active session |
+| `diff` | Prints unified diffs from the last `autofix` results in the active session |
+
+<Tip>
+If you restart the CLI, run `session list` and then `session` with the desired id to resume work without re-running `analyze`.
+</Tip>

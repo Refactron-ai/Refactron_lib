@@ -1,0 +1,64 @@
+---
+title: Orchestrator
+description: High-level analyze and autofix pipeline.
+---
+
+## Class
+
+```typescript
+class Orchestrator {
+  constructor(
+    adapter: ILanguageAdapter,
+    config: RefactronConfig,
+    projectRoot: string,
+  );
+
+  analyze(target: string): Promise<OrchestratorResult>;
+
+  autofix(
+    target: string,
+    options?: { dryRun?: boolean; verify?: boolean },
+  ): Promise<{ session: PipelineSession; analysis: AnalysisResult }>;
+
+  autofixFromAnalysis(
+    analysis: AnalysisResult,
+    options?: { dryRun?: boolean; verify?: boolean },
+  ): Promise<PipelineSession>;
+}
+```
+
+`OrchestratorResult` bundles a `PipelineSession` with the `AnalysisResult` from **`analyze`**.
+
+---
+
+## analyze
+
+Runs the **AnalysisEngine** on the target path, records issue counts on an internal pipeline session, persists via **SessionStore**, and returns both session summary and full **AnalysisResult**.
+
+---
+
+## autofix
+
+1. Calls **`analyze`** on the same target.
+2. Enqueues fixable issues, runs **AutoFixEngine** transforms.
+3. If verification is required (CLI flag or `config.autofix.require_verification`), runs **VerificationEngine** before each write.
+4. On success, **BackupManager** + **atomicWrite** persist changes.
+
+---
+
+## autofixFromAnalysis
+
+Skips a new scan — used by the REPL **`autofix`** command when reconstructing analysis from a **WorkSession** so fixes apply to the stored issue list without re-running analyzers.
+
+---
+
+## Source
+
+`src/core/orchestrator.ts`
+
+---
+
+## See also
+
+- [Models](/docs-npm/api/models)
+- [Verification](/docs-npm/concepts/verification)

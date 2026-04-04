@@ -1,0 +1,148 @@
+---
+title: Quickstart
+description: Install Refactron and run your first analysis in under 2 minutes.
+---
+
+## Prerequisites
+
+- **Node.js 18+**
+- **Git** (optional but recommended — enables temporal analysis and blast radius)
+- **Python 3.8+** (required for Python projects)
+
+---
+
+## Installation
+
+<CodeGroup>
+```bash npm
+npm install -g refactron
+```
+
+```bash npx (no install)
+npx refactron
+```
+</CodeGroup>
+
+Verify the installation:
+
+```bash
+refactron --version
+# 0.1.0-beta.2
+```
+
+---
+
+## First Run
+
+Navigate to any project directory and run:
+
+```bash
+cd your-project
+refactron
+```
+
+If you are not logged in, Refactron will open the authentication flow in your browser. After login, the REPL starts.
+
+---
+
+## Analyze Your Project
+
+From the Refactron REPL prompt (`❯`), type:
+
+```
+❯ analyze .
+```
+
+Or analyze a specific directory:
+
+```
+❯ analyze src/
+```
+
+Refactron will:
+1. Detect your language (Python or TypeScript)
+2. Run 7 analyzers in parallel
+3. Build import and call graphs
+4. Score every issue with a blast radius
+5. **Automatically open the interactive issue browser**
+
+---
+
+## The Issue Browser
+
+After analysis, you land in the interactive browser:
+
+```
+ Issues  session abc123 · 42 issues · 18 fixable
+────────────────────────────────────────────────────
+     #   SEV   MESSAGE                              FILE:LINE
+▶    1   CRIT  SQL injection via string format      db/query.py:47    ·
+     2   HIGH  Cyclomatic complexity 14 > 10        api/views.py:123  ·
+     3   HIGH  Unused import: os                    utils/file.py:1   ·
+     4   MED   Missing return type annotation       core/auth.py:88   ·
+────────────────────────────────────────────────────
+Msg:  SQL injection via string format
+Fix:  Use parameterised queries instead of f-string formatting
+File: db/query.py:47  blast:high  [fixable]
+────────────────────────────────────────────────────
+↑↓ · a fix · A all · d diff · v verify · / filter · q quit
+```
+
+### Key Actions
+
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` or `j` / `k` | Navigate issues |
+| `d` | Preview diff (dry-run, nothing written) |
+| `a` | Fix selected issue (atomic write) |
+| `A` | Fix **all** fixable issues in one pass |
+| `v` | Verify a fixed issue's file |
+| `/` | Filter by message, file, severity, or type |
+| `g` / `G` | Jump to first / last issue |
+| `q` | Quit browser, return to REPL |
+
+---
+
+## Your First Fix
+
+1. Navigate to a fixable issue (marked `·` on the right)
+2. Press `d` to preview the diff — nothing is written yet
+3. Press `Esc` to dismiss the diff
+4. Press `a` to apply the fix — the issue is now marked `✔`
+5. Press `v` to verify the fix is safe
+
+<Tip>
+Press `A` to fix all fixable issues in one pass. Refactron applies each fix atomically with a backup, so you can always `rollback`.
+</Tip>
+
+---
+
+## Workflow Summary
+
+```
+analyze .          → scan + open browser
+  a / A            → fix one or all issues
+  v                → verify fixed files
+  q                → return to REPL
+
+autofix . --verify → fix + verify in one command
+status             → review session summary
+rollback           → undo all fixes
+diff               → show unified diff of fixes
+```
+
+---
+
+## Authentication
+
+Refactron uses OAuth 2.0 Device Authorization. The first time you run it:
+
+1. Your browser opens automatically to the approval page
+2. You approve access — no password is ever stored
+3. Credentials are saved to `~/.refactron/credentials.json`
+
+```
+❯ auth     # check login status
+❯ logout   # remove credentials
+❯ login    # re-authenticate
+```

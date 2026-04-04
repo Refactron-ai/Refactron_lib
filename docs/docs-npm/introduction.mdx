@@ -1,0 +1,125 @@
+---
+title: Introduction
+description: Safety-first refactoring — finds, fixes, and verifies changes are safe before touching the filesystem.
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.png"
+  alt="Refactron Hero"
+/>
+
+## What is Refactron?
+
+Refactron is a TypeScript CLI that analyzes your codebase for issues, automatically fixes what it can, and **verifies every change is safe before writing a single byte to disk**.
+
+It is built around one core idea: **every code change has a blast radius**. A one-liner fix in an isolated utility is low-risk. A change to a function imported by 40 files that has no tests is extremely high-risk. Refactron measures this mathematically and scales its verification strictness accordingly.
+
+```bash
+npm install -g refactron
+cd your-project
+refactron
+```
+
+---
+
+## The Problem Refactron Solves
+
+Most refactoring tools answer "what should I fix?" but leave you to figure out "is it safe to fix?". Refactron answers both.
+
+| Tool Category | Finds Issues | Auto-fixes | Verifies Safety | Blast Radius |
+|---|---|---|---|---|
+| Linters (ESLint, Pylint) | ✓ | Partial | ✗ | ✗ |
+| Formatters (Prettier, Black) | ✓ | ✓ | ✗ | ✗ |
+| **Refactron** | ✓ | ✓ | **✓** | **✓** |
+
+---
+
+## Core Differentiators
+
+<CardGroup cols={2}>
+  <Card title="Blast Radius Scoring" icon="explosion">
+    Every issue carries a mandatory 0–100 impact score computed from transitive import and call graphs. You always know how dangerous a change is before making it.
+  </Card>
+  <Card title="Verification Gate" icon="shield-check">
+    Changes are verified (syntax, imports, test suite) before being written to disk. Strictness scales automatically with blast radius.
+  </Card>
+  <Card title="Atomic Writes" icon="lock">
+    All file writes use a temp-file-then-rename strategy. Partial writes and corrupted files are impossible.
+  </Card>
+  <Card title="Backup & Rollback" icon="rotate-left">
+    Every session is backed up automatically. Run `rollback` to restore the previous state at any time.
+  </Card>
+  <Card title="Interactive Browser" icon="table-list">
+    After analysis, an interactive TUI opens automatically. Navigate issues, preview diffs, fix and verify — all without leaving the terminal.
+  </Card>
+  <Card title="Work Sessions" icon="layer-group">
+    Every `analyze` run creates a persistent session. Fix and verify against it later — no re-scanning needed.
+  </Card>
+</CardGroup>
+
+---
+
+## How It Works
+
+```
+analyze src/    (at REPL prompt)
+        │
+        ▼
+  Analysis Engine
+  ┌─────────────────────────────────┐
+  │  7 analyzers run in parallel    │
+  │  Import graph + call graph built│
+  │  Blast radius scored per issue  │
+  │  Temporal profile from git log  │
+  └─────────────────────────────────┘
+        │
+        ▼
+  Issue Browser (interactive TUI)
+  ┌─────────────────────────────────┐
+  │  Navigate issues  ↑↓ / j k     │
+  │  Preview diff     d             │
+  │  Fix in place     a             │
+  │  Fix all          A             │
+  │  Verify fix       v             │
+  └─────────────────────────────────┘
+        │
+        ▼
+  Verification Engine
+  ┌─────────────────────────────────┐
+  │  Blast trivial → syntax only    │
+  │  Blast medium  → syntax+imports │
+  │  Blast critical→ full test suite│
+  └─────────────────────────────────┘
+        │
+        ▼
+  Atomic write to disk (or blocked)
+```
+
+---
+
+## Quick Example
+
+```bash
+# Install
+npm install -g refactron
+
+# Start Refactron, then at the ❯ prompt (same commands as below):
+refactron
+
+# Analyze your project — issue browser opens automatically
+analyze src/
+
+# In the browser:
+#   j/k  navigate issues
+#   d    preview diff
+#   a    fix selected issue
+#   A    fix all fixable issues
+#   v    verify a fixed issue
+#   q    quit
+
+# From the REPL:
+autofix --verify    # fix + verify in one pass (uses active session)
+status              # see active session
+rollback            # backup / restore guidance (see docs)
+```

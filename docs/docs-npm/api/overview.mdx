@@ -1,0 +1,33 @@
+---
+title: API overview
+description: Programmatic building blocks in the Refactron TypeScript codebase.
+---
+
+## Package layout
+
+The published **npm** package is primarily the **`refactron`** CLI (`dist/cli/index.js`). The same build outputs library modules under `dist/` (for example `dist/core/models.js`, `dist/core/orchestrator.js`).
+
+If you embed Refactron programmatically, import from the compiled paths your bundler resolves (check `package.json` **exports** for supported entry points in your version).
+
+---
+
+## Core layers
+
+| Layer | Role |
+|-------|------|
+| **Models** | `CodeIssue`, `BlastRadius`, `VerificationResult`, `AnalysisResult`, pipeline types — see [Models](/docs-npm/api/models) |
+| **Orchestrator** | Wires analysis → autofix → verification → backup → atomic write — see [Orchestrator](/docs-npm/api/orchestrator) |
+| **Adapters** | `ILanguageAdapter` for language-specific analyze/transform/verify — see [Adapters](/docs-npm/api/adapters) |
+| **Session (CLI)** | `WorkSessionManager` persists REPL sessions under `.refactron/work-sessions/` |
+
+---
+
+## Stability
+
+Types under `src/core/models.ts` and `src/adapters/interface.ts` are marked **LOCKED** in-repo: treat them as semver-sensitive when depending on them from outside the project.
+
+---
+
+## See also
+
+- [Core concepts](/docs-npm/concepts/blast-radius) — Blast radius and verification behavior

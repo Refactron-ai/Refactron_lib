@@ -1,0 +1,163 @@
+---
+title: Verification Engine
+description: How Refactron proves a fix is safe before writing it to disk.
+---
+
+## Overview
+
+The Verification Engine is the safety gate between an auto-fix transform and a disk write. It runs a set of checks proportional to the blast radius of the change. A trivial fix in an isolated file only needs a syntax check. A change to a widely-imported core module runs the full test suite.
+
+**Nothing is written to disk until verification passes.**
+
+---
+
+## Verification Result
+
+```typescript
+interface VerificationResult {
+  safeToApply: boolean;       // true only if all required checks passed
+  passed: boolean;
+  checksRun: string[];        // which checks were executed
+  checksPassed: string[];
+  checksFailed: string[];
+  blockingReason?: string;    // human-readable reason if blocked
+  confidenceScore: number;    // 0.0–1.0
+  verificationMs: number;     // how long verification took
+  skippedChecks: string[];    // checks skipped due to blast level
+}
+```
+
+---
+
+## The Three Checks
+
+### 1. Syntax Check
+
+Parses the transformed code to confirm it is syntactically valid.
+
+- **Python:** calls `ast.parse()` on the transformed source
+- **TypeScript:** runs the TypeScript compiler API in check-only mode
+
+A syntax error means the transform produced broken code. The fix is immediately blocked.
+
+### 2. Import Resolution Check
+
+Verifies that all imports in the transformed file can still be resolved.
+
+- **Python:** runs `py_compile` to catch broken import paths
+- **TypeScript:** checks that all `import` statements resolve to real modules
+
+This catches fixes that accidentally removed a needed import or renamed an exported symbol.
+
+### 3. Test Gate Check
+
+Runs the test suite for the project and checks that all tests pass.
+
+- **Python:** runs `pytest` with a 45s timeout (120s for critical blast)
+- **TypeScript:** runs `vitest` or `jest` (auto-detected)
+
+This is the most expensive check and only runs for `high` and `critical` blast radius issues.
+
+---
+
+## Check Selection by Blast Level
+
+| Blast Level | Syntax | Imports | Test Suite |
+|-------------|--------|---------|------------|
+| `trivial` | ✓ | — | — |
+| `low` | ✓ | — | — |
+| `medium` | ✓ | ✓ | — |
+| `high` | ✓ | ✓ | ✓ |
+| `critical` | ✓ | ✓ | ✓ (120s) |
+
+---
+
+## Confidence Score
+
+The confidence score (`0.0–1.0`) reflects how many required checks passed:
+
+```
+score = checks_passed / checks_run
+```
+
+A score of `1.0` means every required check passed. A score below `1.0` with `safeToApply: false` means at least one check failed.
+
+In the issue browser, confidence is shown after verifying:
+
+```
+✔ Safe to apply  (confidence: 100%)
+✘ Blocked — 3 tests failed  (83%)
+```
+
+---
+
+## Timeouts
+
+| Check | Standard timeout | Critical blast timeout |
+|-------|-----------------|----------------------|
+| Syntax | instant | instant |
+| Imports | 45s | 45s |
+| Test gate | 45s | **120s** |
+
+Adjust in `refactron.yaml`:
+
+```yaml
+verification:
+  timeout_seconds: 45
+  critical_timeout_seconds: 120
+```
+
+---
+
+## Atomic Writes
+
+When verification passes, Refactron writes the transformed file using a **temp-file-then-rename** strategy:
+
+```
+1. Write transformed code to   src/auth/token.ts.refactron-tmp
+2. Verify the tmp file is safe
+3. Rename tmp → src/auth/token.ts  (atomic on POSIX, best-effort on Windows)
+```
+
+If the process crashes between steps 2 and 3, the original file is untouched. The `.refactron-tmp` file is cleaned up on next run.
+
+---
+
+## Backup Before Every Write
+
+Before any atomic write, a backup is made:
+
+```
+.refactron/
+  backups/
+    {session-id}/
+      src/auth/token.ts.bak
+      src/api/routes.ts.bak
+```
+
+Run `rollback` at any time to restore all files from the session backup.
+
+```
+❯ rollback
+```
+
+---
+
+## Disabling Verification
+
+<Warning>
+Disabling verification removes the safety guarantee. Only use this in trusted local workflows.
+</Warning>
+
+```yaml
+# refactron.yaml
+autofix:
+  require_verification: false
+```
+
+Or use dry-run mode to see what would change without writing anything:
+
+```yaml
+autofix:
+  dry_run: true
+```

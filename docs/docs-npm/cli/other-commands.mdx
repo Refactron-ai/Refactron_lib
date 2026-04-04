@@ -1,0 +1,83 @@
+---
+title: Other commands
+description: Auth, status, diff, rollback, and REPL housekeeping.
+---
+
+## Authentication
+
+### `login`
+
+Starts the OAuth device flow (optional `--no-browser` style flags may apply). On success, stores credentials under `~/.refactron/credentials.json`.
+
+### `logout`
+
+Deletes stored credentials and exits the CLI.
+
+### `auth`
+
+Prints whether you are logged in, plan, and token expiry when available.
+
+---
+
+## status
+
+```
+status
+```
+
+Shows a **session card** for the **active** session. If none is active, shows the **latest saved** session when one exists; otherwise prompts you to run `analyze`.
+
+---
+
+## diff
+
+```
+diff
+```
+
+Prints unified diffs for fixes recorded in the active session’s **`autofix`** results. If no fix data is present, run **`autofix`** first.
+
+---
+
+## rollback
+
+```
+rollback
+```
+
+The REPL prints guidance about backups and autofix. **Per-file backups** are created under `.refactron/backups/` when fixes are written; use your version’s behavior for full restore. If restore is not yet wired to this command in your build, recover files manually from the backup directory or re-run from Git.
+
+---
+
+## issues
+
+Opens the [issue browser](/docs-npm/cli/issue-browser). Requires an active session.
+
+---
+
+## help
+
+```
+help
+```
+
+or `?` — Lists REPL commands (analyze, issues, autofix, verify, status, session, rollback, diff, login, logout, auth, clear, exit).
+
+---
+
+## clear
+
+Clears the REPL output buffer (terminal escape).
+
+---
+
+## exit / quit / q
+
+Exits the CLI.
+
+---
+
+## See also
+
+- [CLI overview](/docs-npm/cli/overview)
+- [Quickstart](/docs-npm/quickstart) — Auth flow summary

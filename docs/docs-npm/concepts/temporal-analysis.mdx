@@ -1,0 +1,47 @@
+---
+title: Temporal Analysis
+description: Git history signals that complement blast radius for change risk.
+---
+
+## Overview
+
+**Temporal analysis** enriches each issue with an optional `TemporalProfile` when Refactron runs inside a **Git** repository. It does not replace blast radius; it adds **time-based** context: how often a file changes, when it was last touched, and which other files tend to change together.
+
+If the project is not a Git repo or a file has no recent history, the profile is omitted and analysis continues normally.
+
+---
+
+## TemporalProfile
+
+```typescript
+interface TemporalProfile {
+  lastModified: Date;
+  changeVelocity: number;   // approximate commits per month (6-month window)
+  coChangePairs: string[]; // paths that often change in the same commits
+  daysSinceLastTouch: number;
+}
+```
+
+Data is derived from `git log` over a **six-month** window for the file’s path.
+
+---
+
+## Combined risk score
+
+The `TemporalAnalyzer` can combine blast radius score with temporal fields to produce a coarse label: `DANGER` | `HIGH` | `MEDIUM` | `LOW`. For example, **very high blast**, **stale code** (not touched in a long time), and **low change velocity** can surface as **DANGER** — a signal that a change may have hidden coupling even when tests pass.
+
+Use this as a **prioritization hint** alongside blast radius and verification results, not as a second gate for writes.
+
+---
+
+## Requirements
+
+- **Git** available and the working tree under a repository root (`process.cwd()`).
+- Enough history for meaningful stats; new or rarely committed files may get sparse profiles.
+
+---
+
+## See also
+
+- [Blast radius](/docs-npm/concepts/blast-radius) — structural impact (imports, calls, tests).
+- [Verification](/docs-npm/concepts/verification) — what must pass before a fix is written.

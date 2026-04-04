@@ -1,0 +1,50 @@
+---
+title: CLI overview
+description: How the Refactron command-line interface is structured and how to get help.
+---
+
+## Entry points
+
+Running **`refactron`** with no arguments (after authentication, when required) starts the **interactive REPL**: a terminal UI where you type commands at the `❯` prompt.
+
+Fast paths that exit immediately:
+
+```bash
+refactron --version   # or -v
+refactron --help      # or -h — prints a short command summary
+```
+
+The REPL is the primary way to run **analyze**, **autofix**, **verify**, **session**, and related workflows. Command names match the help text; you can also prefix commands with `/` (for example `/analyze`).
+
+---
+
+## Authentication
+
+Most commands require a valid login. Exceptions include `login`, `logout`, `auth`, `help`, `clear`, `exit`, `quit`, `session`, and `issues` (though `issues` still needs an active session from a prior `analyze`).
+
+See [Other commands](/docs-npm/cli/other-commands) for `login`, `logout`, and `auth`.
+
+---
+
+## Project detection
+
+On startup, Refactron picks a **language adapter** by scanning the project root for matching source files (Python `*.py` vs TypeScript `*.ts` / `*.tsx`), ignoring `node_modules`, `.git`, and `dist`. Ensure the intended language has the most matching files, or run from the correct subdirectory.
+
+---
+
+## Configuration
+
+Project settings are loaded from `refactron.yaml` in the **current working directory** when the CLI starts. See [Configuration](/docs-npm/configuration).
+
+---
+
+## Command map
+
+| Topic | Page |
+|-------|------|
+| Scan and sessions | [analyze](/docs-npm/cli/analyze) |
+| Interactive TUI | [Issue browser](/docs-npm/cli/issue-browser) |
+| Apply fixes | [autofix](/docs-npm/cli/autofix) |
+| Post-fix checks | [verify](/docs-npm/cli/verify) |
+| Saved sessions | [session](/docs-npm/cli/session) |
+| Auth, status, diff, rollback | [Other commands](/docs-npm/cli/other-commands) |

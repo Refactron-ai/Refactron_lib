@@ -1,0 +1,85 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Refactron",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#4a9eff",
+    "light": "#cce4ff",
+    "dark": "#1a3a5c"
+  },
+  "topbarLinks": [
+    {
+      "name": "npm",
+      "url": "https://www.npmjs.com/package/refactron"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "GitHub",
+    "url": "https://github.com/Refactron-ai/Refactron_Lib_TS"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/Refactron-ai/Refactron_Lib_TS"
+    },
+    {
+      "name": "npm",
+      "icon": "npm",
+      "url": "https://www.npmjs.com/package/refactron"
+    },
+    {
+      "name": "Issues",
+      "icon": "bug",
+      "url": "https://github.com/Refactron-ai/Refactron_Lib_TS/issues"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "quickstart", "configuration"]
+    },
+    {
+      "group": "Core Concepts",
+      "pages": [
+        "concepts/blast-radius",
+        "concepts/verification",
+        "concepts/sessions",
+        "concepts/temporal-analysis"
+      ]
+    },
+    {
+      "group": "CLI",
+      "pages": [
+        "cli/overview",
+        "cli/analyze",
+        "cli/issue-browser",
+        "cli/autofix",
+        "cli/verify",
+        "cli/session",
+        "cli/other-commands"
+      ]
+    },
+    {
+      "group": "Languages",
+      "pages": ["languages/python", "languages/typescript"]
+    },
+    {
+      "group": "API Reference",
+      "pages": ["api/overview", "api/models", "api/adapters", "api/orchestrator"]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/Refactron-ai/Refactron_Lib_TS"
+  }
+}

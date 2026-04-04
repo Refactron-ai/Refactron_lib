@@ -1,0 +1,110 @@
+---
+title: Models
+description: Core types for issues, blast radius, verification, and analysis results.
+---
+
+## Severity and blast levels
+
+```typescript
+type Severity = 'critical' | 'high' | 'medium' | 'low';
+type BlastLevel = 'trivial' | 'low' | 'medium' | 'high' | 'critical';
+```
+
+---
+
+## BlastRadius
+
+Every `CodeIssue` carries a non-optional `BlastRadius`:
+
+```typescript
+interface BlastRadius {
+  affectedFiles: string[];
+  affectedFunctions: string[];
+  affectedTestFiles: string[];
+  score: number; // 0–100
+  level: BlastLevel;
+}
+```
+
+---
+
+## TemporalProfile
+
+Optional enrichment when Git history is available:
+
+```typescript
+interface TemporalProfile {
+  lastModified: Date;
+  changeVelocity: number;
+  coChangePairs: string[];
+  daysSinceLastTouch: number;
+}
+```
+
+---
+
+## CodeIssue
+
+```typescript
+interface CodeIssue {
+  id: string;
+  file: string;
+  line: number;
+  column?: number;
+  severity: Severity;
+  type: string;
+  message: string;
+  suggestion?: string;
+  fixable: boolean;
+  fixerName?: string;
+  blastRadius: BlastRadius;
+  temporal?: TemporalProfile;
+  ruleId: string;
+}
+```
+
+---
+
+## VerificationResult
+
+```typescript
+interface VerificationResult {
+  safeToApply: boolean;
+  passed: boolean;
+  checksRun: string[];
+  checksPassed: string[];
+  checksFailed: string[];
+  blockingReason?: string;
+  confidenceScore: number;
+  verificationMs: number;
+  skippedChecks: string[];
+}
+```
+
+---
+
+## AnalysisResult
+
+```typescript
+interface AnalysisResult {
+  target: string;
+  filesAnalyzed: number;
+  filesSkipped: number;
+  issues: CodeIssue[];
+  languageBreakdown: Record<string, number>;
+  durationMs: number;
+  timestamp: Date;
+}
+```
+
+---
+
+## Pipeline / fix queue
+
+The orchestrator uses `PipelineSession`, `FixQueueItem`, `FixStatus`, and related types for fix application and blocking. See `src/core/models.ts` for full definitions.
+
+---
+
+## Source
+
+Definitions live in `src/core/models.ts` in the repository.

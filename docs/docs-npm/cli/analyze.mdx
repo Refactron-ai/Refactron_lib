@@ -1,0 +1,48 @@
+---
+title: analyze
+description: Scan a path, create a work session, and open the issue browser.
+---
+
+## Usage
+
+At the REPL prompt:
+
+```
+analyze [target]
+```
+
+- **`target`** — Directory or path to scan. Defaults to `.` if omitted (parsed as the second token; see below).
+
+Examples:
+
+```
+❯ analyze .
+❯ analyze src/
+```
+
+---
+
+## Behavior
+
+1. Resolves `target` to an absolute path.
+2. Runs the analysis engine (analyzers, import/call graphs, blast radius, optional temporal data).
+3. Creates a new **work session** with a unique id and stores it under `.refactron/work-sessions/`.
+4. Sets this session as **active**.
+5. Prints a severity-grouped summary to the REPL.
+6. Opens the **interactive issue browser** automatically.
+
+If you need the browser again later, run **`issues`** (requires an active session).
+
+---
+
+## Prerequisites
+
+- Authenticated session (unless your deployment waives auth).
+- Supported language detected for the project. See [Languages](/docs-npm/languages/python).
+
+---
+
+## See also
+
+- [Work sessions](/docs-npm/concepts/sessions)
+- [Issue browser](/docs-npm/cli/issue-browser)

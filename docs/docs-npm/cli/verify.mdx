@@ -1,0 +1,39 @@
+---
+title: verify
+description: Run verification checks on files from the active session.
+---
+
+## Usage
+
+```
+verify [file]
+```
+
+- With **`file`** — Restricts to fixable issues in that file (resolved path).
+- With **`.`** or no file-specific target — Considers fixable issues across the active session (per unique file).
+
+Requires an **active** session.
+
+---
+
+## What gets checked
+
+The verification engine runs checks based on **blast radius** (see [Verification engine](/docs-npm/concepts/verification)):
+
+- Syntax
+- Import resolution (at medium+ blast)
+- Test gate (at high / critical blast)
+
+Each file is verified using the **maximum** blast radius among its fixable issues.
+
+---
+
+## Output
+
+For each file you will see **pass** with a confidence percentage, or **fail** with a blocking reason. The session is updated with aggregate passed/blocked counts and per-file entries.
+
+---
+
+## See also
+
+- [Configuration](/docs-npm/configuration) — `verification.timeout_seconds` and `critical_timeout_seconds`

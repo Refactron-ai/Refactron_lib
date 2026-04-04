@@ -1,0 +1,257 @@
+---
+title: Configuration
+description: Customize Refactron with a refactron.yaml file in your project root.
+---
+
+## Config File
+
+Create `refactron.yaml` in your project root. All fields are optional — Refactron ships with sensible defaults and deep-merges your overrides.
+
+```yaml
+# refactron.yaml
+version: 1
+
+analyzers:
+  complexity:
+    enabled: true
+    threshold: 10          # cyclomatic complexity limit
+
+  security:
+    enabled: true
+
+  code_smell:
+    enabled: true
+    max_method_lines: 50   # lines per function/method limit
+
+  dead_code:
+    enabled: true
+
+  type_hints:
+    enabled: true
+
+  dependencies:
+    enabled: true
+
+  performance:
+    enabled: true
+
+verification:
+  timeout_seconds: 45        # standard check timeout
+  critical_timeout_seconds: 120  # timeout for critical blast radius checks
+
+autofix:
+  dry_run: false             # set true to never write files
+  require_verification: true # block fixes that fail verification
+
+output:
+  format: terminal           # terminal | json | sarif
+  fail_on: null              # critical | high | medium | low | null
+```
+
+---
+
+## Full Reference
+
+### `analyzers`
+
+Each analyzer can be individually enabled or disabled.
+
+<AccordionGroup>
+  <Accordion title="complexity">
+    Detects functions with cyclomatic complexity above the threshold.
+
+    ```yaml
+    analyzers:
+      complexity:
+        enabled: true
+        threshold: 10   # default: 10, lower = stricter
+    ```
+
+    **What it catches:** deeply nested conditionals, long switch statements, functions with many branches.
+  </Accordion>
+
+  <Accordion title="security">
+    Detects common security vulnerabilities.
+
+    ```yaml
+    analyzers:
+      security:
+        enabled: true
+    ```
+
+    **What it catches:**
+    - SQL injection via string formatting (`f"SELECT * FROM {table}"`)
+    - `eval()` calls
+    - Hardcoded secrets (passwords, API keys, tokens in source)
+    - `exec()` with dynamic input
+  </Accordion>
+
+  <Accordion title="code_smell">
+    Detects overly long functions/methods.
+
+    ```yaml
+    analyzers:
+      code_smell:
+        enabled: true
+        max_method_lines: 50   # default: 50
+    ```
+
+    **What it catches:** functions exceeding `max_method_lines` lines (excluding comments and blank lines).
+  </Accordion>
+
+  <Accordion title="dead_code">
+    Detects unreachable code after control flow statements.
+
+    ```yaml
+    analyzers:
+      dead_code:
+        enabled: true
+    ```
+
+    **What it catches:** code after `return`, `raise`, `break`, `continue` that can never execute.
+  </Accordion>
+
+  <Accordion title="type_hints">
+    Detects missing type annotations.
+
+    ```yaml
+    analyzers:
+      type_hints:
+        enabled: true
+    ```
+
+    **What it catches (Python):** functions missing return type annotations.
+    **What it catches (TypeScript):** explicit `any` usage.
+  </Accordion>
+
+  <Accordion title="dependencies">
+    Detects unused imports.
+
+    ```yaml
+    analyzers:
+      dependencies:
+        enabled: true
+    ```
+
+    **What it catches:** imported names that are never referenced in the file body.
+  </Accordion>
+
+  <Accordion title="performance">
+    Detects common performance anti-patterns.
+
+    ```yaml
+    analyzers:
+      performance:
+        enabled: true
+    ```
+
+    **What it catches:**
+    - List concatenation inside loops (`result = result + [item]`)
+    - `await` calls inside loops (should be `Promise.all` or batched)
+  </Accordion>
+</AccordionGroup>
+
+---
+
+### `verification`
+
+Controls timeouts for the verification engine.
+
+```yaml
+verification:
+  timeout_seconds: 45          # syntax + imports checks
+  critical_timeout_seconds: 120  # full test suite for critical blast radius
+```
+
+<Note>
+Critical blast radius issues run the full test suite. Increase `critical_timeout_seconds` for large test suites.
+</Note>
+
+---
+
+### `autofix`
+
+```yaml
+autofix:
+  dry_run: false             # true: never write files, only show diffs
+  require_verification: true # true: block any fix that fails verification
+```
+
+Setting `dry_run: true` is useful in CI pipelines where you want to report fixable issues without applying them.
+
+---
+
+### `output`
+
+```yaml
+output:
+  format: terminal   # terminal | json | sarif
+  fail_on: null      # null | critical | high | medium | low
+```
+
+**`fail_on`** — exit with code 1 if any issue at or above this severity is found. Useful for CI gates:
+
+```yaml
+output:
+  fail_on: high   # CI fails if any HIGH or CRITICAL issues exist
+```
+
+---
+
+## Example Configurations
+
+### Strict Security CI Gate
+
+```yaml
+version: 1
+analyzers:
+  security:
+    enabled: true
+  complexity:
+    enabled: true
+    threshold: 8
+  type_hints:
+    enabled: true
+output:
+  fail_on: high
+autofix:
+  dry_run: true
+```
+
+### Relaxed Local Development
+
+```yaml
+version: 1
+analyzers:
+  complexity:
+    threshold: 15
+  code_smell:
+    max_method_lines: 100
+  type_hints:
+    enabled: false
+autofix:
+  require_verification: false
+```
+
+### Minimal (security only)
+
+```yaml
+version: 1
+analyzers:
+  complexity:
+    enabled: false
+  code_smell:
+    enabled: false
+  dead_code:
+    enabled: false
+  type_hints:
+    enabled: false
+  dependencies:
+    enabled: false
+  performance:
+    enabled: false
+  security:
+    enabled: true
+output:
+  fail_on: critical
+```

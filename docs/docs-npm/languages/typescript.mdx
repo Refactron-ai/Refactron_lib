@@ -1,0 +1,43 @@
+---
+title: TypeScript
+description: TypeScript adapter — graphs, transforms, and verification hooks.
+---
+
+## Detection
+
+The TypeScript adapter is favored when a `tsconfig.json` exists at the project root and `.ts` / `.tsx` files are present (file-count heuristic vs other adapters).
+
+---
+
+## Analysis
+
+The TypeScript adapter’s **static analysis** integration is still evolving. In current builds, deep issue finding may be limited compared to Python; the pipeline still supports **blast radius** construction, **transforms** for supported fixers (for example whitespace), and **verification** (syntax, imports, tests).
+
+Use Python projects for the full seven-analyzer experience until TS analysis catches up.
+
+---
+
+## Auto-fixes
+
+Fixers that only need text transforms (for example **trailing whitespace**) work on `.ts` / `.tsx` files. More complex semantic fixes follow the same verification gate as Python.
+
+---
+
+## Verification
+
+- **Syntax** — TypeScript compiler API in check-only mode.
+- **Imports** — Module resolution against the project layout.
+- **Tests** — `vitest` or `jest` auto-detection where implemented.
+
+---
+
+## Requirements
+
+- **Node.js 18+**
+- **`tsconfig.json`** for typical project detection
+
+---
+
+## See also
+
+- [CLI overview](/docs-npm/cli/overview) — Language selection at startup

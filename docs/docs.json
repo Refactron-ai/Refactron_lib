@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "palm",
   "name": "Refactron",
-  "description": "Safety-first refactoring for Python — behavior-preserving transforms with deterministic verification.",
+  "description": "Safety-first refactoring for Python \u2014 behavior-preserving transforms with deterministic verification.",
   "appearance": {
     "default": "dark",
     "strict": true
@@ -29,60 +29,117 @@
     }
   },
   "custom": {
-    "stylesheets": ["/custom.css"]
+    "stylesheets": [
+      "/custom.css"
+    ]
   },
   "navigation": {
-    "groups": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "introduction",
-          "quickstart"
+        "tab": "Python Package",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Essentials",
+            "pages": [
+              "essentials/installation",
+              "essentials/configuration",
+              "essentials/authentication"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/code-analysis",
+              "guides/refactoring",
+              "guides/ai-features",
+              "guides/pattern-learning"
+            ]
+          },
+          {
+            "group": "CLI Reference",
+            "pages": [
+              "cli/commands"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/refactron-class"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "advanced/performance",
+              "advanced/monitoring",
+              "advanced/ci-cd"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "resources/changelog",
+              "resources/faq"
+            ]
+          }
         ]
       },
       {
-        "group": "Essentials",
-        "pages": [
-          "essentials/installation",
-          "essentials/configuration",
-          "essentials/authentication"
-        ]
-      },
-      {
-        "group": "Guides",
-        "pages": [
-          "guides/code-analysis",
-          "guides/refactoring",
-          "guides/ai-features",
-          "guides/pattern-learning"
-        ]
-      },
-      {
-        "group": "CLI Reference",
-        "pages": [
-          "cli/commands"
-        ]
-      },
-      {
-        "group": "API Reference",
-        "pages": [
-          "api-reference/overview",
-          "api-reference/refactron-class"
-        ]
-      },
-      {
-        "group": "Advanced",
-        "pages": [
-          "advanced/performance",
-          "advanced/monitoring",
-          "advanced/ci-cd"
-        ]
-      },
-      {
-        "group": "Resources",
-        "pages": [
-          "resources/changelog",
-          "resources/faq"
+        "tab": "Node Package",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "docs-npm/introduction",
+              "docs-npm/quickstart",
+              "docs-npm/configuration"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "docs-npm/concepts/blast-radius",
+              "docs-npm/concepts/verification",
+              "docs-npm/concepts/sessions",
+              "docs-npm/concepts/temporal-analysis"
+            ]
+          },
+          {
+            "group": "CLI",
+            "pages": [
+              "docs-npm/cli/overview",
+              "docs-npm/cli/analyze",
+              "docs-npm/cli/issue-browser",
+              "docs-npm/cli/autofix",
+              "docs-npm/cli/verify",
+              "docs-npm/cli/session",
+              "docs-npm/cli/other-commands"
+            ]
+          },
+          {
+            "group": "Languages",
+            "pages": [
+              "docs-npm/languages/python",
+              "docs-npm/languages/typescript"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "docs-npm/api/overview",
+              "docs-npm/api/models",
+              "docs-npm/api/adapters",
+              "docs-npm/api/orchestrator"
+            ]
+          }
         ]
       }
     ]

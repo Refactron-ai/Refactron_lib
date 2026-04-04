@@ -1,0 +1,64 @@
+---
+title: Adapters
+description: ILanguageAdapter — pluggable analysis, transforms, and verification.
+---
+
+## Interface
+
+Language adapters implement `ILanguageAdapter` (`src/adapters/interface.ts`):
+
+```typescript
+interface ILanguageAdapter {
+  readonly name: string;
+  readonly extensions: string[];
+  readonly displayName: string;
+
+  detect(projectRoot: string): Promise<boolean>;
+
+  analyze(files: string[]): Promise<CodeIssue[]>;
+
+  transform(file: string, code: string, issue: CodeIssue): Promise<TransformResult>;
+
+  verifySyntax(path: string, code: string): Promise<CheckResult>;
+  verifyImports(path: string, code: string): Promise<CheckResult>;
+  verifyTests(path: string, code: string): Promise<CheckResult>;
+
+  generateDiff(original: string, transformed: string): string;
+
+  buildImportGraph(projectRoot: string): Promise<ImportGraph>;
+  buildCallGraph(files: string[]): Promise<CallGraph>;
+}
+```
+
+**Contract:** `analyze` must return issues with **blast radius** populated for every item.
+
+---
+
+## Graphs
+
+- **ImportGraph** — `dependentsOf`, `dependenciesOf`, `allFiles` for blast radius fan-in.
+- **CallGraph** — `transitiveCallersOf`, `allPublicFunctionsIn` for function-level impact.
+
+---
+
+## Built-in adapters
+
+| Adapter | Module | Notes |
+|---------|--------|------|
+| Python | `PythonAdapter` | Full analyzer suite |
+| TypeScript | `TypeScriptAdapter` | Graphs + verification; static analysis coverage varies by version |
+
+`AdapterRegistry` discovers adapters and scores them against the project.
+
+---
+
+## Transforms
+
+`transform` returns `TransformResult` with `transformedCode`, human-readable `description`, and a coarse `riskLevel`. The **autofix engine** chooses fixers by issue; verification runs **after** transform.
+
+---
+
+## See also
+
+- [Languages](/docs-npm/languages/python)
+- [Orchestrator](/docs-npm/api/orchestrator)

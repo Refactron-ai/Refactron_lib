@@ -1,0 +1,41 @@
+---
+title: session
+description: List, load, and resume persisted work sessions.
+---
+
+## Usage
+
+```
+session list
+session a1b2c3
+```
+
+- **`session list`** — Prints all saved sessions (newest first), with id, phase, issue count, target path, and timestamp. Marks the active session when applicable.
+- **`session`** with a session id — Loads the matching JSON file under `.refactron/work-sessions/`, sets it as the **active** session, and prints a summary card.
+
+Using `session` with target `.` behaves like **`session list`** in the current implementation.
+
+---
+
+## Storage
+
+Sessions live at:
+
+```
+.refactron/work-sessions/{session-id}.json
+```
+
+See [Work sessions](/docs-npm/concepts/sessions) for fields and lifecycle.
+
+---
+
+## When to use
+
+- After restarting the CLI — reload a session instead of re-running a long `analyze`.
+- To compare two analysis runs — keep multiple session files and switch with `session`.
+
+---
+
+## See also
+
+- [status](/docs-npm/cli/other-commands#status) — Quick view of active or latest session

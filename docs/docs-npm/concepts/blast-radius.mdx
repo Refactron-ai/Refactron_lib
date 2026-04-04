@@ -1,0 +1,121 @@
+---
+title: Blast Radius
+description: How Refactron measures the impact of every code change before it happens.
+---
+
+## What is Blast Radius?
+
+Blast Radius is Refactron's core safety mechanism. Every `CodeIssue` carries a mandatory `BlastRadius` object — it is never optional, never null. Before any fix is applied, Refactron knows exactly how many files, functions, and test files could be affected by that change.
+
+```typescript
+interface BlastRadius {
+  affectedFiles: string[];      // files that transitively import the changed file
+  affectedFunctions: string[];  // functions in the call graph that reference the changed code
+  affectedTestFiles: string[];  // test files that cover the changed code
+  score: number;                // 0–100 weighted impact score
+  level: BlastLevel;            // trivial | low | medium | high | critical
+}
+```
+
+---
+
+## The Score (0–100)
+
+The score is a weighted sum of three factors:
+
+| Factor | Weight | What it measures |
+|--------|--------|-----------------|
+| Affected files | 40% | How many files transitively import the changed file |
+| Affected functions | 40% | How many functions in the call graph reference the changed code |
+| Test coverage gap | 20% | Penalty when affected code has no test coverage |
+
+```
+score = (normalised_files × 0.4) + (normalised_functions × 0.4) + (coverage_gap × 0.2)
+```
+
+---
+
+## Blast Levels
+
+| Level | Score | Verification |
+|-------|-------|-------------|
+| `trivial` | 0–10 | Syntax check only |
+| `low` | 11–25 | Syntax check only |
+| `medium` | 26–50 | Syntax + import resolution |
+| `high` | 51–75 | Syntax + imports + test gate |
+| `critical` | 76–100 | Full: syntax + imports + test suite (120s timeout) |
+
+<Warning>
+A `critical` blast radius fix will run your **entire test suite** before writing anything to disk. If any test fails, the fix is blocked.
+</Warning>
+
+---
+
+## How It Is Computed
+
+### 1. Import Graph Traversal
+
+Refactron builds a full transitive import graph of your project. For each file, it walks all direct and indirect importers:
+
+```
+changed: src/auth/token.ts
+  imported by: src/auth/index.ts
+    imported by: src/api/middleware.ts
+      imported by: src/api/routes.ts
+        imported by: src/server.ts
+
+affectedFiles = [index.ts, middleware.ts, routes.ts, server.ts]  → high score
+```
+
+A utility function with no importers scores near zero. A core module imported by half the codebase scores near 100.
+
+### 2. Call Graph Analysis
+
+Beyond file-level imports, Refactron traces function-level call relationships. If you change `parseToken()`, every function that directly or indirectly calls it is counted as affected.
+
+### 3. Test Coverage Gap
+
+If the changed code has no test files covering it, a 20% penalty is applied. If tests exist, the penalty is zero.
+
+---
+
+## Reading Blast Radius in the Browser
+
+In the interactive issue browser, blast radius is shown in the detail panel:
+
+```
+File: src/auth/token.ts:47  blast:high  [fixable]
+```
+
+And in the issue list, each row shows the blast mark:
+
+| Mark | Meaning |
+|------|---------|
+| `·` | Fixable, not yet fixed |
+| `✔` | Fixed |
+| `✓` | Fixed and verified safe |
+| `✘` | Verified but blocked |
+
+---
+
+## Why This Matters
+
+### Traditional approach (no blast radius)
+
+```bash
+eslint --fix src/         # fixes everything, no idea what broke
+```
+
+### Refactron approach
+
+```
+Issue: Remove unused import 'os'
+Blast: trivial (score: 2) — 0 files affected
+→ Syntax check only, instant fix ✔
+
+Issue: Refactor authenticate()
+Blast: critical (score: 89) — 34 files affected, 0 test coverage
+→ Full test suite runs before any write. Tests fail → fix blocked ✘
+```
+
+Blast radius turns "I hope this doesn't break anything" into a quantified, verifiable guarantee.
