@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Greet first-time issue creators
         if: github.event_name == 'issues'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo, number } = context.issue;
@@ -43,7 +43,7 @@ jobs:
 
       - name: Greet first-time PR creators
         if: github.event_name == 'pull_request_target'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo, number } = context.issue;
