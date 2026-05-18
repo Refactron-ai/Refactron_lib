@@ -39,7 +39,7 @@ dependencies = [
     "chromadb>=0.4.22",
     "tree-sitter>=0.20.4",
     "tree-sitter-python>=0.20.4",
-    "sentence-transformers>=2.5.1",
+    "sentence-transformers>=2.7.0",
     # LLM Integration (Free Cloud APIs)
     "groq>=0.4.0",  # Free cloud LLM (Llama 3, Mixtral)
     "pydantic>=2.6.0",
