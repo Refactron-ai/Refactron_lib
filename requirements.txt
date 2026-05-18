@@ -1,6 +1,6 @@
 # Core dependencies
 libcst>=1.1.0
-click>=8.0.0
+click>=8.1.8
 pyyaml>=6.0
 rich>=13.0.0
 radon>=6.0.0
