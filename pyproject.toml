@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "libcst>=1.1.0",
+    "libcst>=1.8.6",
     "click>=8.0.0",
     "pyyaml>=6.0",
     "rich>=13.0.0",
