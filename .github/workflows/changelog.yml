@@ -145,7 +145,7 @@ jobs:
             fs.writeFileSync('RELEASE_NOTES.md', changelog);
 
       - name: Upload changelog artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: changelog-${{ inputs.version }}
           path: RELEASE_NOTES.md
