@@ -98,6 +98,13 @@ from refactron.rag.retriever import ContextRetriever
     help="Disable interactive mode — dump all issues (for CI/CD or piped output)",
 )
 @click.option(
+    "--fix-on",
+    "fix_on",
+    type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO"], case_sensitive=False),
+    default=None,
+    help="Auto-queue issues at this level and above for fixing after analysis.",
+)
+@click.option(
     "--format",
     "output_format",
     type=click.Choice(["text", "json"], case_sensitive=False),
@@ -123,6 +130,7 @@ def analyze(
     environment: Optional[str],
     no_cache: bool,
     no_interactive: bool,
+    fix_on: Optional[str] = None,
     output_format: str = "text",
     fail_on: Optional[str] = None,
 ) -> None:
@@ -180,8 +188,10 @@ def analyze(
         cfg.log_format = log_format
     if metrics is not None:
         cfg.enable_metrics = metrics
-    if no_cache:
-        cfg.enable_incremental_analysis = False
+    # Always disable incremental analysis in CLI — users expect `analyze` to
+    # always return all issues, not skip unchanged files silently.
+    # (Incremental filtering is an optimization for the programmatic API only.)
+    cfg.enable_incremental_analysis = False
 
     if output_format != "json":
         _print_file_count(target_path)
@@ -257,6 +267,54 @@ def analyze(
             f"  Average time per file: {metrics_summary.get('average_time_per_file_ms', 0):.2f}ms"
         )
         console.print(f"  Success rate: {metrics_summary.get('success_rate_percent', 0):.1f}%")
+
+    # Exit with error code if critical issues found
+    should_fail = summary["critical"] > 0
+
+    # ── Pipeline session ──────────────────────────────────────────────
+    from datetime import datetime, timezone
+
+    from refactron.core.pipeline import RefactronPipeline
+    from refactron.core.pipeline_session import PipelineSession, SessionStore
+
+    _FIX_LEVEL_MAP = {
+        "CRITICAL": IssueLevel.CRITICAL,
+        "ERROR": IssueLevel.ERROR,
+        "WARNING": IssueLevel.WARNING,
+        "INFO": IssueLevel.INFO,
+    }
+
+    _target_path = Path(target) if target else Path.cwd()
+    _project_root = _target_path if _target_path.is_dir() else _target_path.parent
+    _pipeline = RefactronPipeline(project_root=_project_root)
+
+    _session_id = SessionStore.make_session_id()
+    _pipeline_session = PipelineSession(
+        session_id=_session_id,
+        target=str(_target_path),
+        created_at=datetime.now(timezone.utc).isoformat(),
+        total_files=summary.get("total_files", 0),
+        total_issues=summary.get("total_issues", 0),
+        issues_by_level={
+            "CRITICAL": summary.get("critical", 0),
+            "ERROR": summary.get("errors", 0),
+            "WARNING": summary.get("warnings", 0),
+            "INFO": summary.get("info", 0),
+        },
+    )
+
+    # Always queue all issues so `autofix` has a full picture.
+    # `autofix --fix-on` controls which level actually gets applied.
+    _all_issues = [i for fm in result.file_metrics for i in fm.issues]
+    _pipeline.queue_issues(_pipeline_session, _all_issues)
+
+    _pipeline.store.save(_pipeline_session)
+    _pipeline.store.set_current(_session_id)
+
+    _fixable = len([i for i in _pipeline_session.fix_queue if i.status.value == "pending"])
+    console.print(f"\n[dim]Session: {_session_id}[/dim]")
+    if _fixable:
+        console.print(f"[dim]{_fixable} fixable issues queued → refactron autofix --dry-run[/dim]")
 
     # Exit with error code: --fail-on sets threshold, default is CRITICAL
     _LEVEL_RANK = {"INFO": 0, "WARNING": 1, "ERROR": 2, "CRITICAL": 3}
