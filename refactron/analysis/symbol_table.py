@@ -61,6 +61,23 @@ class SymbolTable:
     symbols: Dict[str, Dict[str, Dict[str, Symbol]]] = field(default_factory=dict)
     # Map: global_name -> Symbol (for easy cross-file lookup of exports)
     exports: Dict[str, Symbol] = field(default_factory=dict)
+    # Metadata for caching (Map: file_path -> mtime)
+    metadata: Dict[str, float] = field(default_factory=dict)
+
+    def remove_file(self, file_path: str) -> None:
+        """Remove all symbols associated with a specific file."""
+        if file_path not in self.symbols:
+            return
+            
+        for scope, names in self.symbols[file_path].items():
+            if scope == "global":
+                for name, symbol in list(names.items()):
+                    if name in self.exports and self.exports[name].file_path == file_path:
+                        del self.exports[name]
+                        
+        del self.symbols[file_path]
+        if file_path in self.metadata:
+            del self.metadata[file_path]
 
     def add_symbol(self, symbol: Symbol) -> None:
         """Add a symbol to the table."""
@@ -121,18 +138,50 @@ class SymbolTableBuilder:
 
     def build_for_project(self, project_root: Path) -> SymbolTable:
         """Scan project and build symbol table."""
+        updated = False
         if self.cache_dir:
             cached = self._load_cache()
             if cached:
-                # TODO: Implement incremental update logic here
-                return cached
+                self.symbol_table = cached
 
-        python_files = list(project_root.rglob("*.py"))
+        all_python_files = list(project_root.rglob("*.py"))
+        excluded_dirs = {".git", ".rag", "__pycache__", "venv", ".venv", "env", "node_modules"}
+        python_files = [
+            f for f in all_python_files if not any(excluded in f.parts for excluded in excluded_dirs)
+        ]
+
+        current_file_paths = set()
+
         for file_path in python_files:
-            self._analyze_file(file_path)
+            file_str = str(file_path)
+            current_file_paths.add(file_str)
+            try:
+                mtime = file_path.stat().st_mtime
+            except OSError:
+                continue
 
-        if self.cache_dir:
-            self._save_cache()
+            if file_str in self.symbol_table.metadata and self.symbol_table.metadata[file_str] == mtime:
+                continue
+
+            # Need to update this file
+            if file_str in self.symbol_table.symbols:
+                self.symbol_table.remove_file(file_str)
+            
+            self._analyze_file(file_path)
+            self.symbol_table.metadata[file_str] = mtime
+            updated = True
+
+        # Check for deleted files
+        deleted_files = set(self.symbol_table.symbols.keys()) - current_file_paths
+        for file_str in deleted_files:
+            self.symbol_table.remove_file(file_str)
+            updated = True
+
+        if getattr(self, "cache_dir", None) and updated:
+            try:
+                self._save_cache()
+            except Exception as e:
+                logger.warning(f"Failed to save cache in build_for_project: {e}")
 
         return self.symbol_table
 
@@ -214,6 +263,7 @@ class SymbolTableBuilder:
                     for f, scopes in self.symbol_table.symbols.items()
                 },
                 "exports": {n: sym.to_dict() for n, sym in self.symbol_table.exports.items()},
+                "metadata": self.symbol_table.metadata,
             }
 
             with open(cache_file, "w") as f:
@@ -247,6 +297,8 @@ class SymbolTableBuilder:
             # Reconstruct exports
             for name, sym_data in data.get("exports", {}).items():
                 table.exports[name] = Symbol.from_dict(sym_data)
+                
+            table.metadata = data.get("metadata", {})
 
             return table
 
