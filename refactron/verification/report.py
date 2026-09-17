@@ -1,4 +1,6 @@
-"""Rich CLI output formatting for VerificationResult."""
+"""CLI output formatting for VerificationResult (Rich and JSON)."""
+
+import json
 
 from rich.console import Console
 
@@ -29,3 +31,13 @@ def format_verification_result(result: VerificationResult, console: Console) -> 
         for name, reason in result.skipped_checks:
             console.print(f"  [dim]- {name}: {reason}[/dim]")
         console.print(f"\n  [bold red]Blocked.[/bold red] {result.blocking_reason}")
+
+
+def format_verification_result_json(result: VerificationResult, indent: int = 2) -> str:
+    """Render a VerificationResult as a stable, machine-readable JSON string.
+
+    Intended for CI gates, bots, and parent tools that need structured data
+    rather than scraping terminal text. The schema is versioned — see
+    ``VerificationResult.to_json_dict``.
+    """
+    return json.dumps(result.to_json_dict(), indent=indent, sort_keys=True)

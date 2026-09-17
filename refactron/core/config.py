@@ -11,6 +11,38 @@ from refactron.core.config_validator import ConfigValidator
 from refactron.core.exceptions import ConfigError
 
 
+# Valid verification check names, also the default execution order.
+DEFAULT_VERIFICATION_CHECKS = ["syntax", "import_integrity", "test_gate"]
+
+
+@dataclass
+class VerificationConfig:
+    """Settings for the verification pipeline (`refactron verify`, `--verify`).
+
+    Every default reproduces the historical hard-coded behaviour, so existing
+    projects need no migration: a config file with no ``verification:`` section
+    behaves exactly as before.
+
+    Fields:
+        enabled_checks: Checks to run, in execution order. Any subset (and any
+            ordering) of ``syntax``, ``import_integrity``, ``test_gate``. For
+            fast PR checks a team might use ``[syntax, import_integrity]`` only.
+        short_circuit: Stop after the first failing check (fast) when True;
+            run every check for a complete failure report when False.
+        test_gate_timeout_sec: Subprocess timeout for the pytest-based test
+            gate, in seconds.
+        pytest_extra_args: Extra arguments appended to the pytest command line
+            (e.g. ``["-p", "no:cacheprovider"]``).
+    """
+
+    enabled_checks: List[str] = field(
+        default_factory=lambda: list(DEFAULT_VERIFICATION_CHECKS)
+    )
+    short_circuit: bool = True
+    test_gate_timeout_sec: int = 45
+    pytest_extra_args: List[str] = field(default_factory=list)
+
+
 @dataclass
 class RefactronConfig:
     """Configuration for Refactron analysis and refactoring."""
@@ -130,6 +162,9 @@ class RefactronConfig:
     pattern_learning_enabled: bool = True  # Enable learning from feedback
     pattern_ranking_enabled: bool = True  # Enable ranking based on learned patterns
 
+    # Verification pipeline settings (refactron verify / autofix --verify)
+    verification: VerificationConfig = field(default_factory=VerificationConfig)
+
     @classmethod
     def from_file(
         cls,
@@ -167,6 +202,22 @@ class RefactronConfig:
                 and isinstance(config_dict[path_field], str)
             ):
                 config_dict[path_field] = Path(config_dict[path_field])
+
+        # Convert the nested `verification:` mapping into its dataclass.
+        if isinstance(config_dict.get("verification"), dict):
+            try:
+                config_dict["verification"] = VerificationConfig(
+                    **config_dict["verification"]
+                )
+            except TypeError as e:
+                raise ConfigError(
+                    f"Invalid 'verification' configuration: {e}",
+                    config_path=config_path,
+                    recovery_suggestion=(
+                        "Valid keys: enabled_checks, short_circuit, "
+                        "test_gate_timeout_sec, pytest_extra_args."
+                    ),
+                ) from e
 
         try:
             return cls(**config_dict)
@@ -243,6 +294,12 @@ class RefactronConfig:
             ),
             "pattern_learning_enabled": self.pattern_learning_enabled,
             "pattern_ranking_enabled": self.pattern_ranking_enabled,
+            "verification": {
+                "enabled_checks": self.verification.enabled_checks,
+                "short_circuit": self.verification.short_circuit,
+                "test_gate_timeout_sec": self.verification.test_gate_timeout_sec,
+                "pytest_extra_args": self.verification.pytest_extra_args,
+            },
         }
 
         try:

@@ -89,8 +89,10 @@ def main(ctx: click.Context) -> None:
 
 
 # Register subcommands
-# We import them here to ensure they are registered with the main group
-# Using a try-except block to allow partial loading during refactoring
+# We import them here to ensure they are registered with the main group.
+# Each block is isolated so a single broken subcommand — or a broken optional
+# dependency it pulls in (e.g. a failed native-library load raising OSError,
+# not ImportError) — degrades gracefully instead of taking down the whole CLI.
 try:
     from refactron.cli.auth import auth, login, logout, telemetry
 
@@ -98,7 +100,7 @@ try:
     main.add_command(logout)
     main.add_command(auth)
     main.add_command(telemetry)
-except ImportError:
+except Exception:
     pass
 
 try:
@@ -111,7 +113,7 @@ try:
     main.add_command(metrics)
     main.add_command(serve_metrics)
     main.add_command(suggest)
-except ImportError:
+except Exception:
     pass
 
 try:
@@ -121,28 +123,35 @@ try:
     main.add_command(autofix)
     main.add_command(rollback)
     main.add_command(document)
-except ImportError:
+except Exception:
+    pass
+
+try:
+    from refactron.cli.verify import verify
+
+    main.add_command(verify)
+except Exception:
     pass
 
 try:
     from refactron.cli.patterns import patterns
 
     main.add_command(patterns)
-except ImportError:
+except Exception:
     pass
 
 try:
     from refactron.cli.repo import repo
 
     main.add_command(repo)
-except ImportError:
+except Exception:
     pass
 
 try:
     from refactron.cli.rag import rag
 
     main.add_command(rag)
-except ImportError:
+except Exception:
     pass
 
 try:
@@ -151,5 +160,5 @@ try:
     main.add_command(generate_cicd)
     main.add_command(feedback)
     main.add_command(init)
-except ImportError:
+except Exception:
     pass

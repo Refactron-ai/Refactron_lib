@@ -1,8 +1,15 @@
 """Contract tests for VerificationResult and CheckResult."""
 
+import json
+
 import pytest
 
-from refactron.verification.result import CheckResult, VerificationResult
+from refactron.verification.report import format_verification_result_json
+from refactron.verification.result import (
+    JSON_SCHEMA_VERSION,
+    CheckResult,
+    VerificationResult,
+)
 
 
 class TestCheckResult:
@@ -95,3 +102,75 @@ class TestVerificationResult:
             check_results=[],
         )
         assert vr.confidence_score == 0.0
+
+
+def _sample_result(safe: bool) -> VerificationResult:
+    cr = CheckResult(
+        check_name="syntax",
+        passed=safe,
+        blocking_reason="" if safe else "SyntaxError on line 5",
+        confidence=1.0 if safe else 0.0,
+        duration_ms=12,
+        details={"line": 5},
+    )
+    return VerificationResult(
+        safe_to_apply=safe,
+        passed=True,
+        checks_run=["syntax"],
+        checks_passed=["syntax"] if safe else [],
+        checks_failed=[] if safe else ["syntax"],
+        skipped_checks=[] if safe else [("test_suite", "Short-circuited after syntax failed")],
+        blocking_reason=None if safe else "SyntaxError on line 5",
+        confidence_score=1.0 if safe else 0.0,
+        verification_ms=42,
+        check_results=[cr],
+    )
+
+
+class TestCheckResultJson:
+    def test_to_json_dict_has_all_fields(self):
+        cr = CheckResult(
+            check_name="syntax",
+            passed=False,
+            blocking_reason="boom",
+            confidence=0.0,
+            duration_ms=7,
+            details={"k": "v"},
+        )
+        d = cr.to_json_dict()
+        assert d == {
+            "check_name": "syntax",
+            "passed": False,
+            "blocking_reason": "boom",
+            "confidence": 0.0,
+            "duration_ms": 7,
+            "details": {"k": "v"},
+        }
+
+
+class TestVerificationResultJson:
+    def test_to_json_dict_safe(self):
+        d = _sample_result(safe=True).to_json_dict()
+        assert d["schema_version"] == JSON_SCHEMA_VERSION
+        assert d["status"] == "safe"
+        assert d["safe_to_apply"] is True
+        assert d["blocking_reason"] is None
+        assert d["checks_run"] == ["syntax"]
+        assert d["skipped_checks"] == []
+        assert d["checks"][0]["check_name"] == "syntax"
+
+    def test_to_json_dict_blocked(self):
+        d = _sample_result(safe=False).to_json_dict()
+        assert d["status"] == "blocked"
+        assert d["safe_to_apply"] is False
+        assert d["blocking_reason"] == "SyntaxError on line 5"
+        assert d["checks_failed"] == ["syntax"]
+        assert d["skipped_checks"] == [
+            {"check_name": "test_suite", "reason": "Short-circuited after syntax failed"}
+        ]
+
+    def test_format_json_is_parseable(self):
+        text = format_verification_result_json(_sample_result(safe=True))
+        parsed = json.loads(text)
+        assert parsed["schema_version"] == JSON_SCHEMA_VERSION
+        assert parsed["status"] == "safe"

@@ -71,6 +71,28 @@ class TestVerificationEngine:
         assert tracker.called is False  # short-circuited
         assert ("tracker", "Short-circuited after always_fail failed") in result.skipped_checks
 
+    def test_all_checks_runs_every_check_after_failure(self):
+        tracker = _TrackingCheck()
+        engine = VerificationEngine(checks=[_FailingCheck(), tracker])
+        result = engine.verify(
+            "a = 1", "a = 1", Path("/tmp/test.py"), short_circuit=False
+        )
+        assert result.safe_to_apply is False
+        assert tracker.called is True  # ran despite the earlier failure
+        assert result.checks_run == ["always_fail", "tracker"]
+        assert result.checks_failed == ["always_fail"]
+        assert result.checks_passed == ["tracker"]
+        assert result.skipped_checks == []  # nothing skipped when not short-circuiting
+
+    def test_all_checks_aggregates_multiple_failures(self):
+        engine = VerificationEngine(checks=[_FailingCheck(), _PassingCheck(), _FailingCheck()])
+        result = engine.verify(
+            "a = 1", "a = 1", Path("/tmp/test.py"), short_circuit=False
+        )
+        assert result.checks_failed == ["always_fail", "always_fail"]
+        assert result.checks_passed == ["always_pass"]
+        assert result.blocking_reason == "Intentional failure"  # first failure
+
     def test_confidence_is_geometric_mean(self):
         engine = VerificationEngine(checks=[_PassingCheck(), _TrackingCheck()])
         result = engine.verify("a = 1", "a = 1", Path("/tmp/test.py"))

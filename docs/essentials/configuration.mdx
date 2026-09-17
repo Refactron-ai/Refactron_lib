@@ -163,6 +163,61 @@ export REFACTRON_LOG_LEVEL=DEBUG
 export REFACTRON_CONFIG=/path/to/.refactron.yaml
 ```
 
+## Verification Pipeline
+
+The verification pipeline (`refactron verify`, and `refactron autofix --verify`)
+runs safety checks before a change is applied. Its behavior is configurable
+through a `verification:` section so teams can trade safety for speed based on
+repo size, CI tier, or policy.
+
+```yaml
+verification:
+  # Checks to run, in execution order. Any subset/ordering of:
+  #   syntax, import_integrity, test_gate
+  enabled_checks: [syntax, import_integrity, test_gate]
+
+  # Stop after the first failing check (true) or run them all (false).
+  short_circuit: true
+
+  # Subprocess timeout for the pytest-based test gate, in seconds.
+  test_gate_timeout_sec: 45
+
+  # Extra arguments appended to the pytest command line.
+  pytest_extra_args: []
+```
+
+### Defaults
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `enabled_checks` | `[syntax, import_integrity, test_gate]` | All three checks, in this order |
+| `short_circuit` | `true` | Stop on first failure (fastest) |
+| `test_gate_timeout_sec` | `45` | pytest subprocess timeout |
+| `pytest_extra_args` | `[]` | No extra pytest arguments |
+
+### Common recipes
+
+```yaml
+# Fast PR check — skip the (slow) test gate
+verification:
+  enabled_checks: [syntax, import_integrity]
+
+# Slow CI tier — give the test gate more time
+verification:
+  test_gate_timeout_sec: 300
+
+# Full failure report instead of stop-on-first-failure
+verification:
+  short_circuit: false
+```
+
+### Migration
+
+The `verification:` section is **optional**. Existing config files without it
+keep the exact behavior of earlier releases — the defaults above reproduce the
+previously hard-coded values (all checks, 45s test-gate timeout, short-circuit
+on first failure). No changes are required to upgrade.
+
 ## Per-File Ignores
 
 Ignore specific issues in code using comments:
