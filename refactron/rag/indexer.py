@@ -89,6 +89,8 @@ class RAGIndexer:
         )
 
         self.parser = CodeParser()
+        from refactron.rag.chunker import CodeChunker
+        self.chunker = CodeChunker(self.parser)
 
     def index_repository(
         self, repo_path: Optional[Path] = None, summarize: bool = False
@@ -171,11 +173,8 @@ class RAGIndexer:
         Returns:
             List of code chunks that were indexed
         """
-        from refactron.rag.chunker import CodeChunker
-
         # Chunk the file (parser is called inside chunker)
-        chunker = CodeChunker(self.parser)
-        chunks = chunker.chunk_file(file_path)
+        chunks = self.chunker.chunk_file(file_path)
 
         if summarize and self.llm_client:
             for chunk in chunks:
