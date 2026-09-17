@@ -37,12 +37,20 @@ class WorkspaceMapping:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "WorkspaceMapping":
         """Create from dictionary."""
+        # Robustly handle missing repo_name by extracting it from repo_full_name if needed
+        repo_full_name = data.get("repo_full_name", "")
+        repo_name = data.get("repo_name")
+        if not repo_name and "/" in repo_full_name:
+            repo_name = repo_full_name.split("/")[-1]
+        elif not repo_name:
+            repo_name = repo_full_name or "unknown"
+
         return cls(
-            repo_name=data["repo_name"],
-            repo_full_name=data["repo_full_name"],
-            local_path=data["local_path"],
-            connected_at=data["connected_at"],
             repo_id=data.get("repo_id"),
+            repo_name=repo_name,
+            repo_full_name=repo_full_name,
+            local_path=data.get("local_path", ""),
+            connected_at=data.get("connected_at", ""),
         )
 
 
