@@ -162,3 +162,17 @@ try:
     main.add_command(init)
 except Exception:
     pass
+
+try:
+    from refactron.cli.status import status
+
+    main.add_command(status)
+except ImportError:
+    pass
+
+try:
+    from refactron.cli.run import run
+
+    main.add_command(run)
+except ImportError:
+    pass

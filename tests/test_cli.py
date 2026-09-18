@@ -1043,25 +1043,47 @@ class TestRefactorCommandBoost:
 
 
 class TestAutofixCommand:
+    def _make_mock_pipeline(self, tmp_path):
+        """Return a mock RefactronPipeline suitable for autofix tests."""
+        mock_session = MagicMock()
+        mock_session.session_id = "sess_test_123"
+        mock_session.fix_queue = []
+        mock_session.applied_fixes = []
+        mock_session.blocked_fixes = []
+
+        mock_pipeline = MagicMock()
+        mock_pipeline.store.load.return_value = None
+        mock_pipeline.analyze.return_value = mock_session
+        mock_pipeline._last_result = None
+        mock_pipeline.apply.return_value = None
+
+        return mock_pipeline, mock_session
+
     def test_autofix_preview_mode(self, runner, tmp_path, mock_cfg):
         py_file = tmp_path / "sample.py"
         py_file.write_text("x = 1\n")
+        mock_pipeline, _ = self._make_mock_pipeline(tmp_path)
         with patch("refactron.cli.refactor._load_config", return_value=mock_cfg), patch(
             "refactron.cli.refactor._validate_path", return_value=tmp_path
         ), patch("refactron.cli.refactor._print_file_count"), patch(
             "refactron.cli.refactor._auth_banner"
+        ), patch(
+            "refactron.core.pipeline.RefactronPipeline", return_value=mock_pipeline
         ):
             result = runner.invoke(autofix, [str(py_file)])
         assert result.exit_code == 0
-        assert "LOW" in result.output or "Available" in result.output
+        assert "Dry-run complete" in result.output or "session" in result.output.lower()
 
     def test_autofix_apply_mode(self, runner, tmp_path, mock_cfg):
         py_file = tmp_path / "sample.py"
         py_file.write_text("x = 1\n")
+        mock_pipeline, _ = self._make_mock_pipeline(tmp_path)
         with patch("refactron.cli.refactor._load_config", return_value=mock_cfg), patch(
             "refactron.cli.refactor._validate_path", return_value=tmp_path
         ), patch("refactron.cli.refactor._print_file_count"), patch(
             "refactron.cli.refactor._auth_banner"
+        ), patch(
+            "refactron.core.pipeline.RefactronPipeline", return_value=mock_pipeline
         ):
             result = runner.invoke(autofix, [str(py_file), "--apply"])
         assert result.exit_code == 0
@@ -1069,11 +1091,14 @@ class TestAutofixCommand:
     def test_autofix_safety_levels(self, runner, tmp_path, mock_cfg):
         py_file = tmp_path / "s.py"
         py_file.write_text("x = 1\n")
+        mock_pipeline, _ = self._make_mock_pipeline(tmp_path)
         for level in ["safe", "low", "moderate", "high"]:
             with patch("refactron.cli.refactor._load_config", return_value=mock_cfg), patch(
                 "refactron.cli.refactor._validate_path", return_value=tmp_path
             ), patch("refactron.cli.refactor._print_file_count"), patch(
                 "refactron.cli.refactor._auth_banner"
+            ), patch(
+                "refactron.core.pipeline.RefactronPipeline", return_value=mock_pipeline
             ):
                 result = runner.invoke(autofix, [str(py_file), "--safety-level", level])
             assert result.exit_code == 0
